@@ -1,6 +1,6 @@
 {
-    "name": "devpark/przelewy24",
-    "description": "przelewy24 module",
+    "name": "devpark/laravel-przelewy24",
+    "description": "Laravel przelewy24.pl integration",
     "type": "library",
     "require": {
         "laravel/framework": "5.*",

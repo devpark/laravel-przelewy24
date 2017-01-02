@@ -1,15 +1,13 @@
-# Przelewy24 module #
+# Laravel Przelewy24 module
 
-This module makes integration with przelewy24.pl payment.
-
-It supports making payments using przelewy24.pl system.
+This module makes integration with [przelewy24.pl](http://przelewy24.pl) payment system easier. It supports making payments using przelewy24.pl system.
  
 ### Installation
 
 1. Run
 
    ```php   
-   composer require devpark/...
+   composer require devpark/laravel-przelewy24
    ``` 
    
    in console to install this module
@@ -56,20 +54,18 @@ This is main request you need to launch to init payment.
         
 The most basic sample code for authorization request could look like this:
 
-```php
-        
-        $payment = \App::make(\App\Payment::class);
-        $registration_request = \App::make(\Devpark\Transfers24\Requests\Transfers24::class);
-        
-        $register_payment = $registration_request->setEmail(test@example.com)->setAmount(100)->setArticle('Article Name')->init();
-        
-        if($register_payment->isSuccess())
-        {
-            // save registration parameters in payment object
-            
-            return $registration_request->execute($register_payment->getToken(), true);
-        }
+```php      
+$payment = \App::make(\App\Payment::class);
+$registration_request = \App::make(\Devpark\Transfers24\Requests\Transfers24::class);
 
+$register_payment = $registration_request->setEmail(test@example.com)->setAmount(100)->setArticle('Article Name')->init();
+
+if($register_payment->isSuccess())
+{
+    // save registration parameters in payment object
+    
+    return $registration_request->execute($register_payment->getToken(), true);
+}
 ```            
 This code should be run in controller as it's returning response which will takes few things.
 
@@ -97,18 +93,15 @@ You should create routes that will redirect customer after the completed transac
 To make sure the payment was really successful you should use `\Devpark\Transfers24\Requests\Transfers24::receive` method. The simplest code could look like this:
 
 ```php
-        
-    $payment_verify = \App::make(\Devpark\Transfers24\Requests\Transfers24::class);
-    $payment_response = $payment_verify->receive($request);
+$payment_verify = \App::make(\Devpark\Transfers24\Requests\Transfers24::class);
+$payment_response = $payment_verify->receive($request);
 
-    $success = $payment_verify->isSuccess();
-    if ($success) {
-        $payment = Payment::where('session_id',$payment_response->getSessionId())->firstOrFail();
-       // process order here after making sure it was real payment
-    }
-    echo "OK";
-
-
+$success = $payment_verify->isSuccess();
+if ($success) {
+    $payment = Payment::where('session_id',$payment_response->getSessionId())->firstOrFail();
+   // process order here after making sure it was real payment
+}
+echo "OK";
 ```
 
 This code should be run in controller, because you should return non-empty response when receiving valid przelewy24 request for transaction verify. As you see, you should make sure it was real payment before you process the order and then you need to make sure that it was successful. You can identify payment via session_id (unique ID generate during registration of payment)).
