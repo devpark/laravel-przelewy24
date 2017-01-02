@@ -183,13 +183,21 @@ class Transfers24
     protected $response;
 
     /**
+     * Id of transaction.
+     *
+     * @var string
+     */
+    protected $transaction_id;
+
+    /**
      * Transfers24 constructor.
      *
      * @param HandlersTransfers24 $transfers24
      * @param RegisterResponse $response
      * @param Application $app
      */
-    public function __construct(HandlersTransfers24 $transfers24,
+    public function __construct(
+        HandlersTransfers24 $transfers24,
         RegisterResponse $response,
         Application $app
     ) {
@@ -226,6 +234,7 @@ class Transfers24
     {
         return (! empty($number) && is_numeric($number));
     }
+
     /**
      * Set description payment.
      *
@@ -559,12 +568,13 @@ class Transfers24
     ) {
         if ($this->filterString($name)
             && ! empty($price)
-            && (is_numeric($price) || is_string($price))) {
+            && (is_numeric($price) || is_string($price))
+        ) {
             $this->additional_articles[] = [
                 'name' => $name,
                 'description' => $description,
-                'quantity'  => $quantity,
-                'price' =>  Amount::get($price),
+                'quantity' => $quantity,
+                'price' => Amount::get($price),
                 'number' => $number,
             ];
         }
@@ -576,7 +586,7 @@ class Transfers24
      * add parameter to $fields.
      *
      * @param string $label
-     * @param  string $value
+     * @param string $value
      */
     public function setField($label, $value)
     {
@@ -637,7 +647,8 @@ class Transfers24
     {
         if (empty($this->customer_email)
             || empty($this->amount)
-            || empty($this->article_name)) {
+            || empty($this->article_name)
+        ) {
             throw new RequestException('Empty email or amount');
         }
 

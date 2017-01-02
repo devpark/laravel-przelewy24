@@ -130,18 +130,17 @@ class Transfers24
     {
         $this->postData[$name] = $value;
     }
+
     /**
      * Function is testing a connection with P24 server.
      *
-     * @return array Array(INT Error, Array Data)
+     * @return Response
      */
     public function testConnection()
     {
         $this->calculateSign(['p24_merchant_id', 'p24_pos_id']);
 
-        $response = $this->callTransfers24('testConnection');
-
-        return $response;
+        return $this->callTransfers24('testConnection');
     }
 
     /**
@@ -164,7 +163,8 @@ class Transfers24
      * Redirects or returns URL to a P24 payment screen.
      *
      * @param string $token
-     * @param bool $redirect If set to true redirects to P24 payment screen. If set to false function returns URL to redirect to P24 payment screen
+     * @param bool $redirect If set to true redirects to P24 payment screen. If set to false
+     * function returns URL to redirect to P24 payment screen
      *
      * @return string URL to P24 payment screen
      */
@@ -191,9 +191,7 @@ class Transfers24
 
         $this->calculateSign(['p24_session_id', 'p24_order_id', 'p24_amount', 'p24_currency']);
 
-        $response = $this->callTransfers24('trnVerify');
-
-        return $response;
+        return $this->callTransfers24('trnVerify');
     }
 
     /**
