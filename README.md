@@ -34,7 +34,7 @@ This module makes integration with [przelewy24.pl](http://przelewy24.pl) payment
  * `PRZELEWY24_MERCHANT_ID` -a Company or an Individual number, who has signed a contract with Przelewy24 (Merchant ID), 
  * `PRZELEWY24_POS_ID` - the identification number of the shop (default: Merchant ID)
  * `PRZELEWY24_CRC` -a  random  string,  used  to  calculate  a  CRC  value,  shown  in Przelewy24 Admin panel.
- * `PRZELEWY24_TEST_SERVE` - if true, set the test environment
+ * `PRZELEWY24_TEST_SERVER` - if true, set the test environment
  * `PRZELEWY24_URL_RETURN` - Return address, where Client will be redirected to, after the transaction is completed (default 'transfers24/callback').
  * `PRZELEWY24_URL_STATUS` - address where the status of a transaction is sent. It can be omitted if stored in P24 system (default 'transfers24/status').
  
