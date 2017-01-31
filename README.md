@@ -55,10 +55,10 @@ This is main request you need to launch to init payment.
 The most basic sample code for authorization request could look like this:
 
 ```php      
-$payment = \App::make(\App\Payment::class);
-$registration_request = \App::make(\Devpark\Transfers24\Requests\Transfers24::class);
+$payment = app()->make(\App\Payment::class);
+$registration_request = app()->make(\Devpark\Transfers24\Requests\Transfers24::class);
 
-$register_payment = $registration_request->setEmail(test@example.com)->setAmount(100)->setArticle('Article Name')->init();
+$register_payment = $registration_request->setEmail('test@example.com')->setAmount(100)->setArticle('Article Name')->init();
 
 if($register_payment->isSuccess())
 {
@@ -93,11 +93,10 @@ You should create routes that will redirect customer after the completed transac
 To make sure the payment was really successful you should use `\Devpark\Transfers24\Requests\Transfers24::receive` method. The simplest code could look like this:
 
 ```php
-$payment_verify = \App::make(\Devpark\Transfers24\Requests\Transfers24::class);
+$payment_verify = app()->make(\Devpark\Transfers24\Requests\Transfers24::class);
 $payment_response = $payment_verify->receive($request);
 
-$success = $payment_verify->isSuccess();
-if ($success) {
+if ($payment_response->isSuccess()) {
     $payment = Payment::where('session_id',$payment_response->getSessionId())->firstOrFail();
    // process order here after making sure it was real payment
 }
