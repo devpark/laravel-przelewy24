@@ -666,8 +666,24 @@ class Transfers24
      */
     public function setDefaultUrls()
     {
-        $this->url_return = $this->url->to($this->config->get('transfers24.url_return'));
-        $this->url_status = $this->url->to($this->config->get('transfers24.url_status'));
+        $this->url_return = $this->getUrl($this->config->get('transfers24.url_return'));
+        $this->url_status = $this->getUrl($this->config->get('transfers24.url_status'));
+    }
+
+    /**
+     * Get url.
+     *
+     * @param string $url
+     *
+     * @return string
+     */
+    protected function getUrl($url)
+    {
+        if (starts_with($url, ['http://', 'https://'])) {
+            return $url;
+        }
+
+        return $this->url->to($url);
     }
 
     /**

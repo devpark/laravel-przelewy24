@@ -5,6 +5,7 @@ namespace Tests\Requests\Http;
 use Devpark\Transfers24\Currency;
 use Devpark\Transfers24\Exceptions\RequestExecutionException;
 use Devpark\Transfers24\Requests\Transfers24 as RequestTransfers24;
+use stdClass;
 use Tests\UnitTestCase;
 use Mockery as m;
 use Illuminate\Foundation\Application;
@@ -12,6 +13,7 @@ use Devpark\Transfers24\Responses\Register as RegisterResponse;
 use Devpark\Transfers24\Services\Handlers\Transfers24 as HandlersTransfers24;
 use Devpark\Transfers24\Exceptions\RequestException;
 use Illuminate\Http\Request;
+use Illuminate\Config\Repository as Config;
 
 class Transfers24Test extends UnitTestCase
 {
@@ -142,6 +144,7 @@ class Transfers24Test extends UnitTestCase
         $filter = $this->request_test->filterString($name);
         $this->assertTrue($filter);
     }
+
     /** @test */
     public function filterNumber_validate()
     {
@@ -157,6 +160,7 @@ class Transfers24Test extends UnitTestCase
         $filter = $this->request_test->filterNumber($name);
         $this->assertTrue($filter);
     }
+
     /** @test */
     public function validation_set_article_name()
     {
@@ -324,7 +328,8 @@ class Transfers24Test extends UnitTestCase
 
         $this->handler->shouldReceive('init')->andReturn(1);
 
-        $response = $this->request_concrete->setEmail('test@test.pl')->setAmount(100)->setArticle('Article 1')->init();
+        $response = $this->request_concrete->setEmail('test@test.pl')->setAmount(100)
+            ->setArticle('Article 1')->init();
 
         $this->assertEquals($response, 1);
 
@@ -348,6 +353,55 @@ class Transfers24Test extends UnitTestCase
 
         $this->assertEquals($url_status, 'http://:');
         $this->assertEquals($url_return, 'http://:');
+    }
+
+    /** @test */
+    public function it_sets_valid_urls_for_relative_urls()
+    {
+        $this->app = m::mock(Application::class)->makePartial();
+        $config = m::mock(stdClass::class);
+        $config->shouldReceive('get')->with('transfers24.url_return')->andReturn('abc');
+        $config->shouldReceive('get')->with('transfers24.url_status')->andReturn('def');
+        $this->app->shouldReceive('make')->once()->with(Config::class)->andReturn($config);
+        $url = m::mock(stdClass::class);
+        $this->app->shouldReceive('make')->once()->with(\Illuminate\Routing\UrlGenerator::class)
+            ->andReturn($url);
+        $url->shouldReceive('to')->atLeast()->once()->with('abc')
+            ->andReturn('http://sample.domain/abc');
+        $url->shouldReceive('to')->atLeast()->once()->with('def')
+            ->andReturn('http://sample.domain/def');
+        $this->request_concrete = $this->createConcreteRequest();
+
+        $this->request_concrete->setDefaultUrls();
+
+        $url_status = $this->request_concrete->getField('url_status');
+        $url_return = $this->request_concrete->getField('url_return');
+
+        $this->assertEquals('http://sample.domain/abc', $url_return);
+        $this->assertEquals('http://sample.domain/def', $url_status);
+    }
+
+    /** @test */
+    public function it_sets_valid_urls_for_absolute_urls()
+    {
+        $this->app = m::mock(Application::class)->makePartial();
+        $config = m::mock(stdClass::class);
+        $config->shouldReceive('get')->with('transfers24.url_return')->andReturn('http://abc.example');
+        $config->shouldReceive('get')->with('transfers24.url_status')->andReturn('https://def.example');
+        $this->app->shouldReceive('make')->once()->with(Config::class)->andReturn($config);
+        $url = m::mock(stdClass::class);
+        $this->app->shouldReceive('make')->once()->with(\Illuminate\Routing\UrlGenerator::class)
+            ->andReturn($url);
+        $url->shouldNotReceive('to');
+        $this->request_concrete = $this->createConcreteRequest();
+
+        $this->request_concrete->setDefaultUrls();
+
+        $url_status = $this->request_concrete->getField('url_status');
+        $url_return = $this->request_concrete->getField('url_return');
+
+        $this->assertEquals('http://abc.example', $url_return);
+        $this->assertEquals('https://def.example', $url_status);
     }
 
     /** @test */
@@ -437,7 +491,9 @@ class Transfers24Test extends UnitTestCase
     {
         $this->handler = m::mock(HandlersTransfers24::class)->makePartial();
         $this->response = m::mock(RegisterResponse::class)->makePartial();
-        $this->app = m::mock(Application::class)->makePartial();
+        if (! isset($this->app)) {
+            $this->app = m::mock(Application::class)->makePartial();
+        }
 
         $request_concrete = new RequestTransfers24($this->handler, $this->response, $this->app);
 
@@ -462,7 +518,8 @@ class Transfers24Test extends UnitTestCase
             'description' => '',
         ];
 
-        $this->request_test->setNextArticle($next_article['name'], $next_article['price'], $next_article['quantity'], $next_article['number']);
+        $this->request_test->setNextArticle($next_article['name'], $next_article['price'],
+            $next_article['quantity'], $next_article['number']);
 
         $additional_articles = $this->request_test->getField('additional_articles');
         $first_article = array_pop($additional_articles);
