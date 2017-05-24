@@ -227,14 +227,15 @@ class Transfers24
      * Verify payment after receiving callback.
      *
      * @param $post_data
+     * @param bool $verify_check_sum
      *
      * @return ResponseVerify
      */
-    public function receive($post_data)
+    public function receive($post_data, $verify_check_sum = true)
     {
         $this->receive_parameters = $post_data;
 
-        $check_sum = $this->transfers24->checkSum($post_data);
+        $check_sum = $verify_check_sum ? $this->transfers24->checkSum($post_data) : true;
 
         if ($check_sum) {
             $this->session_id = $this->receive_parameters['p24_session_id'];
@@ -242,9 +243,9 @@ class Transfers24
 
             $fields = [
                 'p24_session_id' => $this->session_id,
-                'p24_order_id'  => $this->order_id,
-                'p24_amount'    => $this->receive_parameters['p24_amount'],
-                'p24_currency'  => $this->receive_parameters['p24_currency'],
+                'p24_order_id' => $this->order_id,
+                'p24_amount' => $this->receive_parameters['p24_amount'],
+                'p24_currency' => $this->receive_parameters['p24_currency'],
             ];
 
             $this->http_response = $this->transfers24->trnVerify($fields);
