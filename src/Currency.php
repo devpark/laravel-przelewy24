@@ -11,6 +11,7 @@ class Currency
     const EUR = 'EUR';
     const GBP = 'GBP';
     const CZK = 'CZK';
+    const DKK = 'DKK';
 
     /**
      * Get helper array of available currencies.
