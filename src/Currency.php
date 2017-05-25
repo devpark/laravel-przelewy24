@@ -3,7 +3,6 @@
 namespace Devpark\Transfers24;
 
 use Devpark\Transfers24\Exceptions\CurrencyException;
-use Mockery\Exception;
 
 /**
  * Class Currency  ISO 4217.

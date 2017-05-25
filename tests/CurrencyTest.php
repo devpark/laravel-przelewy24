@@ -4,7 +4,6 @@ namespace Tests;
 
 use Devpark\Transfers24\Currency;
 use Devpark\Transfers24\Exceptions\CurrencyException;
-use Mockery\Exception;
 
 class CurrencyTest extends UnitTestCase
 {
@@ -38,7 +37,7 @@ class CurrencyTest extends UnitTestCase
 
         $currency = 'AED';
         try{
-            $pass_currency = Currency::get($currency);
+            Currency::get($currency);
         }catch (\Exception $e)
         {
             $this->assertInstanceOf(CurrencyException::class, $e);
