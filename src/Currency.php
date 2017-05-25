@@ -2,6 +2,8 @@
 
 namespace Devpark\Transfers24;
 
+use Devpark\Transfers24\Exceptions\CurrencyException;
+
 /**
  * Class Currency  ISO 4217.
  */
@@ -36,7 +38,7 @@ class Currency
      *
      * @param string $currency
      *
-     * @return string
+     * @return string|CurrencyException
      */
     public static function get($currency = self::PLN)
     {
@@ -46,6 +48,6 @@ class Currency
             return $currencies[$currency];
         }
 
-        return self::PLN;
+        throw new CurrencyException('Sorry, currency not supported');
     }
 }
