@@ -89,4 +89,18 @@ class ErrorCode extends CodeTranslate
 
         return;
     }
+
+    /**
+     * Find error code by name
+     *
+     * @param $name
+     *
+     * @return mixed
+     */
+    public static function findAccurateCode($name)
+    {
+        return collect(static::getCodes())->filter(function($code) use ($name){
+            return strstr($name, $code);
+        })->first();
+    }
 }
