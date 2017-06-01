@@ -135,7 +135,12 @@ class Transfers24
                     $this->segmentToDescription($segment);
                     break;
                 default:
-                    $this->segmentToDescription($label);
+                    $error = ErrorCode::findAccurateCode(array_keys($response_table)[0]);
+                    if(! empty($error))
+                    {
+                        $this->status_code = $error;
+                        $this->error_message[$this->status_code] = ErrorCode::getDescription($this->status_code);
+                    }
             }
         }
     }
