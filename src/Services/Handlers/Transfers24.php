@@ -154,8 +154,12 @@ class Transfers24
      */
     protected function segmentToDescription($segment)
     {
-        list($label, $description) = explode(':', $segment);
-        $this->error_message[$label] = $description;
+        $transform_error_segment = explode(':', $segment);
+        if(count($transform_error_segment) > 1)
+        {
+            $this->error_message[$transform_error_segment[0]] = $transform_error_segment[1];
+        }
+        $this->error_message[] = $segment;
     }
 
     /**
