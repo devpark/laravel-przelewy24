@@ -8,6 +8,7 @@ use Illuminate\Config\Repository as Config;
 use Illuminate\Routing\UrlGenerator as Url;
 use Illuminate\Foundation\Application;
 use Devpark\Transfers24\Language;
+use Devpark\Transfers24\Encoding;
 use Devpark\Transfers24\Country;
 use Devpark\Transfers24\Currency;
 use Devpark\Transfers24\Channel;
@@ -161,6 +162,11 @@ class Transfers24
      * @var int|null
      */
     protected $article_number = null;
+    
+    /**
+     * @var string
+     */
+    protected $encoding = Encoding::ISO;
 
     /**
      * @var array|null;
@@ -581,6 +587,12 @@ class Transfers24
 
         return $this;
     }
+    
+    public function setEncoding($encoding) {
+        $this->encoding = Encoding::get($encoding);
+
+        return $this;
+    }
 
     /**
      * add parameter to $fields.
@@ -623,6 +635,7 @@ class Transfers24
         $this->setField('p24_price_1', $this->article_price);
         $this->setField('p24_number_1', $this->article_number);
         $this->setField('p24_shipping', $this->shipping_cost);
+        $this->setField('p24_encoding', $this->encoding);
 
         $next = 2;
         foreach ($this->additional_articles as $article) {
