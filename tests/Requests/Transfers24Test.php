@@ -455,6 +455,7 @@ class Transfers24Test extends UnitTestCase
             ->setChannel(1)
             ->setArticleNumber('ACX123')
             ->setShipping(200)
+            ->setEncoding('UTF-8')
             ->init();
 
         $payment_form = [
@@ -480,6 +481,7 @@ class Transfers24Test extends UnitTestCase
             'p24_number_1' => $this->request_concrete->getField('article_number'),
             'p24_price_1' => $this->request_concrete->getField('article_price'),
             'p24_shipping' => $this->request_concrete->getField('shipping_cost'),
+            'p24_encoding' => $this->request_concrete->getField('encoding'),
         ];
 
         $set_fields = $this->request_concrete->setFields();
