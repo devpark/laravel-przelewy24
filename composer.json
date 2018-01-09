@@ -22,5 +22,12 @@
     },
     "license": "MIT",
     "minimum-stability": "dev",
-    "prefer-stable": true
+    "prefer-stable": true,
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Devpark\\Transfers24\\Providers\\Transfers24ServiceProvider"
+            ]
+        }
+    }
 }
