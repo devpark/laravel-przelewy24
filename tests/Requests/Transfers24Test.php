@@ -511,11 +511,11 @@ class Transfers24Test extends UnitTestCase
         ];
 
         $expected_article = [
+            'description' => '',
             'name' => 'test payment',
+            'number' => 'ACG1122',
             'price' => 11111,
             'quantity' => 100,
-            'number' => 'ACG1122',
-            'description' => '',
         ];
 
         $this->request_test->setNextArticle($next_article['name'], $next_article['price'],
@@ -523,7 +523,8 @@ class Transfers24Test extends UnitTestCase
 
         $additional_articles = $this->request_test->getField('additional_articles');
         $first_article = array_pop($additional_articles);
-        $this->assertEquals($expected_article, $first_article);
+        ksort($first_article);
+        $this->assertSame($expected_article, $first_article);
         $this->assertEmpty($additional_articles);
     }
 }

@@ -11,6 +11,19 @@ use GuzzleHttp\Client;
 
 class Transfers24Test extends UnitTestCase
 {
+    /**
+     * @var GatewayTransfers24
+     */
+    private $gateway;
+    /**
+     * @var m\Mock|Config
+     */
+    private $config;
+    /**
+     * @var m\Mock|Response
+     */
+    private $response;
+
     protected function setUp()
     {
         parent::setUp();
