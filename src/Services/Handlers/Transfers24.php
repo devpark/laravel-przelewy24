@@ -2,6 +2,7 @@
 
 namespace Devpark\Transfers24\Services\Handlers;
 
+use Devpark\Transfers24\Responses\TestConnection;
 use Devpark\Transfers24\Services\Gateways\Transfers24 as GatewayTransfers24;
 use Devpark\Transfers24\Responses\Register as ResponseRegister;
 use Devpark\Transfers24\Responses\Verify as ResponseVerify;
@@ -108,6 +109,20 @@ class Transfers24
     }
 
     /**
+     * Test connection with Provider
+     *
+     * @return TestConnection
+     */
+    public function checkCredentials(): TestConnection
+    {
+        $this->http_response = $this->transfers24->testConnection();
+        $this->convertResponse();
+
+        return new TestConnection($this);
+    }
+
+
+        /**
      * Set properties from HttpResponse.
      *
      * @return void
