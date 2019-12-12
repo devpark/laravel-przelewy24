@@ -12,10 +12,6 @@ use Tests\UnitTestCase;
 class CheckCredentialsTest extends UnitTestCase
 {
     /**
-     * @var Application
-     */
-    private $app;
-    /**
      * @var Transfers24
      */
     private $handler;
@@ -33,7 +29,6 @@ class CheckCredentialsTest extends UnitTestCase
     protected function setUp()
     {
         parent::setUp();
-        $this->app = app();
         $this->gateway_provider = \Mockery::mock(GatewayTransfers24::class);
         $this->handler = $this->app->make(Transfers24::class, [
             'transfers24' => $this->gateway_provider

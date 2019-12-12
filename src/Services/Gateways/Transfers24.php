@@ -279,7 +279,7 @@ class Transfers24
         $pos_id,
         $merchant_id,
         $crc,
-        $sandbox
+        bool $sandbox
     ): void
     {
 

@@ -2,12 +2,15 @@
 
 namespace Devpark\Transfers24\Services\Handlers;
 
+use Devpark\Transfers24\Contracts\IResponse;
+use Devpark\Transfers24\Responses\InvalidResponse;
 use Devpark\Transfers24\Responses\TestConnection;
 use Devpark\Transfers24\Services\Gateways\Transfers24 as GatewayTransfers24;
 use Devpark\Transfers24\Responses\Register as ResponseRegister;
 use Devpark\Transfers24\Responses\Verify as ResponseVerify;
 use Devpark\Transfers24\Responses\Http\Response as HttpResponse;
 use Devpark\Transfers24\ErrorCode;
+use Illuminate\Config\Repository;
 
 /**
  * Class Transfers24.
@@ -68,15 +71,20 @@ class Transfers24
      * @var array
      */
     protected $receive_parameters = [];
+    /**
+     * @var Repository
+     */
+    protected $config;
 
     /**
      * Transfers24 constructor.
      *
      * @param GatewayTransfers24 $transfers24
      */
-    public function __construct(GatewayTransfers24 $transfers24)
+    public function __construct(GatewayTransfers24 $transfers24, Repository $config)
     {
         $this->transfers24 = $transfers24;
+        $this->config = $config;
     }
 
     /**
@@ -111,10 +119,11 @@ class Transfers24
     /**
      * Test connection with Provider
      *
-     * @return TestConnection
+     * @return TestConnection|InvalidResponse
      */
-    public function checkCredentials(): TestConnection
+    public function checkCredentials(): IResponse
     {
+        $this->transfers24->configure();
         $this->http_response = $this->transfers24->testConnection();
         $this->convertResponse();
 
