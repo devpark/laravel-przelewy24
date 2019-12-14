@@ -5,6 +5,7 @@ namespace Devpark\Transfers24\Requests;
 use Devpark\Transfers24\Exceptions\RequestExecutionException;
 use Devpark\Transfers24\Responses\Verify;
 use Illuminate\Config\Repository as Config;
+use Illuminate\Contracts\Container\Container;
 use Illuminate\Routing\UrlGenerator as Url;
 use Illuminate\Foundation\Application;
 use Devpark\Transfers24\Language;
@@ -43,7 +44,7 @@ class Transfers24
     const NO_PRICE_VALUE = '';
 
     /**
-     * @var Application
+     * @var Container
      */
     protected $app;
 
@@ -194,12 +195,14 @@ class Transfers24
      *
      * @param HandlersTransfers24 $transfers24
      * @param RegisterResponse $response
-     * @param Application $app
+     * @param Container $app
+     *
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
     public function __construct(
         HandlersTransfers24 $transfers24,
         RegisterResponse $response,
-        Application $app
+        Container $app
     ) {
         $this->response = $response;
         $this->transfers24 = $transfers24;

@@ -5,6 +5,7 @@ namespace Tests\Requests\Http;
 use Devpark\Transfers24\Currency;
 use Devpark\Transfers24\Exceptions\RequestExecutionException;
 use Devpark\Transfers24\Requests\Transfers24 as RequestTransfers24;
+use Illuminate\Contracts\Container\Container;
 use stdClass;
 use Tests\UnitTestCase;
 use Mockery as m;
@@ -492,7 +493,7 @@ class Transfers24Test extends UnitTestCase
         $this->handler = m::mock(HandlersTransfers24::class)->makePartial();
         $this->response = m::mock(RegisterResponse::class)->makePartial();
         if (! isset($this->app)) {
-            $this->app = m::mock(Application::class)->makePartial();
+            $this->app = m::mock(Container::class)->makePartial();
         }
 
         $request_concrete = new RequestTransfers24($this->handler, $this->response, $this->app);

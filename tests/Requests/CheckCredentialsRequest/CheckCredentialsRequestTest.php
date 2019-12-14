@@ -53,9 +53,7 @@ class CheckCredentialsRequestTest extends UnitTestCase
     public function execute_was_call_transfers_provider_test_connection()
     {
 
-        $this->handler->shouldReceive('checkCredentials')
-            ->once()
-            ->andReturn($this->response);
+        $this->mockHandlerMethods($this->response);
 
         $response = $this->request->execute();
 
@@ -71,13 +69,22 @@ class CheckCredentialsRequestTest extends UnitTestCase
      */
     public function execute_throw_invalid_response()
     {
-        $this->handler->shouldReceive('checkCredentials')
-        ->once()
-        ->andReturn($this->invalid_response);
+        $this->mockHandlerMethods($this->invalid_response);
+
         $response = $this->request->execute();
 
         $this->assertInstanceOf(InvalidResponse::class, $response);
 
+    }
+
+    protected function mockHandlerMethods($response): void
+    {
+        $this->handler->shouldReceive('checkCredentials')
+            ->once()
+            ->andReturn($response);
+        $this->handler->shouldReceive('viaCredentials')
+            ->once()
+            ->andReturnSelf();
     }
 
 }
