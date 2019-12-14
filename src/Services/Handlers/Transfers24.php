@@ -3,6 +3,7 @@
 namespace Devpark\Transfers24\Services\Handlers;
 
 use Devpark\Transfers24\Contracts\IResponse;
+use Devpark\Transfers24\Credentials;
 use Devpark\Transfers24\Responses\InvalidResponse;
 use Devpark\Transfers24\Responses\TestConnection;
 use Devpark\Transfers24\Services\Gateways\Transfers24 as GatewayTransfers24;
@@ -123,7 +124,7 @@ class Transfers24
      */
     public function checkCredentials(): IResponse
     {
-        $this->transfers24->configure();
+//        $this->transfers24->configure();
         $this->http_response = $this->transfers24->testConnection();
         $this->convertResponse();
 
@@ -287,5 +288,20 @@ class Transfers24
         }
 
         return new ResponseVerify($this);
+    }
+
+    public function viaCredentials(Credentials $credentials): self
+    {
+        if ($this->config->get('transfers24.credentials-scope'))
+        {
+            $this->transfers24->configure(
+                $credentials->getPosId(),
+                $credentials->getMerchantId(),
+                $credentials->getCrc(),
+                $credentials->isTestMode()
+            );
+        }
+        
+        return $this;
     }
 }

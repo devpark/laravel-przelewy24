@@ -17,6 +17,10 @@ class CheckCredentialsRequest
      * @var Handler
      */
     protected $handler;
+    /**
+     * @var Credentials
+     */
+    private $credentials_keeper;
 
     public function __construct(Handler $handler, Credentials $credentials_keeper)
     {
@@ -29,7 +33,9 @@ class CheckCredentialsRequest
      */
     public function execute():IResponse
     {
-        return $this->handler->checkCredentials();
+        return $this->handler
+            ->viaCredentials($this->credentials_keeper)
+            ->checkCredentials();
     }
 
     /**
