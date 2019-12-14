@@ -4,6 +4,8 @@ namespace Devpark\Transfers24\Services\Handlers;
 
 use Devpark\Transfers24\Contracts\IResponse;
 use Devpark\Transfers24\Credentials;
+use Devpark\Transfers24\Exceptions\EmptyCredentialsException;
+use Devpark\Transfers24\Exceptions\NoEnvironmentChosenException;
 use Devpark\Transfers24\Responses\InvalidResponse;
 use Devpark\Transfers24\Responses\TestConnection;
 use Devpark\Transfers24\Services\Gateways\Transfers24 as GatewayTransfers24;
@@ -12,6 +14,7 @@ use Devpark\Transfers24\Responses\Verify as ResponseVerify;
 use Devpark\Transfers24\Responses\Http\Response as HttpResponse;
 use Devpark\Transfers24\ErrorCode;
 use Illuminate\Config\Repository;
+use Psr\Log\LoggerInterface;
 
 /**
  * Class Transfers24.
@@ -76,16 +79,25 @@ class Transfers24
      * @var Repository
      */
     protected $config;
+    /**
+     * @var LoggerInterface
+     */
+    protected $logger;
+    /**
+     * @var Credentials
+     */
+    private $credentials_keeper;
 
     /**
      * Transfers24 constructor.
      *
      * @param GatewayTransfers24 $transfers24
      */
-    public function __construct(GatewayTransfers24 $transfers24, Repository $config)
+    public function __construct(GatewayTransfers24 $transfers24, Repository $config, LoggerInterface $logger)
     {
         $this->transfers24 = $transfers24;
         $this->config = $config;
+        $this->logger = $logger;
     }
 
     /**
@@ -124,11 +136,28 @@ class Transfers24
      */
     public function checkCredentials(): IResponse
     {
-//        $this->transfers24->configure();
-        $this->http_response = $this->transfers24->testConnection();
-        $this->convertResponse();
+            try{
+                $this->configureGateway();
 
-        return new TestConnection($this);
+                $this->http_response = $this->transfers24->testConnection();
+                $this->convertResponse();
+
+                return new TestConnection($this);
+
+            } catch (EmptyCredentialsException $exception)
+            {
+                $this->logger->error($exception->getMessage());
+                return new InvalidResponse($exception);
+
+            }catch (NoEnvironmentChosenException $exception)
+            {
+                $this->logger->error($exception->getMessage());
+                return new InvalidResponse($exception);
+            }
+            catch (\Throwable $exception)
+            {
+                return new InvalidResponse($exception);
+            }
     }
 
 
@@ -292,16 +321,27 @@ class Transfers24
 
     public function viaCredentials(Credentials $credentials): self
     {
-        if ($this->config->get('transfers24.credentials-scope'))
-        {
+        $this->credentials_keeper = $credentials;
+
+        return $this;
+    }
+
+    /**
+     * @throws EmptyCredentialsException
+     * @throws NoEnvironmentChosenException
+     */
+    protected function configureGateway(): void
+    {
+        if ($this->config->get('transfers24.credentials-scope')) {
+            if (!isset($this->credentials_keeper)) {
+                throw new EmptyCredentialsException("Empty credentials.");
+            }
             $this->transfers24->configure(
-                $credentials->getPosId(),
-                $credentials->getMerchantId(),
-                $credentials->getCrc(),
-                $credentials->isTestMode()
+                $this->credentials_keeper->getPosId(),
+                $this->credentials_keeper->getMerchantId(),
+                $this->credentials_keeper->getCrc(),
+                $this->credentials_keeper->isTestMode()
             );
         }
-        
-        return $this;
     }
 }

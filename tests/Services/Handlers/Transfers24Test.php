@@ -2,9 +2,11 @@
 
 namespace Tests\Services\Handlers;
 
+use Devpark\Transfers24\Credentials;
 use Devpark\Transfers24\Services\Handlers\Transfers24 as HandlerTransfers24;
 use Devpark\Transfers24\Services\Gateways\Transfers24 as GatewayTransfers24;
 use Devpark\Transfers24\Responses\Http\Response as HttpResponse;
+use Illuminate\Config\Repository;
 use Tests\UnitTestCase;
 use Mockery as m;
 
@@ -15,7 +17,16 @@ class Transfers24Test extends UnitTestCase
         parent::setUp();
 
         $this->gateway = m::mock(GatewayTransfers24::class)->makePartial();
-        $this->handler = new HandlerTransfers24($this->gateway);
+
+        $this->config = $this->app->make(Repository::class);
+        $this->logger = $this->app->make(\Symfony\Component\HttpKernel\Log\Logger::class);
+
+        $this->handler = $this->app->make(HandlerTransfers24::class, [
+            'transfers24' => $this->gateway,
+            'config' => $this->config,
+            'logger' => $this->logger
+        ]);
+
         $this->http_response = new HttpResponse();
 
         $this->payment_request_params = [

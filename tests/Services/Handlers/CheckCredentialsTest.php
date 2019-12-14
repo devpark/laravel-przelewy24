@@ -4,9 +4,12 @@ declare(strict_types=1);
 namespace Tests\Services\Gateways;
 
 use Devpark\Transfers24\Responses\Http\Response;
+use Devpark\Transfers24\Responses\TestConnection;
 use Devpark\Transfers24\Services\Gateways\Transfers24 as GatewayTransfers24;
 use Devpark\Transfers24\Services\Handlers\Transfers24;
 use Illuminate\Foundation\Application;
+use Mockery as m;
+use Psr\Log\LoggerInterface;
 use Tests\UnitTestCase;
 
 class CheckCredentialsTest extends UnitTestCase
@@ -25,13 +28,19 @@ class CheckCredentialsTest extends UnitTestCase
      * @var Response
      */
     private $http_response;
+    /**
+     * @var m\MockInterface
+     */
+    private $logger;
 
     protected function setUp()
     {
         parent::setUp();
-        $this->gateway_provider = \Mockery::mock(GatewayTransfers24::class);
+        $this->logger = m::mock(LoggerInterface::class);
+        $this->gateway_provider = m::mock(GatewayTransfers24::class);
         $this->handler = $this->app->make(Transfers24::class, [
-            'transfers24' => $this->gateway_provider
+            'transfers24' => $this->gateway_provider,
+            'logger' => $this->logger
         ]);
         $this->http_response = new Response();
 
@@ -48,6 +57,9 @@ class CheckCredentialsTest extends UnitTestCase
         $this->setGatewayResponseCode('100');
 
         $passed = $this->handler->checkCredentials();
+
+        $this->assertInstanceOf(TestConnection::class, $passed);
+
         $this->assertFalse($passed->isSuccess());
     }
 
@@ -62,6 +74,9 @@ class CheckCredentialsTest extends UnitTestCase
         $this->setGatewayResponseCode('0');
 
         $passed = $this->handler->checkCredentials();
+
+        $this->assertInstanceOf(TestConnection::class, $passed);
+
         $this->assertTrue($passed->isSuccess());
     }
 

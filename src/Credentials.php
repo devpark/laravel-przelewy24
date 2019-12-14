@@ -67,46 +67,57 @@ class Credentials
         $this->crc = $crc;
     }
 
-
-//        if (!isset($this->pos_id, $this->merchant_id, $this->crc))
-//        {
-//            throw new EmptyCredentialsException("Empty credentials.");
-//        }
-//        if (!isset($this->test_mode))
-//        {
-//            throw new NoEnvironmentChosenException("No environment choosen.");
-//        }
-
     /**
      * @return int
+     * @throws EmptyCredentialsException
      */
     public function getPosId(): int
     {
+        $this->throwEmptyCredentials();
+
         return $this->pos_id;
     }
 
     /**
      * @return int
+     * @throws EmptyCredentialsException
      */
     public function getMerchantId(): int
     {
+        $this->throwEmptyCredentials();
+
         return $this->merchant_id;
     }
 
     /**
      * @return string
+     * @throws EmptyCredentialsException
      */
     public function getCrc(): string
     {
+        $this->throwEmptyCredentials();
+
         return $this->crc;
     }
 
     /**
      * @return bool
+     * @throws NoEnvironmentChosenException
      */
     public function isTestMode(): bool
     {
+        if (!isset($this->test_mode))
+        {
+            throw new NoEnvironmentChosenException("No environment choosen.");
+        }
         return $this->test_mode;
+    }
+
+    protected function throwEmptyCredentials(): void
+    {
+        if (!isset($this->pos_id, $this->merchant_id, $this->crc)) {
+            throw new EmptyCredentialsException("Empty credentials.");
+        }
     }
 
 }
