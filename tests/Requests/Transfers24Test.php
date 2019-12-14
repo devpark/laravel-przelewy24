@@ -2,6 +2,7 @@
 
 namespace Tests\Requests\Http;
 
+use Devpark\Transfers24\Credentials;
 use Devpark\Transfers24\Currency;
 use Devpark\Transfers24\Exceptions\RequestExecutionException;
 use Devpark\Transfers24\Requests\Transfers24 as RequestTransfers24;
@@ -18,6 +19,11 @@ use Illuminate\Config\Repository as Config;
 
 class Transfers24Test extends UnitTestCase
 {
+    /**
+     * @var m\Mock
+     */
+    private $credentials;
+
     protected function setUp()
     {
         parent::setUp();
@@ -327,7 +333,8 @@ class Transfers24Test extends UnitTestCase
     {
         $this->request_concrete = $this->createConcreteRequest();
 
-        $this->handler->shouldReceive('init')->andReturn(1);
+        $this->handler->shouldReceive('init')->once()->andReturn(1);
+        $this->handler->shouldReceive('viaCredentials')->once()->andReturnSelf();
 
         $response = $this->request_concrete->setEmail('test@test.pl')->setAmount(100)
             ->setArticle('Article 1')->init();
@@ -419,6 +426,7 @@ class Transfers24Test extends UnitTestCase
         }
 
         $this->handler->shouldReceive('execute')->andReturn('http://redirect');
+        $this->handler->shouldReceive('viaCredentials')->once()->andReturnSelf();
         $response = $this->request_concrete->execute('123456789');
         $this->assertEquals($response, 'http://redirect');
     }
@@ -428,6 +436,7 @@ class Transfers24Test extends UnitTestCase
     {
         $this->request_concrete = $this->createConcreteRequest();
         $this->handler->shouldReceive('receive')->andReturn(1);
+        $this->handler->shouldReceive('viaCredentials')->once()->andReturnSelf();
         $request = new Request();
         $response = $this->request_concrete->receive($request);
         $this->assertEquals($response, 1);
@@ -438,6 +447,7 @@ class Transfers24Test extends UnitTestCase
     {
         $this->request_concrete = $this->createConcreteRequest();
         $this->handler->shouldReceive('init')->andReturn(1);
+        $this->handler->shouldReceive('viaCredentials')->once()->andReturnSelf();
         $this->request_concrete->setEmail('test@test.pl')
             ->setAmount(100)
             ->setDescription('Example description')
@@ -492,11 +502,12 @@ class Transfers24Test extends UnitTestCase
     {
         $this->handler = m::mock(HandlersTransfers24::class)->makePartial();
         $this->response = m::mock(RegisterResponse::class)->makePartial();
+        $this->credentials = m::mock(Credentials::class)->makePartial();
         if (! isset($this->app)) {
             $this->app = m::mock(Container::class)->makePartial();
         }
 
-        $request_concrete = new RequestTransfers24($this->handler, $this->response, $this->app);
+        $request_concrete = new RequestTransfers24($this->handler, $this->response, $this->app, $this->credentials);
 
         return $request_concrete;
     }
