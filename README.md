@@ -17,7 +17,7 @@ This module makes integration with [przelewy24.pl](http://przelewy24.pl) payment
    ###### Laravel 5.5+ uses Package Auto-Discovery, so doesn't require you to manually add the ServiceProvider. You can go to 3.
     
    ```php
-   Devpark\Transfers24\Providers\Transfers24ServiceProvider::class,
+   Devpark\Transfers24\Providers\Transfers24ServiceProvider::class
    ```
         
    in section `providers`

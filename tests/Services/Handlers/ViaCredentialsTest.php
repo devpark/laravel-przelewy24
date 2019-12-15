@@ -133,6 +133,76 @@ class ViaCredentialsTest extends UnitTestCase
 
     /**
      * @Feature Connection with Provider
+     * @Scenario Register Connection
+     * @Case Scope Credentials for Merchant
+     * @test
+     */
+    public function register_viaCredentials_lack_merchant_credentials()
+    {
+        $this->gateway_provider->shouldNotReceive('trnRegister');
+
+
+        $this->skipGettingCredentials();
+
+        $this->enableCredentialsScope();
+
+        $this->skipCallingGatewayTestConnection();
+
+        $response = $this->handler
+            ->checkCredentials();
+
+        $this->assertInstanceOf(InvalidResponse::class, $response);
+    }
+
+    /**
+     * @Feature Connection with Provider
+     * @Scenario Payment Processing
+     * @Case Scope Credentials for Merchant
+     * @test
+     */
+    public function receive_viaCredentials_lack_merchant_credentials()
+    {
+        $this->gateway_provider->shouldNotReceive('checkSum', 'trnRegister');
+
+
+        $this->skipGettingCredentials();
+
+        $this->enableCredentialsScope();
+
+        $this->skipCallingGatewayTestConnection();
+
+        $response = $this->handler
+            ->receive([]);
+
+        $this->assertInstanceOf(InvalidResponse::class, $response);
+    }
+
+
+    /**
+     * @Feature Connection with Provider
+     * @Scenario Payment Processing
+     * @Case Scope Credentials for Merchant
+     * @test
+     */
+    public function execute_viaCredentials_lack_merchant_credentials()
+    {
+        $this->gateway_provider->shouldNotReceive('trnRequest');
+
+
+        $this->skipGettingCredentials();
+
+        $this->enableCredentialsScope();
+
+        $this->skipCallingGatewayTestConnection();
+
+        $response = $this->handler
+            ->execute('token');
+
+        $this->assertSame('Empty credentials.', $response);
+    }
+
+    /**
+     * @Feature Connection with Provider
      * @Scenario Testing Connection
      * @Case Scope Credentials for Merchant
      * @test
@@ -152,6 +222,75 @@ class ViaCredentialsTest extends UnitTestCase
             ->checkCredentials();
 
         $this->assertInstanceOf(InvalidResponse::class, $response);
+    }
+
+    /**
+     * @Feature Connection with Provider
+     * @Scenario Testing Connection
+     * @Case Scope Credentials for Merchant
+     * @test
+     */
+    public function register_viaCredentials_lack_environment_setting_in_merchant_credentials()
+    {
+        $this->gateway_provider->shouldNotReceive('trnRegister');
+
+        $this->gettingCredentialsWithoutEnvironmentSetting();
+
+        $this->enableCredentialsScope();
+
+        $this->skipCallingGatewayTestConnection();
+
+        $response = $this->handler
+            ->viaCredentials($this->credentials)
+            ->init([]);
+
+        $this->assertInstanceOf(InvalidResponse::class, $response);
+    }
+
+
+    /**
+     * @Feature Connection with Provider
+     * @Scenario Testing Connection
+     * @Case Scope Credentials for Merchant
+     * @test
+     */
+    public function receive_viaCredentials_lack_environment_setting_in_merchant_credentials()
+    {
+        $this->gateway_provider->shouldNotReceive('checkSum', 'trnRegister');
+
+        $this->gettingCredentialsWithoutEnvironmentSetting();
+
+        $this->enableCredentialsScope();
+
+        $this->skipCallingGatewayTestConnection();
+
+        $response = $this->handler
+            ->viaCredentials($this->credentials)
+            ->receive([]);
+
+        $this->assertInstanceOf(InvalidResponse::class, $response);
+    }
+
+    /**
+     * @Feature Connection with Provider
+     * @Scenario Testing Connection
+     * @Case Scope Credentials for Merchant
+     * @test
+     */
+    public function execute_viaCredentials_lack_environment_setting_in_merchant_credentials()
+    {
+        $this->gateway_provider->shouldNotReceive('trnRequest');
+
+        $this->gettingCredentialsWithoutEnvironmentSetting();
+
+        $this->enableCredentialsScope();
+
+        $this->skipCallingGatewayTestConnection();
+
+        $response = $this->handler
+            ->viaCredentials($this->credentials)
+            ->execute('token');
+
     }
 
     /**
