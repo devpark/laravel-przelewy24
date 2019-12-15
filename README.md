@@ -2,6 +2,15 @@
 
 This module makes integration with [przelewy24.pl](http://przelewy24.pl) payment system easier. It supports making payments using przelewy24.pl system.
  
+### New version 2.0 released
+
+The package was enhancement on two features.
+
+1. Testing connection to payment provider.
+
+2. Extracting setting merchant credentials package method. Now the package could be used by Saas and could provide separate payment service for every Merchant   
+ 
+ 
 ### Installation
 
 1. Run
