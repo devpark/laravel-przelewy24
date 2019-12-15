@@ -2,6 +2,7 @@
 
 namespace Tests\Requests\Http;
 
+use Devpark\Transfers24\Contracts\IResponse;
 use Devpark\Transfers24\Credentials;
 use Devpark\Transfers24\Currency;
 use Devpark\Transfers24\Exceptions\RequestExecutionException;
@@ -23,12 +24,17 @@ class Transfers24Test extends UnitTestCase
      * @var m\Mock
      */
     private $credentials;
+    /**
+     * @var m\MockInterface
+     */
+    private $response;
 
     protected function setUp()
     {
         parent::setUp();
 
         $this->request_test = m::mock(RequestTransfers24::class)->makePartial();
+        $this->response = m::mock(IResponse::class);
     }
 
     /** @test */
@@ -333,13 +339,13 @@ class Transfers24Test extends UnitTestCase
     {
         $this->request_concrete = $this->createConcreteRequest();
 
-        $this->handler->shouldReceive('init')->once()->andReturn(1);
+        $this->handler->shouldReceive('init')->once()->andReturn($this->response);
         $this->handler->shouldReceive('viaCredentials')->once()->andReturnSelf();
 
         $response = $this->request_concrete->setEmail('test@test.pl')->setAmount(100)
             ->setArticle('Article 1')->init();
 
-        $this->assertEquals($response, 1);
+        $this->assertEquals($this->response, $response);
 
         try {
             $response = $this->request_test->init();
@@ -435,18 +441,18 @@ class Transfers24Test extends UnitTestCase
     public function test_receive_transfers24_request()
     {
         $this->request_concrete = $this->createConcreteRequest();
-        $this->handler->shouldReceive('receive')->andReturn(1);
+        $this->handler->shouldReceive('receive')->andReturn($this->response);
         $this->handler->shouldReceive('viaCredentials')->once()->andReturnSelf();
         $request = new Request();
         $response = $this->request_concrete->receive($request);
-        $this->assertEquals($response, 1);
+        $this->assertEquals($this->response, $response);
     }
 
     /** @test */
     public function test_set_fields_for_register_payment()
     {
         $this->request_concrete = $this->createConcreteRequest();
-        $this->handler->shouldReceive('init')->andReturn(1);
+        $this->handler->shouldReceive('init')->andReturn($this->response);
         $this->handler->shouldReceive('viaCredentials')->once()->andReturnSelf();
         $this->request_concrete->setEmail('test@test.pl')
             ->setAmount(100)

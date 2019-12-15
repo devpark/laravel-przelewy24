@@ -2,10 +2,12 @@
 
 namespace Devpark\Transfers24\Responses;
 
+use Devpark\Transfers24\Contracts\IResponse;
+
 /**
  * Class Verify.
  */
-class Verify extends Response
+class Verify extends Response implements IResponse
 {
     /**
      * Get all parameters receive with request.

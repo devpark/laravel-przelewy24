@@ -2,7 +2,9 @@
 
 namespace Devpark\Transfers24\Responses;
 
-class Register extends Response
+use Devpark\Transfers24\Contracts\IResponse;
+
+class Register extends Response implements IResponse
 {
     /**
      * Get Token for registered payment.
