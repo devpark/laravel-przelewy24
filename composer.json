@@ -3,7 +3,7 @@
     "description": "Laravel przelewy24.pl integration",
     "type": "library",
     "require": {
-        "laravel/framework": "5.*",
+        "laravel/framework": "5.*|6.*|7.*",
         "guzzlehttp/guzzle": "^6.2"
     },
     "autoload": {
