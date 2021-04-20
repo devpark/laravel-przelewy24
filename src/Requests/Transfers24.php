@@ -16,6 +16,7 @@ use Devpark\Transfers24\Responses\Register as RegisterResponse;
 use Devpark\Transfers24\Services\Handlers\Transfers24 as HandlersTransfers24;
 use Devpark\Transfers24\Exceptions\RequestException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 /**
  * Class Transfers24.
@@ -679,7 +680,7 @@ class Transfers24
      */
     protected function getUrl($url)
     {
-        if (starts_with($url, ['http://', 'https://'])) {
+        if (Str::startsWith($url, ['http://', 'https://'])) {
             return $url;
         }
 
