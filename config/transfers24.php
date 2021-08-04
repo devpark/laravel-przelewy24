@@ -13,4 +13,5 @@ return [
     'test_server' => env('PRZELEWY24_TEST_SERVER', false),
     'url_return' => env('PRZELEWY24_URL_RETURN', 'transfers24/callback'),
     'url_status' => env('PRZELEWY24_URL_STATUS', 'transfers24/status'),
+    'credentials-scope' => env('PRZELEWY24_CREDENTIALS_SCOPE', false),
 ];

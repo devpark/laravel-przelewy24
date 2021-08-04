@@ -11,22 +11,32 @@ use GuzzleHttp\Client;
 
 class Transfers24Test extends UnitTestCase
 {
+    /**
+     * @var GatewayTransfers24
+     */
+    private $gateway;
+    /**
+     * @var m\Mock|Config
+     */
+    private $config;
+    /**
+     * @var m\Mock|Response
+     */
+    private $response;
+
     protected function setUp()
     {
         parent::setUp();
         $this->config = m::mock(Config::class)->makePartial();
         $this->response = m::mock(Response::class)->makePartial();
-        $this->gateway = new GatewayTransfers24($this->config, $this->response);
+
     }
 
     /** @test  */
     public function test_get_test_host()
     {
         $sandbox_host = 'https://sandbox.przelewy24.pl/';
-
-        $this->config->shouldReceive('get')->andReturn(true);
-
-        $this->gateway = new GatewayTransfers24($this->config, $this->response);
+        $this->makeGateway(true);
 
         $this->assertSame($this->gateway->getHost(), $sandbox_host);
     }
@@ -36,9 +46,7 @@ class Transfers24Test extends UnitTestCase
     {
         $transfers24_host = 'https://secure.przelewy24.pl/';
 
-        $this->config->shouldReceive('get')->andReturn(false);
-
-        $this->gateway = new GatewayTransfers24($this->config, $this->response);
+        $this->makeGateway(false);
 
         $this->assertSame($this->gateway->getHost(), $transfers24_host);
     }
@@ -46,6 +54,8 @@ class Transfers24Test extends UnitTestCase
     /** @test  */
     public function test_add_value_to_post_data()
     {
+        $this->makeGateway(true);
+
         $name = 'label';
         $value = 1;
 
@@ -61,6 +71,8 @@ class Transfers24Test extends UnitTestCase
     /** @test  */
     public function test_calculate_CRC_sum()
     {
+        $this->makeGateway(true);
+
         $this->get_environment_for_CRC_check();
         $this->salt = 'zxy';
         $this->handler_property->setValue($this->gateway, $this->salt);
@@ -75,6 +87,8 @@ class Transfers24Test extends UnitTestCase
     /** @test  */
     public function test_calculate_CRC_sum_without_salt()
     {
+        $this->makeGateway(true);
+
         $this->get_environment_for_CRC_check();
         $this->salt = '';
         $crc_array = $this->values + ['salt' => $this->salt];
@@ -89,6 +103,8 @@ class Transfers24Test extends UnitTestCase
     /** @test  */
     public function test_return_null_after_calculate_CRC_with_empty_value()
     {
+        $this->makeGateway(true);
+
         $this->get_environment_for_CRC_check();
 
         $test_crc = $this->gateway->calculateCrcSum($this->labels, []);
@@ -139,6 +155,8 @@ class Transfers24Test extends UnitTestCase
     /** @test */
     public function test_is_false_check_sum()
     {
+        $this->makeGateway(true);
+
         $post_data = [
             'p24_session_id' => '1234',
             'p24_order_id' => '5678',
@@ -153,6 +171,8 @@ class Transfers24Test extends UnitTestCase
     /** @test */
     public function test_is_true_check_sum()
     {
+        $this->makeGateway(false);
+
         $post_data = [
             'p24_session_id' => '1234',
             'p24_order_id' => '5678',
@@ -215,6 +235,8 @@ class Transfers24Test extends UnitTestCase
     /** @test */
     public function trnRequest_return_response()
     {
+        $this->makeGateway(true);
+
         $token = '00000000';
         $response = $this->gateway->trnRequest($token, false);
         $url_payment = $this->gateway->getHost() . 'trnRequest/' . $token;
@@ -230,5 +252,11 @@ class Transfers24Test extends UnitTestCase
     {
         $this->gateway = $this->get_mock_gateway();
         $this->gateway->shouldReceive('callTransfers24')->once()->andReturn(true);
+    }
+
+    protected function makeGateway($test_mode): void
+    {
+        $this->config->shouldReceive('get')->andReturn($test_mode);
+        $this->gateway = new GatewayTransfers24($this->config, $this->response);
     }
 }

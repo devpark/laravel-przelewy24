@@ -2,9 +2,12 @@
 
 namespace Tests\Requests\Http;
 
+use Devpark\Transfers24\Contracts\IResponse;
+use Devpark\Transfers24\Credentials;
 use Devpark\Transfers24\Currency;
 use Devpark\Transfers24\Exceptions\RequestExecutionException;
 use Devpark\Transfers24\Requests\Transfers24 as RequestTransfers24;
+use Illuminate\Contracts\Container\Container;
 use stdClass;
 use Tests\UnitTestCase;
 use Mockery as m;
@@ -17,11 +20,21 @@ use Illuminate\Config\Repository as Config;
 
 class Transfers24Test extends UnitTestCase
 {
+    /**
+     * @var m\Mock
+     */
+    private $credentials;
+    /**
+     * @var m\MockInterface
+     */
+    private $response;
+
     protected function setUp()
     {
         parent::setUp();
 
         $this->request_test = m::mock(RequestTransfers24::class)->makePartial();
+        $this->response = m::mock(IResponse::class);
     }
 
     /** @test */
@@ -326,12 +339,13 @@ class Transfers24Test extends UnitTestCase
     {
         $this->request_concrete = $this->createConcreteRequest();
 
-        $this->handler->shouldReceive('init')->andReturn(1);
+        $this->handler->shouldReceive('init')->once()->andReturn($this->response);
+        $this->handler->shouldReceive('viaCredentials')->once()->andReturnSelf();
 
         $response = $this->request_concrete->setEmail('test@test.pl')->setAmount(100)
             ->setArticle('Article 1')->init();
 
-        $this->assertEquals($response, 1);
+        $this->assertEquals($this->response, $response);
 
         try {
             $response = $this->request_test->init();
@@ -418,6 +432,7 @@ class Transfers24Test extends UnitTestCase
         }
 
         $this->handler->shouldReceive('execute')->andReturn('http://redirect');
+        $this->handler->shouldReceive('viaCredentials')->once()->andReturnSelf();
         $response = $this->request_concrete->execute('123456789');
         $this->assertEquals($response, 'http://redirect');
     }
@@ -426,17 +441,19 @@ class Transfers24Test extends UnitTestCase
     public function test_receive_transfers24_request()
     {
         $this->request_concrete = $this->createConcreteRequest();
-        $this->handler->shouldReceive('receive')->andReturn(1);
+        $this->handler->shouldReceive('receive')->andReturn($this->response);
+        $this->handler->shouldReceive('viaCredentials')->once()->andReturnSelf();
         $request = new Request();
         $response = $this->request_concrete->receive($request);
-        $this->assertEquals($response, 1);
+        $this->assertEquals($this->response, $response);
     }
 
     /** @test */
     public function test_set_fields_for_register_payment()
     {
         $this->request_concrete = $this->createConcreteRequest();
-        $this->handler->shouldReceive('init')->andReturn(1);
+        $this->handler->shouldReceive('init')->andReturn($this->response);
+        $this->handler->shouldReceive('viaCredentials')->once()->andReturnSelf();
         $this->request_concrete->setEmail('test@test.pl')
             ->setAmount(100)
             ->setDescription('Example description')
@@ -491,11 +508,12 @@ class Transfers24Test extends UnitTestCase
     {
         $this->handler = m::mock(HandlersTransfers24::class)->makePartial();
         $this->response = m::mock(RegisterResponse::class)->makePartial();
+        $this->credentials = m::mock(Credentials::class)->makePartial();
         if (! isset($this->app)) {
-            $this->app = m::mock(Application::class)->makePartial();
+            $this->app = m::mock(Container::class)->makePartial();
         }
 
-        $request_concrete = new RequestTransfers24($this->handler, $this->response, $this->app);
+        $request_concrete = new RequestTransfers24($this->handler, $this->response, $this->app, $this->credentials);
 
         return $request_concrete;
     }
@@ -511,11 +529,11 @@ class Transfers24Test extends UnitTestCase
         ];
 
         $expected_article = [
+            'description' => '',
             'name' => 'test payment',
+            'number' => 'ACG1122',
             'price' => 11111,
             'quantity' => 100,
-            'number' => 'ACG1122',
-            'description' => '',
         ];
 
         $this->request_test->setNextArticle($next_article['name'], $next_article['price'],
@@ -523,7 +541,8 @@ class Transfers24Test extends UnitTestCase
 
         $additional_articles = $this->request_test->getField('additional_articles');
         $first_article = array_pop($additional_articles);
-        $this->assertEquals($expected_article, $first_article);
+        ksort($first_article);
+        $this->assertSame($expected_article, $first_article);
         $this->assertEmpty($additional_articles);
     }
 }
