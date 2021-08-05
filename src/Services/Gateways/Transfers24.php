@@ -91,21 +91,19 @@ class Transfers24
     {
         $this->config = $config;
         $this->response = $response;
-        $this->posId = $this->config->get('transfers24.pos_id');
-        $this->merchantId = $this->config->get('transfers24.merchant_id');
-        $this->salt = $this->config->get('transfers24.crc');
+        $pos_id = $this->config->get('transfers24.pos_id');
+        $merchant_id = $this->config->get('transfers24.merchant_id');
+        $crc = $this->config->get('transfers24.crc');
+        $sandbox = $config->get('transfers24.test_server');
 
-        $this->testMode = $config->get('transfers24.test_server');
-
-        if ($this->testMode) {
-            $this->hostLive = $this->hostSandbox;
-        }
-
-        $this->client = new Client(['base_uri' => $this->getHost()]);
-
-        $this->addValue('p24_merchant_id', $this->merchantId);
-        $this->addValue('p24_pos_id', $this->posId);
         $this->addValue('p24_api_version', $config->get('transfers24.version'));
+
+        $this->configure(
+            $pos_id,
+            $merchant_id,
+            $crc,
+            $sandbox
+        );
     }
 
     /**
@@ -272,5 +270,37 @@ class Transfers24
         $crc = $this->calculateCrcSum($params, $post_data);
 
         return $crc == $post_data['p24_sign'];
+    }
+
+    /**
+     * @param Config $config
+     */
+    public function configure(
+        $pos_id,
+        $merchant_id,
+        $crc,
+        bool $sandbox
+    ): void
+    {
+
+        $this->posId = $pos_id;
+        $this->merchantId = $merchant_id;
+        $this->salt = $crc;
+        $this->testMode = $sandbox;
+
+        if ($this->testMode) {
+            $this->hostLive = $this->hostSandbox;
+        }
+
+        $this->init();
+
+    }
+
+    protected function init(): void
+    {
+        $this->client = new Client(['base_uri' => $this->getHost()]);
+
+        $this->addValue('p24_merchant_id', $this->merchantId);
+        $this->addValue('p24_pos_id', $this->posId);
     }
 }

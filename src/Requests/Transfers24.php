@@ -2,9 +2,11 @@
 
 namespace Devpark\Transfers24\Requests;
 
+use Devpark\Transfers24\Credentials;
 use Devpark\Transfers24\Exceptions\RequestExecutionException;
 use Devpark\Transfers24\Responses\Verify;
 use Illuminate\Config\Repository as Config;
+use Illuminate\Contracts\Container\Container;
 use Illuminate\Routing\UrlGenerator as Url;
 use Illuminate\Foundation\Application;
 use Devpark\Transfers24\Language;
@@ -23,6 +25,7 @@ use Illuminate\Support\Str;
  */
 class Transfers24
 {
+    use RequestCredentialsKeeperTrait;
     /**
      * default quantity.
      */
@@ -44,7 +47,7 @@ class Transfers24
     const NO_PRICE_VALUE = '';
 
     /**
-     * @var Application
+     * @var Container
      */
     protected $app;
 
@@ -195,16 +198,22 @@ class Transfers24
      *
      * @param HandlersTransfers24 $transfers24
      * @param RegisterResponse $response
-     * @param Application $app
+     * @param Container $app
+     *
+     * @param Credentials $credentials_keeper
+     *
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
     public function __construct(
         HandlersTransfers24 $transfers24,
         RegisterResponse $response,
-        Application $app
+        Container $app,
+        Credentials $credentials_keeper
     ) {
         $this->response = $response;
         $this->transfers24 = $transfers24;
         $this->app = $app;
+        $this->credentials_keeper = $credentials_keeper;
 
         $this->config = $this->app->make(Config::class);
         $this->url = $this->app->make(Url::class);
@@ -655,7 +664,9 @@ class Transfers24
 
         $this->transaction_id = uniqid();
 
-        $response = $this->transfers24->init($this->setFields());
+        $response = $this->transfers24
+            ->viaCredentials($this->credentials_keeper)
+            ->init($this->setFields());
 
         return $response;
     }
@@ -702,7 +713,9 @@ class Transfers24
             throw new RequestExecutionException('Empty or not valid Token');
         }
 
-        return $this->transfers24->execute($token, $redirect);
+        return $this->transfers24
+            ->viaCredentials($this->credentials_keeper)
+            ->execute($token, $redirect);
     }
 
     /**
@@ -714,6 +727,8 @@ class Transfers24
      */
     public function receive(Request $request)
     {
-        return $this->transfers24->receive($request->all());
+        return $this->transfers24
+            ->viaCredentials($this->credentials_keeper)
+            ->receive($request->all());
     }
 }
