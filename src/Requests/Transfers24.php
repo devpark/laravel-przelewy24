@@ -2,8 +2,14 @@
 
 namespace Devpark\Transfers24\Requests;
 
+use Devpark\Transfers24\Actions\Action;
+use Devpark\Transfers24\Contracts\IResponse;
 use Devpark\Transfers24\Credentials;
 use Devpark\Transfers24\Exceptions\RequestExecutionException;
+use Devpark\Transfers24\Factories\ActionFactory;
+use Devpark\Transfers24\Factories\HandlerFactory;
+use Devpark\Transfers24\Factories\RegisterTranslatorFactory;
+use Devpark\Transfers24\Factories\ResponseFactory;
 use Devpark\Transfers24\Responses\Verify;
 use Illuminate\Config\Repository as Config;
 use Illuminate\Contracts\Container\Container;
@@ -192,6 +198,22 @@ class Transfers24
      * @var string
      */
     protected $transaction_id;
+    /**
+     * @var ActionFactory
+     */
+    protected $action_factory;
+    /**
+     * @var RegisterTranslatorFactory
+     */
+    protected $translator_factory;
+    /**
+     * @var ResponseFactory
+     */
+    protected $response_factory;
+    /**
+     * @var HandlerFactory
+     */
+    protected $handle_factory;
 
     /**
      * Transfers24 constructor.
@@ -201,6 +223,7 @@ class Transfers24
      * @param Container $app
      *
      * @param Credentials $credentials_keeper
+     * @param Action $action_factory
      *
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
@@ -208,7 +231,11 @@ class Transfers24
         HandlersTransfers24 $transfers24,
         RegisterResponse $response,
         Container $app,
-        Credentials $credentials_keeper
+        Credentials $credentials_keeper,
+        ActionFactory $action_factory,
+        RegisterTranslatorFactory $translator_factory,
+        ResponseFactory $response_factory,
+        HandlerFactory $handle_factory
     ) {
         $this->response = $response;
         $this->transfers24 = $transfers24;
@@ -219,6 +246,10 @@ class Transfers24
         $this->url = $this->app->make(Url::class);
 
         $this->setDefaultUrls();
+        $this->action_factory = $action_factory;
+        $this->translator_factory = $translator_factory;
+        $this->response_factory = $response_factory;
+        $this->handle_factory = $handle_factory;
     }
 
     /**
@@ -650,7 +681,7 @@ class Transfers24
     /**
      * Register payment in payment system.
      *
-     * @return RegisterResponse
+     * @return RegisterResponse|IResponse
      * @throws RequestException
      */
     public function init()
@@ -662,13 +693,22 @@ class Transfers24
             throw new RequestException('Empty email or amount');
         }
 
-        $this->transaction_id = uniqid();
+        $form_generator = $this->translator_factory->create($this);
+        //response_factory
+        //reguest_factory
+        $action = $this->action_factory->create($form_generator, $this->handle_factory, $this->response_factory);
 
-        $response = $this->transfers24
-            ->viaCredentials($this->credentials_keeper)
-            ->init($this->setFields());
+        return $action->execute();
 
-        return $response;
+
+//        $this->transaction_id = uniqid();
+//
+//        $response = $this->transfers24
+//            ->viaCredentials($this->credentials_keeper)
+//            ->init($this->setFields());
+
+//        return $response;
+//        return $this->response;
     }
 
     /**

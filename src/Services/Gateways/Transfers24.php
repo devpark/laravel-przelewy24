@@ -200,7 +200,7 @@ class Transfers24
      *
      * @return Response
      */
-    protected function callTransfers24($uri, $method = 'POST')
+    public function callTransfers24($uri, $method = 'POST')
     {
         $form_params = $this->postData;
 
