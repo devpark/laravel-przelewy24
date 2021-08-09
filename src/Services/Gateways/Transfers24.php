@@ -2,9 +2,13 @@
 
 namespace Devpark\Transfers24\Services\Gateways;
 
+use Devpark\Transfers24\Factories\HttpResponseFactory;
+use Devpark\Transfers24\Services\Crc;
 use GuzzleHttp\Client;
 use Devpark\Transfers24\Responses\Http\Response;
+use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Config\Repository as Config;
+use Illuminate\Contracts\Container\Container;
 
 /**
  * Class Transfers24.
@@ -68,9 +72,9 @@ class Transfers24
     protected $client;
 
     /**
-     * @var Response response
+     * @var HttpResponseFactory response
      */
-    protected $response;
+    protected $http_response_factory;
 
     /**
      * @var Config
@@ -82,15 +86,29 @@ class Transfers24
      */
     protected $crc_parts = [];
 
+
+    /**
+     * @var Container
+     */
+    private $app;
+    /**
+     * @var Crc
+     */
+    private $crc;
+
     /**
      * Object constructor. Set initial parameters.
      *
      * @param Config $config
      */
-    public function __construct(Config $config, Response $response)
+    public function __construct(Config $config, HttpResponseFactory $http_response_factory, Container $app, Crc $crc)
     {
         $this->config = $config;
-        $this->response = $response;
+        $this->http_response_factory = $http_response_factory;
+        $this->app = $app;
+        $this->crc = $crc;
+
+
         $pos_id = $this->config->get('transfers24.pos_id');
         $merchant_id = $this->config->get('transfers24.merchant_id');
         $crc = $this->config->get('transfers24.crc');
@@ -150,10 +168,6 @@ class Transfers24
      */
     public function trnRegister(array $fields)
     {
-        $this->postData += $fields;
-
-        $this->calculateSign(['p24_session_id', 'p24_merchant_id', 'p24_amount', 'p24_currency']);
-
         return $this->callTransfers24('trnRegister');
     }
 
@@ -185,9 +199,9 @@ class Transfers24
      */
     public function trnVerify(array $fields)
     {
-        $this->postData += $fields;
+//        $this->postData += $fields;
 
-        $this->calculateSign(['p24_session_id', 'p24_order_id', 'p24_amount', 'p24_currency']);
+//        $this->calculateSign(['p24_session_id', 'p24_order_id', 'p24_amount', 'p24_currency']);
 
         return $this->callTransfers24('trnVerify');
     }
@@ -195,26 +209,27 @@ class Transfers24
     /**
      * Function connect to P24 system.
      *
-     * @param $uri
-     * @param string $method
-     *
+     * @param \Devpark\Transfers24\Services\Handlers\Transfers24 $handler
      * @return Response
      */
-    public function callTransfers24(...$arg)
-//    public function callTransfers24($uri, $method = 'POST')
+    public function callTransfers24(\Devpark\Transfers24\Services\Handlers\Transfers24 $handler): Response
     {
+//        $this->postData += $fields;
+
+        $form = $handler->getForm();
+        $this->postData += $form->toArray();
+
+        $this->calculateSign(['p24_session_id', 'p24_merchant_id', 'p24_amount', 'p24_currency']);
+
+        $uri = $handler->getUri();
+        $method = $handler->getMethod();
         $form_params = $this->postData;
 
-        $this->response->addFormParams($form_params);
+        $response = $this->client->request($method, $uri,
+            ['form_params' => $form_params]
+        );
 
-//        $response = $this->client->request($method, $uri,
-//            ['form_params' => $form_params]
-//        );
-
-//        $this->response->addStatusCode($response->getStatusCode());
-//        $this->response->addBody($response->getBody());
-
-        return $this->response;
+        return $this->http_response_factory->create($form_params, $response);
     }
 
     /**
@@ -227,20 +242,8 @@ class Transfers24
      */
     protected function calculateCrcSum(array $params, array $array_values)
     {
-        $form_params = [];
-
-        foreach ($params as $param) {
-            if (! isset($array_values[$param])) {
-                return;
-            }
-            $form_params[] = $array_values[$param];
-        }
-        $form_params[] = $this->salt;
-
-        $concat = implode('|', $form_params);
-        $crc = md5($concat);
-
-        return $crc;
+        $this->crc->setSalt($this->salt);
+        return $this->crc->sum($params, $array_values);
     }
 
     /**
@@ -299,7 +302,9 @@ class Transfers24
 
     protected function init(): void
     {
-        $this->client = new Client(['base_uri' => $this->getHost()]);
+        $this->client = $this->app->make(Client::class, [
+            'base_uri' => $this->getHost()
+        ]);
 
         $this->addValue('p24_merchant_id', $this->merchantId);
         $this->addValue('p24_pos_id', $this->posId);
