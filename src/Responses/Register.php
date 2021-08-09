@@ -13,6 +13,6 @@ class Register extends Response implements IResponse
      */
     public function getToken()
     {
-        return $this->transfers24->getToken();
+        return $this->token;
     }
 }

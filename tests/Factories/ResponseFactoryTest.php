@@ -25,6 +25,7 @@ use Devpark\Transfers24\Services\Handlers\Transfers24 as HandlersTransfers24;
 use Devpark\Transfers24\Exceptions\RequestException;
 use Illuminate\Http\Request;
 use Illuminate\Config\Repository as Config;
+use function GuzzleHttp\Psr7\build_query;
 
 class ResponseFactoryTest extends UnitTestCase
 {
@@ -51,16 +52,17 @@ class ResponseFactoryTest extends UnitTestCase
             ->once()
             ->andReturn($request_parameters);
 
-        $request_parameters = ['request'];
-        $http_response->shouldReceive('getFormParams')
+        $body = build_query([ResponseFactory::TOKEN_LABEL => 'token']);
+        $http_response->shouldReceive('getBody')
             ->once()
-            ->andReturn($request_parameters);
+            ->andReturn($body);
 
         //When
         $response = $this->factory->create($http_response);
 
         //Then
         $this->assertSame($request_parameters, $response->getRequestParameters());
+        $this->assertSame('token', $response->getToken());
     }
 
 }

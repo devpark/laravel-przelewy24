@@ -50,16 +50,6 @@ abstract class Response
     }
 
     /**
-     * Get Token for payment.
-     *
-     * @return string
-     */
-    public function getToken()
-    {
-        return $this->token;
-    }
-
-    /**
      * Get Code for payment.
      *
      * @return int
@@ -137,6 +127,54 @@ abstract class Response
     public function getErrorCode()
     {
         return $this->getCode();
+    }
+
+    /**
+     * @param int $status_code
+     */
+    public function setStatusCode(int $status_code): void
+    {
+        $this->status_code = $status_code;
+    }
+
+    /**
+     * @param string|null $token
+     */
+    public function setToken(?string $token): void
+    {
+        $this->token = $token;
+    }
+
+    /**
+     * @param string|null $order_id
+     */
+    public function setOrderId(?string $order_id): void
+    {
+        $this->order_id = $order_id;
+    }
+
+    /**
+     * @param string|null $session_id
+     */
+    public function setSessionId(?string $session_id): void
+    {
+        $this->session_id = $session_id;
+    }
+
+    /**
+     * @param array $error_message
+     */
+    public function setErrorMessage(array $error_message): void
+    {
+        $this->error_message = $error_message;
+    }
+
+    /**
+     * @param array $receive_parameters
+     */
+    public function setReceiveParameters(array $receive_parameters): void
+    {
+        $this->receive_parameters = $receive_parameters;
     }
 
 }
