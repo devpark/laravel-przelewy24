@@ -200,18 +200,19 @@ class Transfers24
      *
      * @return Response
      */
-    public function callTransfers24($uri, $method = 'POST')
+    public function callTransfers24(...$arg)
+//    public function callTransfers24($uri, $method = 'POST')
     {
         $form_params = $this->postData;
 
         $this->response->addFormParams($form_params);
 
-        $response = $this->client->request($method, $uri,
-            ['form_params' => $form_params]
-        );
+//        $response = $this->client->request($method, $uri,
+//            ['form_params' => $form_params]
+//        );
 
-        $this->response->addStatusCode($response->getStatusCode());
-        $this->response->addBody($response->getBody());
+//        $this->response->addStatusCode($response->getStatusCode());
+//        $this->response->addBody($response->getBody());
 
         return $this->response;
     }

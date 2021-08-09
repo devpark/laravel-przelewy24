@@ -6,6 +6,7 @@ use Devpark\Transfers24\Contracts\IResponse;
 use Devpark\Transfers24\Credentials;
 use Devpark\Transfers24\Exceptions\EmptyCredentialsException;
 use Devpark\Transfers24\Exceptions\NoEnvironmentChosenException;
+use Devpark\Transfers24\Forms\RegisterForm;
 use Devpark\Transfers24\Responses\InvalidResponse;
 use Devpark\Transfers24\Responses\TestConnection;
 use Devpark\Transfers24\Services\Gateways\Transfers24 as GatewayTransfers24;
@@ -87,17 +88,21 @@ class Transfers24
      * @var Credentials
      */
     private $credentials_keeper;
-
     /**
-     * Transfers24 constructor.
-     *
-     * @param GatewayTransfers24 $transfers24
+     * @var GatewayTransfers24
      */
-    public function __construct(GatewayTransfers24 $transfers24, Repository $config, LoggerInterface $logger)
+    private $transfers24;
+
+    public function __construct()
+//    public function __construct(GatewayTransfers24 $transfers24, Repository $config, LoggerInterface $logger)
     {
-        $this->transfers24 = $transfers24;
-        $this->config = $config;
-        $this->logger = $logger;
+//        $this->transfers24 = $transfers24;
+//        $this->config = $config;
+//        $this->logger = $logger;
+    }
+
+    public function fill(RegisterForm $form){
+
     }
 
     /**

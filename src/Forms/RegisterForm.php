@@ -5,6 +5,7 @@ namespace Devpark\Transfers24\Forms;
 
 class RegisterForm
 {
+
     public function toArray():array{
         return [];
     }

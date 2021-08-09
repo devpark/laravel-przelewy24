@@ -39,18 +39,16 @@ class Action
         $this->handler_factory = $handler_factory;
         $this->response_factory = $response_factory;
         $this->translator = $translator;
+        return $this;
     }
 
     public function execute():IResponse
     {
-        //translate userdata to form
-        //create request
-        //fill request by form
-        //create sender
-        //send request
-        //create response
-        //fill response
+        $form = $this->translator->translate();
+        $handler = $this->handler_factory->create();
+        $handler->fill($form);
+        $gateway_response = $this->gateway->callTransfers24($handler);
 
-
+        return $this->response_factory->create($gateway_response);
     }
 }

@@ -12,6 +12,7 @@ class HandlerFactory
 {
     public function create():Transfers24
     {
+        return new Transfers24();
         //factoryTranslator
         //translate userdata to form
         //create request
