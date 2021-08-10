@@ -2,6 +2,7 @@
 
 namespace Devpark\Transfers24\Responses;
 
+use Devpark\Transfers24\Services\DecodedBody;
 use Devpark\Transfers24\Services\Handlers\Transfers24 as HandlerTransfers24;
 
 /**
@@ -43,10 +44,15 @@ abstract class Response
      * @var array
      */
     protected $receive_parameters = [];
+    /**
+     * @var DecodedBody
+     */
+    private $decoded_body;
 
-    public function __construct(array $request_params)
+    public function __construct(array $request_params, DecodedBody $decoded_body)
     {
         $this->request_parameters = $request_params;
+        $this->decoded_body = $decoded_body;
     }
 
     /**
