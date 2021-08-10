@@ -2,6 +2,8 @@
 
 namespace Devpark\Transfers24\Responses;
 
+use Devpark\Transfers24\Contracts\Form;
+use Devpark\Transfers24\Forms\RegisterForm;
 use Devpark\Transfers24\Services\DecodedBody;
 use Devpark\Transfers24\Services\Handlers\Transfers24 as HandlerTransfers24;
 
@@ -11,47 +13,18 @@ use Devpark\Transfers24\Services\Handlers\Transfers24 as HandlerTransfers24;
 abstract class Response
 {
     /**
-     * @var int
+     * @var Form
      */
-    protected $status_code;
+    protected $form;
 
-    /**
-     * @var string|null
-     */
-    protected $token = null;
-
-    /**
-     * @var string|null
-     */
-    protected $order_id = null;
-
-    /**
-     * @var string|null
-     */
-    protected $session_id = null;
-
-    /**
-     * @var array
-     */
-    protected $error_message = [];
-
-    /**
-     * @var array
-     */
-    protected $request_parameters = [];
-
-    /**
-     * @var array
-     */
-    protected $receive_parameters = [];
     /**
      * @var DecodedBody
      */
-    private $decoded_body;
+    protected $decoded_body;
 
-    public function __construct(array $request_params, DecodedBody $decoded_body)
+    public function __construct(Form $form, DecodedBody $decoded_body)
     {
-        $this->request_parameters = $request_params;
+        $this->form = $form;
         $this->decoded_body = $decoded_body;
     }
 
@@ -62,7 +35,7 @@ abstract class Response
      */
     public function getCode()
     {
-        return $this->status_code;
+        return $this->decoded_body->getStatusCode();
     }
 
     /**
@@ -72,7 +45,7 @@ abstract class Response
      */
     public function getErrorDescription()
     {
-        return $this->error_message;
+        return $this->decoded_body->getErrorMessage();
     }
 
     /**
@@ -82,17 +55,7 @@ abstract class Response
      */
     public function getRequestParameters()
     {
-        return $this->request_parameters;
-    }
-
-    /**
-     * Get Receive parameters send from Transfers24.
-     *
-     * @return array
-     */
-    public function getReceiveParameters()
-    {
-        return $this->receive_parameters;
+        return $this->form->toArray();
     }
 
     /**
@@ -102,7 +65,7 @@ abstract class Response
      */
     public function getOrderId()
     {
-        return $this->order_id;
+        return $this->form->getOrderId();
     }
 
     /**
@@ -112,7 +75,7 @@ abstract class Response
      */
     public function getSessionId()
     {
-        return $this->session_id;
+        return $this->form->getSessionId();
     }
 
     /**
@@ -128,59 +91,11 @@ abstract class Response
     /**
      * Get Error Code back from transfers24.
      *
-     * @return int
+     * @return string
      */
     public function getErrorCode()
     {
         return $this->getCode();
-    }
-
-    /**
-     * @param int $status_code
-     */
-    public function setStatusCode(int $status_code): void
-    {
-        $this->status_code = $status_code;
-    }
-
-    /**
-     * @param string|null $token
-     */
-    public function setToken(?string $token): void
-    {
-        $this->token = $token;
-    }
-
-    /**
-     * @param string|null $order_id
-     */
-    public function setOrderId(?string $order_id): void
-    {
-        $this->order_id = $order_id;
-    }
-
-    /**
-     * @param string|null $session_id
-     */
-    public function setSessionId(?string $session_id): void
-    {
-        $this->session_id = $session_id;
-    }
-
-    /**
-     * @param array $error_message
-     */
-    public function setErrorMessage(array $error_message): void
-    {
-        $this->error_message = $error_message;
-    }
-
-    /**
-     * @param array $receive_parameters
-     */
-    public function setReceiveParameters(array $receive_parameters): void
-    {
-        $this->receive_parameters = $receive_parameters;
     }
 
 }

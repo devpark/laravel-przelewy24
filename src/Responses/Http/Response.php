@@ -2,6 +2,8 @@
 
 namespace Devpark\Transfers24\Responses\Http;
 
+use Devpark\Transfers24\Contracts\Form;
+
 /**
  * Class Response.
  */
@@ -18,9 +20,9 @@ class Response
     protected $body;
 
     /**
-     * $var array.
+     * $var Form.
      */
-    protected $form_params = [];
+    protected $form;
 
     /**
      * Add Http Response Code.
@@ -65,20 +67,20 @@ class Response
     /**
      * Add Http Request params.
      *
-     * @param array $form_params
+     * @param array $form
      */
-    public function addFormParams(array $form_params)
+    public function addFormParams(Form $form)
     {
-        $this->form_params = $form_params;
+        $this->form = $form;
     }
 
     /**
      * Get Http Request params.
      *
-     * @return array
+     * @return Form
      */
-    public function getFormParams()
+    public function getForm()
     {
-        return $this->form_params;
+        return $this->form;
     }
 }

@@ -2,43 +2,58 @@
 
 namespace Devpark\Transfers24\Services;
 
+use Devpark\Transfers24\ErrorCode;
+use Psr\Http\Message\StreamInterface;
+
 /**
  * Class Amount.
  */
 class BodyDecoder
 {
-    public function decode():DecodedBody
+    const ERROR_LABEL = 'error';
+    /**
+     * Token key in transfers24 response.
+     */
+    const TOKEN_LABEL = 'token';
+
+    /**
+     * Error description key in transfers24 response.
+     */
+    const MESSAGE_LABEL = 'errorMessage';
+
+    public function decode(string $body):DecodedBody
     {
-        return new DecodedBody();
+        $decoded_body = new DecodedBody();
 
-        //assign decoded_body to body_decoder
-//        parse_str($response->getBody(), $response_table);
-//        foreach ($response_table as $label => $segment) {
-//            switch ($label) {
-//                case self::ERROR_LABEL:
-//                    $description_error = ErrorCode::getDescription($segment);
-//                    if (! is_null($description_error)) {
-//                        $error_message[$segment] = $description_error;
-//                    }
-//                    $converted->setStatusCode($segment);
-//                    break;
-//                case self::TOKEN_LABEL:
-//                    $converted->setToken($segment);
-//                    break;
-//                case self::MESSAGE_LABEL:
-//                    $this->segmentToDescription($segment, $error_message);
-//                    break;
-//                default:
-//                    $error = ErrorCode::findAccurateCode(array_keys($response_table)[0]);
-//                    if(! empty($error))
-//                    {
-//                        $status_code = $error;
-//                        $error_message[$status_code] = ErrorCode::getDescription($status_code);
-//                        $converted->setStatusCode($status_code);
-//                    }
-//            }
-//        }
-
+        $error_message = [];
+        parse_str($body, $response_table);
+        foreach ($response_table as $label => $segment) {
+            switch ($label) {
+                case self::ERROR_LABEL:
+                    $description_error = ErrorCode::getDescription($segment);
+                    if (! is_null($description_error)) {
+                        $error_message[$segment] = $description_error;
+                    }
+                    $decoded_body->setStatusCode($segment);
+                    break;
+                case self::TOKEN_LABEL:
+                    $decoded_body->setToken($segment);
+                    break;
+                case self::MESSAGE_LABEL:
+                    $this->segmentToDescription($segment, $error_message);
+                    break;
+                default:
+                    $error = ErrorCode::findAccurateCode(array_keys($response_table)[0]);
+                    if(! empty($error))
+                    {
+                        $status_code = $error;
+                        $error_message[$status_code] = ErrorCode::getDescription($status_code);
+                        $decoded_body->setStatusCode($status_code);
+                    }
+            }
+        }
+        $decoded_body->setErrorMessage($error_message);
+        return $decoded_body;
     }
 
 

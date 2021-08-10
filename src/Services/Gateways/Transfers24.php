@@ -229,7 +229,7 @@ class Transfers24
             ['form_params' => $form_params]
         );
 
-        return $this->http_response_factory->create($form_params, $response);
+        return $this->http_response_factory->create($form, $response);
     }
 
     /**

@@ -62,7 +62,7 @@ class Transfers24Test extends UnitTestCase
         $this->gateway->addValue($name, $value);
 
         $response = $this->gateway->testConnection();
-        $response_data = $response->getFormParams();
+        $response_data = $response->getForm();
 
         $this->assertSame($response_data[$name], $value);
         $this->assertTrue(array_key_exists($name, $response_data));

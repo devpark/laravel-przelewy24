@@ -9,10 +9,10 @@ class Register extends Response implements IResponse
     /**
      * Get Token for registered payment.
      *
-     * @return int
+     * @return string
      */
     public function getToken()
     {
-        return $this->token;
+        return $this->decoded_body->getToken();
     }
 }

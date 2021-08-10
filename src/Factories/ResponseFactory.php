@@ -14,16 +14,6 @@ use Devpark\Transfers24\Translators\RegisterTranslator;
 
 class ResponseFactory
 {
-    const ERROR_LABEL = 'error';
-    /**
-     * Token key in transfers24 response.
-     */
-    const TOKEN_LABEL = 'token';
-
-    /**
-     * Error description key in transfers24 response.
-     */
-    const MESSAGE_LABEL = 'errorMessage';
     /**
      * @var BodyDecoder
      */
@@ -36,10 +26,8 @@ class ResponseFactory
 
     public function create(Response $response):IResponse
     {
-        $request_parameters = $response->getFormParams();
-
         $decoded_body = $this->body_decoder->decode($response->getBody());
 
-        return new Register($request_parameters, $decoded_body);
+        return new Register($response->getForm(), $decoded_body);
     }
 }

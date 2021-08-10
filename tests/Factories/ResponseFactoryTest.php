@@ -3,6 +3,7 @@
 namespace Tests\Factories;
 
 use Devpark\Transfers24\Actions\Action;
+use Devpark\Transfers24\Contracts\Form;
 use Devpark\Transfers24\Contracts\IResponse;
 use Devpark\Transfers24\Credentials;
 use Devpark\Transfers24\Currency;
@@ -56,15 +57,14 @@ class ResponseFactoryTest extends UnitTestCase
     {
         //Given
         $http_response = m::mock(Response::class);
-        $request_parameters = ['request'];
-        $http_response->shouldReceive('getFormParams')
+        $request_parameters = m::mock(Form::class);
+        $http_response->shouldReceive('getForm')
             ->once()
             ->andReturn($request_parameters);
 
-
         $decoded_body = m::mock(DecodedBody::class);
 
-        $body = build_query([ResponseFactory::TOKEN_LABEL => 'token']);
+        $body = 'body';
         $http_response->shouldReceive('getBody')
             ->once()
             ->andReturn($body);
@@ -77,9 +77,6 @@ class ResponseFactoryTest extends UnitTestCase
         //When
         $response = $this->factory->create($http_response);
 
-        //Then
-        $this->assertSame($request_parameters, $response->getRequestParameters());
-//        $this->assertSame('token', $response->getToken());
     }
 
 }
