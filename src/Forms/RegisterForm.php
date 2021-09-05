@@ -21,4 +21,14 @@ class RegisterForm implements Form
     {
         // TODO: Implement getSessionId() method.
     }
+
+    public function getUri(): string
+    {
+        // TODO: Implement getUri() method.
+    }
+
+    public function getMethod(): string
+    {
+        // TODO: Implement getMethod() method.
+    }
 }

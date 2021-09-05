@@ -9,6 +9,7 @@ use Devpark\Transfers24\Exceptions\NoEnvironmentChosenException;
 use Devpark\Transfers24\Forms\RegisterForm;
 use Devpark\Transfers24\Responses\InvalidResponse;
 use Devpark\Transfers24\Responses\TestConnection;
+use Devpark\Transfers24\Services\Crc;
 use Devpark\Transfers24\Services\Gateways\Transfers24 as GatewayTransfers24;
 use Devpark\Transfers24\Responses\Register as ResponseRegister;
 use Devpark\Transfers24\Responses\Verify as ResponseVerify;
@@ -40,6 +41,10 @@ class Transfers24
      */
     protected $logger;
     /**
+     * @var Crc
+     */
+    protected $crc;
+    /**
      * @var Credentials
      */
     private $credentials_keeper;
@@ -52,17 +57,43 @@ class Transfers24
      */
     private $form;
 
-    public function __construct()
+
+    public function __construct(Crc $crc)
 //    public function __construct(GatewayTransfers24 $transfers24, Repository $config, LoggerInterface $logger)
     {
 //        $this->transfers24 = $transfers24;
 //        $this->config = $config;
 //        $this->logger = $logger;
+        $this->crc = $crc;
     }
 
     public function fill(RegisterForm $form){
         $this->form = $form;
     }
+
+    public function configure():self{
+        try{
+            $this->configureGateway();
+            return $this;
+
+//            $this->session_id = $fields['p24_session_id'];
+
+        } catch (EmptyCredentialsException $exception)
+        {
+//            $this->logger->error($exception->getMessage());
+//            throw new InvalidResponse($exception);
+//
+//        }catch (NoEnvironmentChosenException $exception)
+//        {
+//            $this->logger->error($exception->getMessage());
+//            throw new InvalidResponse($exception);
+//        }
+//        catch (\Throwable $exception)
+//        {
+//            throw new InvalidResponse($exception);
+        }
+    }
+
 
     /**
      * Register new payment in transfers24.
@@ -216,26 +247,7 @@ class Transfers24
         return $this;
     }
 
-    /**
-     * @throws EmptyCredentialsException
-     * @throws NoEnvironmentChosenException
-     */
-    protected function configureGateway(): void
-    {
-        if ($this->config->get('transfers24.credentials-scope')) {
-            if (!isset($this->credentials_keeper)) {
-                throw new EmptyCredentialsException("Empty credentials.");
-            }
-            $this->transfers24->configure(
-                $this->credentials_keeper->getPosId(),
-                $this->credentials_keeper->getMerchantId(),
-                $this->credentials_keeper->getCrc(),
-                $this->credentials_keeper->isTestMode()
-            );
-        }
-    }
 
-    public function getUri():string{}
-    public function getMethod():string{}
+
     public function getForm():RegisterForm{}
 }

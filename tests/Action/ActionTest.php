@@ -76,7 +76,7 @@ class ActionTest extends UnitTestCase
         $this->translator = m::mock(RegisterTranslator::class);
 
 
-        $this->handle_factory = m::mock(HandlerFactory::class);
+        $this->handle_factory = m::mock(Credentials::class);
         $this->handler = m::mock(\Devpark\Transfers24\Services\Handlers\Transfers24::class);
 
         $this->gateway = m::mock(Transfers24::class);
@@ -84,11 +84,11 @@ class ActionTest extends UnitTestCase
         $this->response_factory = m::mock(ResponseFactory::class);
 
         $this->action = $this->app->make(Action::class, [
-            'translator' => $this->translator,
-            'handler_factory' => $this->handler,
+//            'translator' => $this->translator,
+//            'handler_factory' => $this->handler,
 //            'app' => $this->app,
             'gateway' => $this->gateway,
-            'response_factory' => $this->response_factory,
+//            'response_factory' => $this->response_factory,
         ]);
         $this->action->init($this->handle_factory, $this->response_factory, $this->translator);
     }

@@ -248,8 +248,6 @@ class Transfers24
         $this->setDefaultUrls();
         $this->action_factory = $action_factory;
         $this->translator_factory = $translator_factory;
-        $this->response_factory = $response_factory;
-        $this->handle_factory = $handle_factory;
     }
 
     /**
@@ -693,10 +691,10 @@ class Transfers24
             throw new RequestException('Empty email or amount');
         }
 
-        $form_generator = $this->translator_factory->create($this);
+        $form_generator = $this->translator_factory->create($this, $this->credentials_keeper);
         //response_factory
         //reguest_factory
-        $action = $this->action_factory->create($form_generator, $this->handle_factory, $this->response_factory);
+        $action = $this->action_factory->create($form_generator);
 
         return $action->execute();
 

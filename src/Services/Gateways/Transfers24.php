@@ -3,6 +3,7 @@
 namespace Devpark\Transfers24\Services\Gateways;
 
 use Devpark\Transfers24\Factories\HttpResponseFactory;
+use Devpark\Transfers24\Forms\RegisterForm;
 use Devpark\Transfers24\Services\Crc;
 use GuzzleHttp\Client;
 use Devpark\Transfers24\Responses\Http\Response;
@@ -212,17 +213,18 @@ class Transfers24
      * @param \Devpark\Transfers24\Services\Handlers\Transfers24 $handler
      * @return Response
      */
-    public function callTransfers24(\Devpark\Transfers24\Services\Handlers\Transfers24 $handler): Response
+    public function callTransfers24(RegisterForm $form): Response
     {
 //        $this->postData += $fields;
 
-        $form = $handler->getForm();
+//        $this->configureGateway();
+//        $form = $handler->getForm();
         $this->postData += $form->toArray();
 
-        $this->calculateSign(['p24_session_id', 'p24_merchant_id', 'p24_amount', 'p24_currency']);
+//        $this->calculateSign(['p24_session_id', 'p24_merchant_id', 'p24_amount', 'p24_currency']);
 
-        $uri = $handler->getUri();
-        $method = $handler->getMethod();
+        $uri = $form->getUri();
+        $method = $form->getMethod();
         $form_params = $this->postData;
 
         $response = $this->client->request($method, $uri,
@@ -232,33 +234,53 @@ class Transfers24
         return $this->http_response_factory->create($form, $response);
     }
 
-    /**
-     * Calculated CRC sum on params.
-     *
-     * @param array $params
-     * @param array $array_values
-     *
-     * @return string
-     */
-    protected function calculateCrcSum(array $params, array $array_values)
-    {
-        $this->crc->setSalt($this->salt);
-        return $this->crc->sum($params, $array_values);
-    }
 
     /**
-     * Add CRC sum on params send to transfers24.
-     *
-     * @param array $params
-     *
-     * @return void
+     * @throws EmptyCredentialsException
+     * @throws NoEnvironmentChosenException
      */
-    protected function calculateSign(array $params)
+    protected function configureGateway(): void
     {
-        $crc = $this->calculateCrcSum($params, $this->postData);
-
-        $this->addValue('p24_sign', $crc);
+        if ($this->config->get('transfers24.credentials-scope')) {
+            if (!isset($this->credentials_keeper)) {
+                throw new EmptyCredentialsException("Empty credentials.");
+            }
+            $this->configure(
+                $this->credentials_keeper->getPosId(),
+                $this->credentials_keeper->getMerchantId(),
+                $this->credentials_keeper->getCrc(),
+                $this->credentials_keeper->isTestMode()
+            );
+        }
     }
+//
+//    /**
+//     * Calculated CRC sum on params.
+//     *
+//     * @param array $params
+//     * @param array $array_values
+//     *
+//     * @return string
+//     */
+//    protected function calculateCrcSum(array $params, array $array_values)
+//    {
+//        $this->crc->setSalt($this->salt);
+//        return $this->crc->sum($params, $array_values);
+//    }
+
+//    /**
+//     * Add CRC sum on params send to transfers24.
+//     *
+//     * @param array $params
+//     *
+//     * @return void
+//     */
+//    protected function calculateSign(array $params)
+//    {
+//        $crc = $this->calculateCrcSum($params, $this->postData);
+//
+//        $this->addValue('p24_sign', $crc);
+//    }
 
     /**
      * Check Sum Control incoming data with status payment.
