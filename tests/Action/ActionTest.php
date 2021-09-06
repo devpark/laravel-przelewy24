@@ -90,7 +90,7 @@ class ActionTest extends UnitTestCase
             'gateway' => $this->gateway,
 //            'response_factory' => $this->response_factory,
         ]);
-        $this->action->init($this->handle_factory, $this->response_factory, $this->translator);
+        $this->action->init($this->response_factory, $this->translator, $this->handle_factory);
     }
 
 
@@ -104,19 +104,19 @@ class ActionTest extends UnitTestCase
             ->once()
             ->andReturn($form);
 
-        $this->handle_factory->shouldReceive('create')
-            ->with()
-            ->once()
-            ->andReturn($this->handler);
-
-        $this->handler->shouldReceive('fill')
-            ->with($form)
-            ->once();
+//        $this->handle_factory->shouldReceive('create')
+//            ->with()
+//            ->once()
+//            ->andReturn($this->handler);
+//
+//        $this->handler->shouldReceive('fill')
+//            ->with($form)
+//            ->once();
 
         $gateway_response = m::mock(Response::class);
 
         $this->gateway->shouldReceive('callTransfers24')
-            ->with($this->handler)
+            ->with($form)
             ->once()
             ->andReturn($gateway_response);
 

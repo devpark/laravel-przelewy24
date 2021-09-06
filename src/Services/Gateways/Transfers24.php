@@ -2,6 +2,7 @@
 
 namespace Devpark\Transfers24\Services\Gateways;
 
+use Devpark\Transfers24\Contracts\Form;
 use Devpark\Transfers24\Factories\HttpResponseFactory;
 use Devpark\Transfers24\Forms\RegisterForm;
 use Devpark\Transfers24\Services\Crc;
@@ -92,35 +93,21 @@ class Transfers24
      * @var Container
      */
     private $app;
-    /**
-     * @var Crc
-     */
-    private $crc;
 
     /**
      * Object constructor. Set initial parameters.
      *
      * @param Config $config
      */
-    public function __construct(Config $config, HttpResponseFactory $http_response_factory, Container $app, Crc $crc)
+    public function __construct(Config $config, HttpResponseFactory $http_response_factory, Container $app)
     {
         $this->config = $config;
         $this->http_response_factory = $http_response_factory;
         $this->app = $app;
-        $this->crc = $crc;
 
-
-        $pos_id = $this->config->get('transfers24.pos_id');
-        $merchant_id = $this->config->get('transfers24.merchant_id');
-        $crc = $this->config->get('transfers24.crc');
         $sandbox = $config->get('transfers24.test_server');
 
-        $this->addValue('p24_api_version', $config->get('transfers24.version'));
-
         $this->configure(
-            $pos_id,
-            $merchant_id,
-            $crc,
             $sandbox
         );
     }
@@ -213,19 +200,20 @@ class Transfers24
      * @param \Devpark\Transfers24\Services\Handlers\Transfers24 $handler
      * @return Response
      */
-    public function callTransfers24(RegisterForm $form): Response
+//    public function callTransfers24(RegisterForm $form): Response
+    public function callTransfers24(Form $form): Response
     {
 //        $this->postData += $fields;
 
 //        $this->configureGateway();
 //        $form = $handler->getForm();
-        $this->postData += $form->toArray();
+//        $this->postData += $form->toArray();
 
 //        $this->calculateSign(['p24_session_id', 'p24_merchant_id', 'p24_amount', 'p24_currency']);
 
         $uri = $form->getUri();
         $method = $form->getMethod();
-        $form_params = $this->postData;
+        $form_params = $form->toArray();
 
         $response = $this->client->request($method, $uri,
             ['form_params' => $form_params]
@@ -246,9 +234,6 @@ class Transfers24
                 throw new EmptyCredentialsException("Empty credentials.");
             }
             $this->configure(
-                $this->credentials_keeper->getPosId(),
-                $this->credentials_keeper->getMerchantId(),
-                $this->credentials_keeper->getCrc(),
                 $this->credentials_keeper->isTestMode()
             );
         }
@@ -301,17 +286,9 @@ class Transfers24
     /**
      * @param Config $config
      */
-    public function configure(
-        $pos_id,
-        $merchant_id,
-        $crc,
-        bool $sandbox
-    ): void
+    public function configure(bool $sandbox): void
     {
 
-        $this->posId = $pos_id;
-        $this->merchantId = $merchant_id;
-        $this->salt = $crc;
         $this->testMode = $sandbox;
 
         if ($this->testMode) {
@@ -327,8 +304,5 @@ class Transfers24
         $this->client = $this->app->make(Client::class, [
             'base_uri' => $this->getHost()
         ]);
-
-        $this->addValue('p24_merchant_id', $this->merchantId);
-        $this->addValue('p24_pos_id', $this->posId);
     }
 }

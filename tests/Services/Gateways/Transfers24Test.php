@@ -2,7 +2,11 @@
 
 namespace Tests\Services\Gateways;
 
+use Devpark\Transfers24\Contracts\Form;
+use Devpark\Transfers24\Factories\HttpResponseFactory;
 use Devpark\Transfers24\Services\Gateways\Transfers24 as GatewayTransfers24;
+use Illuminate\Contracts\Container\Container;
+use Psr\Http\Message\ResponseInterface;
 use Tests\UnitTestCase;
 use Mockery as m;
 use Devpark\Transfers24\Responses\Http\Response;
@@ -23,16 +27,29 @@ class Transfers24Test extends UnitTestCase
      * @var m\Mock|Response
      */
     private $response;
+    /**
+     * @var m\MockInterface
+     */
+    private $container;
+    /**
+     * @var m\MockInterface
+     */
+    private $client;
 
     protected function setUp()
     {
         parent::setUp();
-        $this->config = m::mock(Config::class)->makePartial();
-        $this->response = m::mock(Response::class)->makePartial();
+        $this->config = m::mock(Config::class);
+        $this->response = m::mock(HttpResponseFactory::class);
+        $this->container = m::mock(Container::class);
+        $this->client = m::mock(Client::class);}
 
-    }
-
-    /** @test  */
+    /**
+     * @Feature Payments
+     * @Scenario Execute Payment
+     * @Case Connection to sandbox
+     * @test
+     */
     public function test_get_test_host()
     {
         $sandbox_host = 'https://sandbox.przelewy24.pl/';
@@ -41,7 +58,13 @@ class Transfers24Test extends UnitTestCase
         $this->assertSame($this->gateway->getHost(), $sandbox_host);
     }
 
-    /** @test  */
+
+    /**
+     * @Feature Payments
+     * @Scenario Execute Payment
+     * @Case Connection to live
+     * @test
+     */
     public function test_get_production_host()
     {
         $transfers24_host = 'https://secure.przelewy24.pl/';
@@ -50,6 +73,51 @@ class Transfers24Test extends UnitTestCase
 
         $this->assertSame($this->gateway->getHost(), $transfers24_host);
     }
+
+
+
+    /**
+     * @Feature Payments
+     * @Scenario Execute Payment
+     * @Case Send Peayment
+     * @test
+     */
+    public function send_payment()
+    {
+
+        //When
+        $form = m::mock(Form::class);
+        $this->makeGateway(true);
+
+        $form->shouldReceive('getUri','getMethod')
+            ->once()
+            ->andReturn('form-data');
+        $form->shouldReceive('toArray')
+            ->once()
+            ->andReturn([]);
+
+        $client_response = m::mock(ResponseInterface::class);
+        $this->client->shouldReceive('request')
+            ->once()
+            ->andReturn($client_response);
+
+        $expected_response = m::mock(Response::class);
+        $this->response->shouldReceive('create')
+            ->once()
+            ->with($form, $client_response)
+            ->andReturn($expected_response);
+
+        //Then
+        $response = $this->gateway->callTransfers24($form);
+
+        //Then
+        $this->assertSame($expected_response, $response);
+    }
+
+
+
+
+
 
     /** @test  */
     public function test_add_value_to_post_data()
@@ -257,6 +325,7 @@ class Transfers24Test extends UnitTestCase
     protected function makeGateway($test_mode): void
     {
         $this->config->shouldReceive('get')->andReturn($test_mode);
-        $this->gateway = new GatewayTransfers24($this->config, $this->response);
+        $this->container->shouldReceive('make')->once()->andReturn($this->client);
+        $this->gateway = new GatewayTransfers24($this->config, $this->response, $this->container);
     }
 }
