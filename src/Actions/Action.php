@@ -14,10 +14,6 @@ use Devpark\Transfers24\Translators\RegisterTranslator;
 class Action
 {
     /**
-     * @var HandlerFactory
-     */
-    protected $handler_factory;
-    /**
      * @var ResponseFactory
      */
     protected $response_factory;
@@ -41,7 +37,6 @@ class Action
 
     public function init(ResponseFactory $response_factory, RegisterTranslator $translator, Credentials $credentials):Action
     {
-//        $this->handler_factory = $handler_factory;
         $this->response_factory = $response_factory;
         $this->translator = $translator;
         $this->credentials = $credentials;
@@ -51,8 +46,6 @@ class Action
     public function execute():IResponse
     {
         $form = $this->translator->translate();
-//        $handler = $this->handler_factory->create();
-//        $handler->fill($form);
         $gateway_response = $this->gateway->callTransfers24($form);
 
         return $this->response_factory->create($gateway_response);

@@ -69,8 +69,13 @@ class RegisterTranslator
 
     public function translate():RegisterForm
     {
-        $this
-            ->calculateSign();
+        $this->form = new RegisterForm();
+        $p24_api_version = $this->config->get('transfers24.version');
+
+        $this->form->addValue('p24_api_version', $p24_api_version);
+        $this->form->addValue('p24_sign', $this->calculateSign());
+
+        return $this->form;
     }
 
     /**
@@ -101,14 +106,15 @@ class RegisterTranslator
      *
      * @param array $params
      *
-     * @return void
+     * @return string
      */
     public function calculateSign()
     {
-        $this->crc->setSalt($this->salt);
-        $crc = $this->crc->sum($this->params, $this->form->toArray());
+        if (!empty($this->salt)){
+            $this->crc->setSalt($this->salt);
+        }
+        return $this->crc->sum($this->params, $this->form->toArray());
 
-        $this->addValue('p24_sign', $crc);
     }
 
 }

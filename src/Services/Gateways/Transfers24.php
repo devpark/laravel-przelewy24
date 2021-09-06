@@ -123,19 +123,6 @@ class Transfers24
     }
 
     /**
-     * Add value do post request.
-     *
-     * @param string $name Argument name
-     * @param mixed $value Argument value
-     *
-     * @return void
-     */
-    public function addValue($name, $value)
-    {
-        $this->postData[$name] = $value;
-    }
-
-    /**
      * Function is testing a connection with P24 server.
      *
      * @return Response
