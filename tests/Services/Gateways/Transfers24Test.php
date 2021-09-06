@@ -79,7 +79,7 @@ class Transfers24Test extends UnitTestCase
     /**
      * @Feature Payments
      * @Scenario Execute Payment
-     * @Case Send Peayment
+     * @Case Send Payment
      * @test
      */
     public function send_payment()
@@ -136,89 +136,7 @@ class Transfers24Test extends UnitTestCase
         $this->assertTrue(array_key_exists($name, $response_data));
     }
 
-    /** @test  */
-    public function test_calculate_CRC_sum()
-    {
-        $this->makeGateway(true);
 
-        $this->get_environment_for_CRC_check();
-        $this->salt = 'zxy';
-        $this->handler_property->setValue($this->gateway, $this->salt);
-
-        $crc_array = $this->values + ['salt' => $this->salt];
-        $crc = md5(implode('|', $crc_array));
-
-        $test_crc = $this->gateway->calculateCrcSum($this->labels, $this->values);
-
-        $this->assertSame($test_crc, $crc);
-    }
-    /** @test  */
-    public function test_calculate_CRC_sum_without_salt()
-    {
-        $this->makeGateway(true);
-
-        $this->get_environment_for_CRC_check();
-        $this->salt = '';
-        $crc_array = $this->values + ['salt' => $this->salt];
-        $crc = md5(implode('|', $crc_array));
-        $this->handler_property->setValue($this->gateway, $this->salt);
-
-        $test_crc = $this->gateway->calculateCrcSum($this->labels, $this->values);
-
-        $this->assertSame($test_crc, $crc);
-    }
-
-    /** @test  */
-    public function test_return_null_after_calculate_CRC_with_empty_value()
-    {
-        $this->makeGateway(true);
-
-        $this->get_environment_for_CRC_check();
-
-        $test_crc = $this->gateway->calculateCrcSum($this->labels, []);
-
-        $this->assertNull($test_crc);
-    }
-
-    protected function get_environment_for_CRC_check()
-    {
-        $this->labels = [
-            'a',
-            'b',
-        ];
-        $this->values = [
-            'a' => '123456789',
-            'b' => 'abcd',
-        ];
-
-        $this->gateway = m::mock(GatewayTransfers24::class)->makePartial();
-
-        $this->reflection = new \ReflectionClass(GatewayTransfers24::class);
-        $this->handler_method = $this->reflection->getMethod('calculateCrcSum');
-        $this->handler_method->setAccessible(true);
-        $this->handler_property = $this->reflection->getProperty('salt');
-        $this->handler_property->setAccessible(true);
-    }
-
-    /** @test */
-    public function test_calculate_sing_field()
-    {
-        $this->get_environment_for_CRC_check();
-        $this->handler_method = $this->reflection->getMethod('calculateSign');
-        $this->handler_method->setAccessible(true);
-        $this->handler_property = $this->reflection->getProperty('postData');
-        $this->handler_property->setAccessible(true);
-
-        $this->salt = '';
-        $sign_field_array = $this->values + ['salt' => $this->salt];
-        $sign_field = md5(implode('|', $sign_field_array));
-
-        $this->gateway->addValue('a', '123456789');
-        $this->gateway->addValue('b', 'abcd');
-        $this->gateway->calculateSign(['a', 'b']);
-
-        $this->assertSame($this->handler_property->getValue($this->gateway)['p24_sign'], $sign_field);
-    }
 
     /** @test */
     public function test_is_false_check_sum()

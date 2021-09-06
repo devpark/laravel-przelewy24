@@ -22,7 +22,9 @@ class Crc
             }
             $form_params[] = $array_values[$param];
         }
-        $form_params[] = $this->salt;
+        if (!empty($this->salt)){
+            $form_params[] = $this->salt;
+        }
 
         $concat = implode('|', $form_params);
         $crc = md5($concat);
