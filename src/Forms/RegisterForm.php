@@ -11,11 +11,6 @@ class RegisterForm implements Form
     private $postData = [];
 
     public function toArray():array{
-
-//        $this->addValue('p24_merchant_id', $this->merchantId);
-//        $this->addValue('p24_pos_id', $this->posId);
-//        $this->addValue('p24_api_version', );
-
         return $this->postData;
     }
 
@@ -49,6 +44,8 @@ class RegisterForm implements Form
      */
     public function addValue(string $name, $value)
     {
-        $this->postData[$name] = $value;
+        if (isset($value) && ! empty($value)) {
+            $this->postData[$name] = $value;
+        }
     }
 }

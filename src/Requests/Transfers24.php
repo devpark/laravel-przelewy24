@@ -621,60 +621,7 @@ class Transfers24
         return $this;
     }
 
-    /**
-     * add parameter to $fields.
-     *
-     * @param string $label
-     * @param string $value
-     */
-    public function setField($label, $value)
-    {
-        if (isset($value) && ! empty($value)) {
-            $this->fields[$label] = $value;
-        }
-    }
 
-    /**
-     * Set parameter for transfers24.
-     *
-     * @return array
-     */
-    public function setFields()
-    {
-        $this->setField('p24_session_id', $this->transaction_id);
-        $this->setField('p24_amount', $this->amount);
-        $this->setField('p24_currency', $this->currency);
-        $this->setField('p24_description', $this->description);
-        $this->setField('p24_email', $this->customer_email);
-        $this->setField('p24_client', $this->client_name);
-        $this->setField('p24_address', $this->address);
-        $this->setField('p24_zip', $this->zip_code);
-        $this->setField('p24_city', $this->city);
-        $this->setField('p24_country', $this->country);
-        $this->setField('p24_phone', $this->client_phone);
-        $this->setField('p24_language', $this->language);
-        $this->setField('p24_url_return', $this->url_return);
-        $this->setField('p24_url_status', $this->url_status);
-        $this->setField('p24_channel', $this->channel);
-        $this->setField('p24_name_1', $this->article_name);
-        $this->setField('p24_description_1', $this->article_description);
-        $this->setField('p24_quantity_1', $this->article_quantity);
-        $this->setField('p24_price_1', $this->article_price);
-        $this->setField('p24_number_1', $this->article_number);
-        $this->setField('p24_shipping', $this->shipping_cost);
-
-        $next = 2;
-        foreach ($this->additional_articles as $article) {
-            $this->setField('p24_name_' . $next, $article['name']);
-            $this->setField('p24_description_' . $next, $article['description']);
-            $this->setField('p24_quantity_' . $next, $article['quantity']);
-            $this->setField('p24_price_' . $next, $article['price']);
-            $this->setField('p24_number_' . $next, $article['number']);
-            ++$next;
-        }
-
-        return $this->fields;
-    }
 
     /**
      * Register payment in payment system.
@@ -699,7 +646,6 @@ class Transfers24
         return $action->execute();
 
 
-//        $this->transaction_id = uniqid();
 //
 //        $response = $this->transfers24
 //            ->viaCredentials($this->credentials_keeper)
@@ -768,5 +714,173 @@ class Transfers24
         return $this->transfers24
             ->viaCredentials($this->credentials_keeper)
             ->receive($request->all());
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getAmount(): ?int
+    {
+        return $this->amount;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCurrency(): string
+    {
+        return $this->currency;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDescription(): string
+    {
+        return $this->description;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getCustomerEmail(): ?string
+    {
+        return $this->customer_email;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getClientName(): ?string
+    {
+        return $this->client_name;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getAddress(): ?string
+    {
+        return $this->address;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getZipCode(): ?string
+    {
+        return $this->zip_code;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getCity(): ?string
+    {
+        return $this->city;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCountry(): string
+    {
+        return $this->country;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getClientPhone(): ?int
+    {
+        return $this->client_phone;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLanguage(): string
+    {
+        return $this->language;
+    }
+
+    /**
+     * @return string
+     */
+    public function getUrlReturn(): string
+    {
+        return $this->url_return;
+    }
+
+    /**
+     * @return string
+     */
+    public function getUrlStatus(): string
+    {
+        return $this->url_status;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getChannel(): ?int
+    {
+        return $this->channel;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getArticleName(): ?string
+    {
+        return $this->article_name;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getArticleDescription(): ?string
+    {
+        return $this->article_description;
+    }
+
+    /**
+     * @return string
+     */
+    public function getArticleQuantity()
+    {
+        return $this->article_quantity;
+    }
+
+    /**
+     * @return int
+     */
+    public function getArticlePrice(): ?int
+    {
+        return $this->article_price;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getArticleNumber(): ?int
+    {
+        return $this->article_number;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getShippingCost(): ?int
+    {
+        return $this->shipping_cost;
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getAdditionalArticles(): ?array
+    {
+        return $this->additional_articles;
     }
 }
