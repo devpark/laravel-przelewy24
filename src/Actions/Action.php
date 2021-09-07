@@ -4,12 +4,9 @@ declare(strict_types=1);
 namespace Devpark\Transfers24\Actions;
 
 use Devpark\Transfers24\Contracts\IResponse;
-use Devpark\Transfers24\Credentials;
-use Devpark\Transfers24\Factories\HandlerFactory;
+use Devpark\Transfers24\Contracts\Translator;
 use Devpark\Transfers24\Factories\ResponseFactory;
-use Devpark\Transfers24\Forms\RegisterForm;
 use Devpark\Transfers24\Services\Gateways\Transfers24;
-use Devpark\Transfers24\Translators\RegisterTranslator;
 
 class Action
 {
@@ -18,7 +15,7 @@ class Action
      */
     protected $response_factory;
     /**
-     * @var RegisterTranslator
+     * @var Translator
      */
     protected $translator;
     /**
@@ -31,7 +28,7 @@ class Action
         $this->gateway = $gateway;
     }
 
-    public function init(ResponseFactory $response_factory, RegisterTranslator $translator):Action
+    public function init(ResponseFactory $response_factory, Translator $translator):Action
     {
         $this->response_factory = $response_factory;
         $this->translator = $translator;

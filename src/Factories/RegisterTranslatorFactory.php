@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Devpark\Transfers24\Factories;
 
 use Devpark\Transfers24\Contracts\IResponse;
+use Devpark\Transfers24\Contracts\Translator;
 use Devpark\Transfers24\Credentials;
 use Devpark\Transfers24\Forms\RegisterForm;
 use Devpark\Transfers24\Requests\Transfers24;
@@ -22,6 +23,14 @@ class RegisterTranslatorFactory
         $this->app = $app;
     }
 
+    /**
+     * @param Transfers24 $request
+     * @param Credentials $credentials
+     * @return RegisterTranslator|Translator
+     * @throws \Devpark\Transfers24\Exceptions\EmptyCredentialsException
+     * @throws \Devpark\Transfers24\Exceptions\NoEnvironmentChosenException
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     */
     public function create(Transfers24 $request, Credentials $credentials):RegisterTranslator
     {
         /**

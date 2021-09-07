@@ -3,14 +3,19 @@
 namespace Tests\Requests;
 
 use Devpark\Transfers24\Actions\Action;
+use Devpark\Transfers24\Actions\Runner;
 use Devpark\Transfers24\Contracts\IResponse;
+use Devpark\Transfers24\Contracts\Translator;
 use Devpark\Transfers24\Credentials;
 use Devpark\Transfers24\Currency;
 use Devpark\Transfers24\Exceptions\RequestExecutionException;
 use Devpark\Transfers24\Factories\ActionFactory;
+use Devpark\Transfers24\Factories\ReceiveTranslatorFactory;
 use Devpark\Transfers24\Factories\RegisterTranslatorFactory;
 use Devpark\Transfers24\Factories\ResponseFactory;
+use Devpark\Transfers24\Factories\RunnerFactory;
 use Devpark\Transfers24\Requests\Transfers24 as RequestTransfers24;
+use Devpark\Transfers24\Translators\ReceiveTranslator;
 use Devpark\Transfers24\Translators\RegisterTranslator;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Routing\UrlGenerator as Url;
@@ -47,6 +52,14 @@ class Transfers24Test extends UnitTestCase
      * @var m\MockInterface
      */
     private $response_factory;
+    /**
+     * @var m\MockInterface
+     */
+    private $runner_factory;
+    /**
+     * @var m\MockInterface
+     */
+    private $receive_translator_factory;
 
     protected function setUp()
     {
@@ -483,6 +496,14 @@ class Transfers24Test extends UnitTestCase
         $this->request_concrete = $this->createConcreteRequest();
         $token = [];
 
+        $runner = m::mock(Runner::class);
+        $this->runner_factory->shouldReceive('create')
+            ->once()
+            ->andReturn($runner);
+        $runner->shouldReceive('execute')
+            ->once()
+            ->andReturn('http://redirect');
+
         try {
             $response = $this->request_concrete->execute($token);
         } catch (\Exception $e) {
@@ -490,8 +511,6 @@ class Transfers24Test extends UnitTestCase
             $this->assertEquals($e->getMessage(), 'Empty or not valid Token');
         }
 
-        $this->handler->shouldReceive('execute')->andReturn('http://redirect');
-        $this->handler->shouldReceive('viaCredentials')->once()->andReturnSelf();
         $response = $this->request_concrete->execute('123456789');
         $this->assertEquals($response, 'http://redirect');
     }
@@ -499,66 +518,31 @@ class Transfers24Test extends UnitTestCase
     /** @test */
     public function test_receive_transfers24_request()
     {
-        $this->request_concrete = $this->createConcreteRequest();
-        $this->handler->shouldReceive('receive')->andReturn($this->response);
-        $this->handler->shouldReceive('viaCredentials')->once()->andReturnSelf();
-        $request = new Request();
-        $response = $this->request_concrete->receive($request);
-        $this->assertEquals($this->response, $response);
-    }
+        $translator = m::mock(ReceiveTranslator::class);
+        $action = m::mock(Action::class);
+        $expected_response = m::mock(IResponse::class);
 
-    /** @test */
-    public function test_set_fields_for_register_payment()
-    {
-        $this->request_concrete = $this->createConcreteRequest();
-        $this->handler->shouldReceive('init')->andReturn($this->response);
-        $this->handler->shouldReceive('viaCredentials')->once()->andReturnSelf();
-        $this->request_concrete->setEmail('test@test.pl')
-            ->setAmount(100)
-            ->setDescription('Example description')
-            ->setCountry('PL')
-            ->setUrlReturn('url_return')
-            ->setUrlStatus('url_status')
-            ->setCountry('PL')
-            ->setArticle('ProductName')
-            ->setArticleDescription('ProductDescription')
-            ->setClientName('last name')
-            ->setClientPhone('77777777')
-            ->setAddress('Poznanska 20')
-            ->setZipCode('62-021')
-            ->setCity('Poznan')
-            ->setLanguage('pl')
-            ->setChannel(1)
-            ->setArticleNumber('ACX123')
-            ->setShipping(200)
-            ->init();
 
-        $payment_form = [
-            'p24_session_id' => $this->request_concrete->getField('transaction_id'),
-            'p24_amount' => $this->request_concrete->getField('amount'),
-            'p24_currency' => $this->request_concrete->getField('currency'),
-            'p24_description' => $this->request_concrete->getField('description'),
-            'p24_email' => $this->request_concrete->getField('customer_email'),
-            'p24_client' => $this->request_concrete->getField('client_name'),
-            'p24_address' => $this->request_concrete->getField('address'),
-            'p24_zip' => $this->request_concrete->getField('zip_code'),
-            'p24_city' => $this->request_concrete->getField('city'),
-            'p24_country' => $this->request_concrete->getField('country'),
-            'p24_phone' => $this->request_concrete->getField('client_phone'),
-            'p24_language' => $this->request_concrete->getField('language'),
-            'p24_url_return' => $this->request_concrete->getField('url_return'),
-            'p24_url_status' => $this->request_concrete->getField('url_status'),
-            'p24_channel' => $this->request_concrete->getField('channel'),
-            'p24_name_1' => $this->request_concrete->getField('article_name'),
-            'p24_description_1' => $this->request_concrete->getField('article_description'),
-            'p24_quantity_1' => $this->request_concrete->getField('article_quantity'),
-            'p24_price_1' => $this->request_concrete->getField('article_price'),
-            'p24_number_1' => $this->request_concrete->getField('article_number'),
-            'p24_price_1' => $this->request_concrete->getField('article_price'),
-            'p24_shipping' => $this->request_concrete->getField('shipping_cost'),
-        ];
+        $request = m::mock(Request::class);
+        $request->shouldReceive('all')
+            ->once()
+            ->andReturn([]);
+        $this->receive_translator_factory->shouldReceive('create')->once()
+            ->with([], m::any())
+            ->andReturn($translator);
+        $this->action_factory->shouldReceive('create')
+            ->once()
+            ->with($this->response_factory, $translator)
+            ->andReturn($action);
 
-        $this->assertEquals($set_fields, $payment_form);
+        $action->shouldReceive('execute')
+            ->once()
+            ->andReturn($expected_response);
+
+        $response = $this->request->receive($request);
+
+        $this->assertEquals($expected_response, $response);
+
     }
 
     public function createConcreteRequest(array $dependent = [])
@@ -567,6 +551,9 @@ class Transfers24Test extends UnitTestCase
         $this->action_factory = m::mock(ActionFactory::class);
         $this->translator_factory = m::mock(RegisterTranslatorFactory::class);
         $this->response_factory = m::mock(ResponseFactory::class);
+        $this->receive_translator_factory = m::mock(ReceiveTranslatorFactory::class);
+
+        $this->runner_factory = m::mock(RunnerFactory::class);
 
 
         return $this->app->make(RequestTransfers24::class, [
@@ -574,6 +561,8 @@ class Transfers24Test extends UnitTestCase
             'action_factory' => $this->action_factory,
             'translator_factory' => $this->translator_factory,
             'response_factory' => $this->response_factory,
+            'runner_factory' => $this->runner_factory,
+            'receive_translator_factory' => $this->receive_translator_factory,
         ] + $dependent);
     }
 

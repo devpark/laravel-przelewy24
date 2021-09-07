@@ -51,14 +51,6 @@ class ActionTest extends UnitTestCase
     /**
      * @var m\MockInterface
      */
-    private $handle_factory;
-    /**
-     * @var m\MockInterface
-     */
-    private $handler;
-    /**
-     * @var m\MockInterface
-     */
     private $gateway;
     /**
      * @var m\MockInterface
@@ -70,15 +62,18 @@ class ActionTest extends UnitTestCase
         parent::setUp();
 
         $this->response = m::mock(IResponse::class, RegisterResponse::class);
-        $app = m::mock(Container::class);
         $this->app->bind(Container::class, \Illuminate\Container\Container::class);
 
+        $this->credentials = m::mock(Credentials::class);
         $this->translator = m::mock(RegisterTranslator::class);
-
-
-        $this->handler = m::mock(\Devpark\Transfers24\Services\Handlers\Transfers24::class);
+        $this->translator->shouldReceive('getCredentials')
+            ->once()
+            ->andReturn($this->credentials);
 
         $this->gateway = m::mock(Transfers24::class);
+        $this->gateway->shouldReceive('configureGateway')
+            ->once()
+            ->with($this->credentials);
 
         $this->response_factory = m::mock(ResponseFactory::class);
 

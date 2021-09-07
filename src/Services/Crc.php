@@ -36,4 +36,20 @@ class Crc
     {
         $this->salt = $salt;
     }
+
+    /**
+     * Check Sum Control incoming data with status payment.
+     *
+     * @param array $post_data
+     *
+     * @return bool
+     */
+    public function checkSum(array $post_data)
+    {
+        $params = ['p24_session_id', 'p24_order_id', 'p24_amount', 'p24_currency'];
+
+        $crc = $this->sum($params, $post_data);
+
+        return $crc == $post_data['p24_sign'];
+    }
 }

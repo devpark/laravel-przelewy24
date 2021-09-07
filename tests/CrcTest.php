@@ -108,6 +108,49 @@ class CrcTest extends UnitTestCase
     }
 
     /**
+     * @Feature Payments
+     * @Scenario Receive Status
+     * @Case Failed check sum
+     * @test
+     */
+    public function test_is_false_check_sum()
+    {
+        $post_data = [
+            'p24_session_id' => '1234',
+            'p24_order_id' => '5678',
+            'p24_amount' => 'abcd',
+            'p24_currency' => 'efgh',
+            'p24_sign'  => '1234567689',
+        ];
+        $crc_test = $this->crc->checkSum($post_data);
+        $this->assertFalse($crc_test);
+    }
+
+
+    /**
+     * @Feature Payments
+     * @Scenario Receive Status
+     * @Case Check sum successful
+     * @test
+     */
+    public function test_is_true_check_sum()
+    {
+        $post_data = [
+            'p24_session_id' => '1234',
+            'p24_order_id' => '5678',
+            'p24_amount' => 'abcd',
+            'p24_currency' => 'efgh',
+        ];
+        $crc_array = $post_data + ['salt' => 'salt'];
+        $crc = md5(implode('|', $crc_array));
+
+        $post_data['p24_sign'] = $crc;
+
+        $crc_test = $this->crc->checkSum($post_data);
+        $this->assertTrue($crc_test);
+    }
+
+    /**
      * @param array $crc_array
      * @return string
      */

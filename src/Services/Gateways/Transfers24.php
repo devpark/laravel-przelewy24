@@ -156,22 +156,6 @@ class Transfers24
     }
 
     /**
-     * Check Sum Control incoming data with status payment.
-     *
-     * @param array $post_data
-     *
-     * @return bool
-     */
-    public function checkSum(array $post_data)
-    {
-        $params = ['p24_session_id', 'p24_order_id', 'p24_amount', 'p24_currency'];
-
-        $crc = $this->calculateCrcSum($params, $post_data);
-
-        return $crc == $post_data['p24_sign'];
-    }
-
-    /**
      * @param Config $config
      */
     private function configure(bool $sandbox): void
