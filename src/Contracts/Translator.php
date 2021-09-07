@@ -15,7 +15,7 @@ interface Translator
      * @throws EmptyCredentialsException
      * @throws NoEnvironmentChosenException
      */
-    public function configure(): self;
+    public function configure(): Translator;
     public function getCredentials():Credentials;
 
 }

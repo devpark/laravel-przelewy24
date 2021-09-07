@@ -46,12 +46,6 @@ class Transfers24
      */
     protected $posId;
 
-    /**
-     * Merchant Id.
-     *
-     * @var int
-     */
-    protected $merchantId;
 
     /**
      * Salt to create a control sum (from P24 panel).
@@ -59,13 +53,6 @@ class Transfers24
      * @var string
      */
     protected $salt;
-
-    /**
-     * Array of POST data.
-     *
-     * @var array
-     */
-    protected $postData = [];
 
     /**
      * client curl.
@@ -83,12 +70,6 @@ class Transfers24
      * @var Config
      */
     protected $config;
-
-    /**
-     * $var array.
-     */
-    protected $crc_parts = [];
-
 
     /**
      * @var Container
@@ -121,17 +102,6 @@ class Transfers24
     public function getHost()
     {
         return $this->hostLive;
-    }
-
-    /**
-     * Function is testing a connection with P24 server.
-     *
-     * @return Response
-     */
-    public function testConnection()
-    {
-
-        return $this->callTransfers24('testConnection');
     }
 
     /**
@@ -184,34 +154,6 @@ class Transfers24
             );
         }
     }
-//
-//    /**
-//     * Calculated CRC sum on params.
-//     *
-//     * @param array $params
-//     * @param array $array_values
-//     *
-//     * @return string
-//     */
-//    protected function calculateCrcSum(array $params, array $array_values)
-//    {
-//        $this->crc->setSalt($this->salt);
-//        return $this->crc->sum($params, $array_values);
-//    }
-
-//    /**
-//     * Add CRC sum on params send to transfers24.
-//     *
-//     * @param array $params
-//     *
-//     * @return void
-//     */
-//    protected function calculateSign(array $params)
-//    {
-//        $crc = $this->calculateCrcSum($params, $this->postData);
-//
-//        $this->addValue('p24_sign', $crc);
-//    }
 
     /**
      * Check Sum Control incoming data with status payment.
