@@ -35,7 +35,7 @@ class ReceiveForm implements Form
 
     public function getUri(): string
     {
-        return 'trnRegister';
+        return 'trnVerify';
     }
 
     public function getMethod(): string
