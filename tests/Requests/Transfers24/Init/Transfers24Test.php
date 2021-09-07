@@ -7,6 +7,7 @@ use Devpark\Transfers24\Contracts\IResponse;
 use Devpark\Transfers24\Credentials;
 use Devpark\Transfers24\Currency;
 use Devpark\Transfers24\Exceptions\RequestExecutionException;
+use Devpark\Transfers24\Factories\ActionFactory;
 use Devpark\Transfers24\Factories\RegisterTranslatorFactory;
 use Devpark\Transfers24\Requests\Transfers24 as RequestTransfers24;
 use Devpark\Transfers24\Services\Gateways\Transfers24;
@@ -64,14 +65,18 @@ class Transfers24Test extends UnitTestCase
      * @var m\MockInterface
      */
     private $register_transaction;
+    /**
+     * @var m\MockInterface
+     */
+    private $action_factory;
 
     protected function setUp()
     {
         parent::setUp();
 
+
         $this->response = m::mock(IResponse::class, RegisterResponse::class);
         $transfers24 = m::mock(HandlersTransfers24::class);
-        $app = m::mock(Container::class);
         $this->app->bind(Container::class, \Illuminate\Container\Container::class);
         $credentials_keeper = m::mock(Credentials::class);
 
@@ -87,13 +92,16 @@ class Transfers24Test extends UnitTestCase
 
         $this->response_factory = m::mock(ResponseFactory::class);
 
+        $this->action_factory = m::mock(ActionFactory::class);
+
         $this->request = $this->app->make(RequestTransfers24::class, [
             'response' => $this->response,
             'transfers24' => $transfers24,
 //            'app' => $this->app,
             'credentials_keeper' => $credentials_keeper,
             'translator_factory' => $this->translator_factory,
-            'register_transaction' => $this->register_transaction
+            'register_transaction' => $this->register_transaction,
+            'action_factory' => $this->action_factory
         ]);
     }
 
@@ -108,30 +116,13 @@ class Transfers24Test extends UnitTestCase
 //            ->with($user_data)
             ->once()
             ->andReturn($this->translator);
-//
-//        $this->handle_factory->shouldReceive('create')
-//            ->with()
-//            ->once()
-//            ->andReturn($this->handler);
-//
-//
-//        $this->handler->shouldReceive('fill')
-//            ->with($this->translator)
-//            ->once();
-//
-//        $gateway_response = m::mock(GatewayResponse::class);
-//
-//        $this->gateway->shouldReceive('send')
-//            ->with($this->handler)
-//            ->once()
-//            ->andReturn($gateway_response);
-//
-//        $this->response_factory->shouldReceive('create')
-//            ->with($gateway_response)
-//            ->once()
-//            ->andReturn($this->response);
 
-        $this->register_transaction->shouldReceive('execute')
+        $action = m::mock(Action::class);
+        $this->action_factory->shouldReceive('create')
+            ->once()
+            ->andReturn($action);
+
+        $action->shouldReceive('execute')
 //            ->with($gateway_response)
             ->once()
             ->andReturn($this->response);

@@ -10,9 +10,10 @@ use Devpark\Transfers24\Credentials;
 use Devpark\Transfers24\Currency;
 use Devpark\Transfers24\Exceptions\RequestExecutionException;
 use Devpark\Transfers24\Factories\ActionFactory;
+use Devpark\Transfers24\Factories\ReceiveResponseFactory;
 use Devpark\Transfers24\Factories\ReceiveTranslatorFactory;
 use Devpark\Transfers24\Factories\RegisterTranslatorFactory;
-use Devpark\Transfers24\Factories\ResponseFactory;
+use Devpark\Transfers24\Factories\RegisterResponseFactory;
 use Devpark\Transfers24\Factories\RunnerFactory;
 use Devpark\Transfers24\Requests\Transfers24 as RequestTransfers24;
 use Devpark\Transfers24\Translators\ReceiveTranslator;
@@ -60,6 +61,10 @@ class Transfers24Test extends UnitTestCase
      * @var m\MockInterface
      */
     private $receive_translator_factory;
+    /**
+     * @var m\MockInterface
+     */
+    private $receive_response_factory;
 
     protected function setUp()
     {
@@ -532,7 +537,7 @@ class Transfers24Test extends UnitTestCase
             ->andReturn($translator);
         $this->action_factory->shouldReceive('create')
             ->once()
-            ->with($this->response_factory, $translator)
+            ->with($this->receive_response_factory, $translator)
             ->andReturn($action);
 
         $action->shouldReceive('execute')
@@ -550,8 +555,9 @@ class Transfers24Test extends UnitTestCase
         $this->credentials = m::mock(Credentials::class);
         $this->action_factory = m::mock(ActionFactory::class);
         $this->translator_factory = m::mock(RegisterTranslatorFactory::class);
-        $this->response_factory = m::mock(ResponseFactory::class);
+        $this->response_factory = m::mock(RegisterResponseFactory::class);
         $this->receive_translator_factory = m::mock(ReceiveTranslatorFactory::class);
+        $this->receive_response_factory = m::mock(ReceiveResponseFactory::class);
 
         $this->runner_factory = m::mock(RunnerFactory::class);
 
@@ -563,6 +569,7 @@ class Transfers24Test extends UnitTestCase
             'response_factory' => $this->response_factory,
             'runner_factory' => $this->runner_factory,
             'receive_translator_factory' => $this->receive_translator_factory,
+            'receive_response_factory' => $this->receive_response_factory,
         ] + $dependent);
     }
 

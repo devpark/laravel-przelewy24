@@ -9,9 +9,10 @@ use Devpark\Transfers24\Exceptions\NoEnvironmentChosenException;
 use Devpark\Transfers24\Exceptions\RequestExecutionException;
 use Devpark\Transfers24\Factories\ActionFactory;
 use Devpark\Transfers24\Factories\HandlerFactory;
+use Devpark\Transfers24\Factories\ReceiveResponseFactory;
 use Devpark\Transfers24\Factories\ReceiveTranslatorFactory;
 use Devpark\Transfers24\Factories\RegisterTranslatorFactory;
-use Devpark\Transfers24\Factories\ResponseFactory;
+use Devpark\Transfers24\Factories\RegisterResponseFactory;
 use Devpark\Transfers24\Factories\RunnerFactory;
 use Devpark\Transfers24\Responses\Verify;
 use Illuminate\Config\Repository as Config;
@@ -206,7 +207,7 @@ class Transfers24
      */
     protected $translator_factory;
     /**
-     * @var ResponseFactory
+     * @var RegisterResponseFactory
      */
     protected $response_factory;
     /**
@@ -217,6 +218,10 @@ class Transfers24
      * @var ReceiveTranslatorFactory
      */
     private $receive_translator_factory;
+    /**
+     * @var ReceiveResponseFactory
+     */
+    private $receive_response_factory;
 
     /**
      * Transfers24 constructor.
@@ -231,14 +236,15 @@ class Transfers24
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
     public function __construct(
-        Config $config,
-        Url $url,
-        Credentials $credentials_keeper,
-        ActionFactory $action_factory,
-        RunnerFactory $runner_factory,
+        Config                    $config,
+        Url                       $url,
+        Credentials               $credentials_keeper,
+        ActionFactory             $action_factory,
+        RunnerFactory             $runner_factory,
         RegisterTranslatorFactory $translator_factory,
-        ResponseFactory $response_factory,
-        ReceiveTranslatorFactory $receive_translator_factory
+        RegisterResponseFactory   $response_factory,
+        ReceiveTranslatorFactory  $receive_translator_factory,
+        ReceiveResponseFactory    $receive_response_factory
     ) {
         $this->credentials_keeper = $credentials_keeper;
         $this->config = $config;
@@ -250,6 +256,7 @@ class Transfers24
         $this->response_factory = $response_factory;
         $this->runner_factory = $runner_factory;
         $this->receive_translator_factory = $receive_translator_factory;
+        $this->receive_response_factory = $receive_response_factory;
     }
 
     /**
@@ -702,7 +709,7 @@ class Transfers24
     {
 
         $translator = $this->receive_translator_factory->create($request->all(), $this->credentials_keeper);
-        $action = $this->action_factory->create($this->response_factory, $translator);
+        $action = $this->action_factory->create($this->receive_response_factory, $translator);
         return $action->execute();
     }
 

@@ -3,6 +3,7 @@
 namespace Tests\Translators;
 
 use Devpark\Transfers24\Credentials;
+use Devpark\Transfers24\Forms\ReceiveForm;
 use Devpark\Transfers24\Services\Crc;
 use Devpark\Transfers24\Translators\ReceiveTranslator;
 use Devpark\Transfers24\Translators\RegisterTranslator;
@@ -18,7 +19,7 @@ class ReceiveTranslatorTest extends UnitTestCase
      */
     private $credentials;
     /**
-     * @var RegisterTranslator
+     * @var ReceiveTranslator
      */
     private $translator;
     /**
@@ -80,6 +81,9 @@ class ReceiveTranslatorTest extends UnitTestCase
 
         $this->translator->init($receive_data, $this->credentials);
 
+        /**
+         * @var ReceiveForm $form
+         */
         $form = $this->translator->translate();
 
         $data = $form->toArray();
@@ -89,6 +93,7 @@ class ReceiveTranslatorTest extends UnitTestCase
         $this->assertSame($p24_amount,Arr::get($data, 'p24_amount'));
         $this->assertSame($p24_currency,Arr::get($data, 'p24_currency'));
         $this->assertSame($p24_order_id, Arr::get($data, 'p24_order_id'));
+        $this->assertSame($receive_data, $form->getReceiveParameters());
     }
 
 }

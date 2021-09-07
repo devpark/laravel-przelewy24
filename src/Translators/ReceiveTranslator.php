@@ -58,6 +58,8 @@ class ReceiveTranslator extends AbstractTranslator implements Translator
 
         $this->form->addValue('p24_sign', $this->calculateSign());
 
+        $this->form->setReceivedParameters($this->receive_parameters);
+
         return $this->form;
     }
 

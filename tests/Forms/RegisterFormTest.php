@@ -9,7 +9,7 @@ use Devpark\Transfers24\Currency;
 use Devpark\Transfers24\Exceptions\RequestExecutionException;
 use Devpark\Transfers24\Factories\HandlerFactory;
 use Devpark\Transfers24\Factories\RegisterTranslatorFactory;
-use Devpark\Transfers24\Factories\ResponseFactory;
+use Devpark\Transfers24\Factories\RegisterResponseFactory;
 use Devpark\Transfers24\Forms\RegisterForm;
 use Devpark\Transfers24\Requests\Transfers24 as RequestTransfers24;
 use Devpark\Transfers24\Responses\Http\Response;

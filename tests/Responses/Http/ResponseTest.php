@@ -2,11 +2,17 @@
 
 namespace Tests\Responses\Http;
 
+use Devpark\Transfers24\Forms\RegisterForm;
 use Tests\UnitTestCase;
 use Devpark\Transfers24\Responses\Http\Response;
 
 class ResponseTest extends UnitTestCase
 {
+    /**
+     * @var Response
+     */
+    private $response;
+
     protected function setUp()
     {
         parent::setUp();
@@ -37,14 +43,12 @@ class ResponseTest extends UnitTestCase
     /** @test */
     public function is_form_params_add_and_get_same()
     {
-        $form_params = [
-            'a' => 'a',
-            'b' => 'b',
-        ];
+        $form = new RegisterForm();
+        $form->addValue('a', 'a');
+        $form->addValue('b', 'b');
 
-        $this->response->addFormParams($form_params);
+        $this->response->addFormParams($form);
 
-        $this->assertEquals(count($form_params), count($this->response->getFormParams()));
-        $this->assertEquals($form_params, $this->response->getFormParams());
+        $this->assertEquals($form, $this->response->getForm());
     }
 }

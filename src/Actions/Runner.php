@@ -6,7 +6,7 @@ namespace Devpark\Transfers24\Actions;
 use Devpark\Transfers24\Contracts\IResponse;
 use Devpark\Transfers24\Credentials;
 use Devpark\Transfers24\Factories\HandlerFactory;
-use Devpark\Transfers24\Factories\ResponseFactory;
+use Devpark\Transfers24\Factories\RegisterResponseFactory;
 use Devpark\Transfers24\Forms\RegisterForm;
 use Devpark\Transfers24\Services\Gateways\Transfers24;
 use Devpark\Transfers24\Translators\RegisterTranslator;

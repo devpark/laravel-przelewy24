@@ -5,13 +5,13 @@ namespace Devpark\Transfers24\Actions;
 
 use Devpark\Transfers24\Contracts\IResponse;
 use Devpark\Transfers24\Contracts\Translator;
-use Devpark\Transfers24\Factories\ResponseFactory;
+use Devpark\Transfers24\Factories\RegisterResponseFactory;
 use Devpark\Transfers24\Services\Gateways\Transfers24;
 
 class Action
 {
     /**
-     * @var ResponseFactory
+     * @var RegisterResponseFactory
      */
     protected $response_factory;
     /**
@@ -28,7 +28,7 @@ class Action
         $this->gateway = $gateway;
     }
 
-    public function init(ResponseFactory $response_factory, Translator $translator):Action
+    public function init(RegisterResponseFactory $response_factory, Translator $translator):Action
     {
         $this->response_factory = $response_factory;
         $this->translator = $translator;

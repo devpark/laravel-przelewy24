@@ -10,7 +10,7 @@ use Devpark\Transfers24\Currency;
 use Devpark\Transfers24\Exceptions\RequestExecutionException;
 use Devpark\Transfers24\Factories\HandlerFactory;
 use Devpark\Transfers24\Factories\RegisterTranslatorFactory;
-use Devpark\Transfers24\Factories\ResponseFactory;
+use Devpark\Transfers24\Factories\RegisterResponseFactory;
 use Devpark\Transfers24\Forms\RegisterForm;
 use Devpark\Transfers24\Requests\Transfers24 as RequestTransfers24;
 use Devpark\Transfers24\Responses\Http\Response;
@@ -34,7 +34,7 @@ class ResponseFactoryTest extends UnitTestCase
 {
 
     /**
-     * @var ResponseFactory
+     * @var RegisterResponseFactory
      */
     private $factory;
     /**
@@ -47,7 +47,7 @@ class ResponseFactoryTest extends UnitTestCase
         parent::setUp();
 
         $this->body_decoder = m::mock(BodyDecoder::class);
-        $this->factory = $this->app->make(ResponseFactory::class, [
+        $this->factory = $this->app->make(RegisterResponseFactory::class, [
             'body_decoder' => $this->body_decoder
         ]);
     }
