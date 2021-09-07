@@ -135,18 +135,6 @@ class Transfers24
     }
 
     /**
-     * Prepare a transaction request.
-     *
-     * @param array $fields
-     *
-     * @return Response
-     */
-    public function trnRegister(array $fields)
-    {
-        return $this->callTransfers24('trnRegister');
-    }
-
-    /**
      * Redirects or returns URL to a P24 payment screen.
      *
      * @param string $token

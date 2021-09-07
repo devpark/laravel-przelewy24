@@ -195,14 +195,6 @@ class Transfers24Test extends UnitTestCase
     }
 
     /** @test */
-    public function trnRegister_return_response()
-    {
-        $this->get_mock_callTransfers24();
-        $response = $this->gateway->trnRegister([]);
-        $this->assertTrue($response);
-    }
-
-    /** @test */
     public function trnVerify_return_response()
     {
         $this->get_mock_callTransfers24();

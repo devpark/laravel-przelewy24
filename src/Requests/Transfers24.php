@@ -639,8 +639,7 @@ class Transfers24
         }
 
         $form_generator = $this->translator_factory->create($this, $this->credentials_keeper);
-        //response_factory
-        //reguest_factory
+
         $action = $this->action_factory->create($form_generator);
 
         return $action->execute();

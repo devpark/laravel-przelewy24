@@ -67,7 +67,9 @@ class RegisterTranslator
     {
         $this->form = new RegisterForm();
 
-        $this->form->addValue('p24_session_id',  uniqid());
+        $session_id = uniqid();
+        $this->form->addValue('p24_session_id', $session_id);
+        $this->form->setSessionId($session_id);
         $this->form->addValue('p24_amount', $this->request->getAmount());
         $this->form->addValue('p24_currency', $this->request->getCurrency());
         $this->form->addValue('p24_description', $this->request->getDescription());

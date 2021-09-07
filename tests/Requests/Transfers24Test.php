@@ -499,8 +499,6 @@ class Transfers24Test extends UnitTestCase
             'p24_shipping' => $this->request_concrete->getField('shipping_cost'),
         ];
 
-        $set_fields = $this->request_concrete->setFields();
-
         $this->assertEquals($set_fields, $payment_form);
     }
 

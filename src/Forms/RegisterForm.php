@@ -10,28 +10,37 @@ class RegisterForm implements Form
 
     private $postData = [];
 
+    /**
+     * @var string
+     */
+    private $session_id;
+    /**
+     * @var string
+     */
+    private $order_id;
+
     public function toArray():array{
         return $this->postData;
     }
 
     public function getOrderId(): string
     {
-        // TODO: Implement getOrderId() method.
+        return $this->order_id;
     }
 
     public function getSessionId(): string
     {
-        // TODO: Implement getSessionId() method.
+        return $this->session_id;
     }
 
     public function getUri(): string
     {
-        // TODO: Implement getUri() method.
+        return 'trnRegister';
     }
 
     public function getMethod(): string
     {
-        // TODO: Implement getMethod() method.
+        return 'POST';
     }
 
     /**
@@ -47,5 +56,21 @@ class RegisterForm implements Form
         if (isset($value) && ! empty($value)) {
             $this->postData[$name] = $value;
         }
+    }
+
+    /**
+     * @param string $session_id
+     */
+    public function setSessionId(string $session_id): void
+    {
+        $this->session_id = $session_id;
+    }
+
+    /**
+     * @param string $order_id
+     */
+    public function setOrderId(string $order_id): void
+    {
+        $this->order_id = $order_id;
     }
 }

@@ -67,10 +67,6 @@ class Transfers24
         $this->crc = $crc;
     }
 
-    public function fill(RegisterForm $form){
-        $this->form = $form;
-    }
-
     public function configure():self{
         try{
             $this->configureGateway();
@@ -107,8 +103,6 @@ class Transfers24
         try{
             $this->configureGateway();
 
-            $this->session_id = $fields['p24_session_id'];
-            $this->http_response = $this->transfers24->trnRegister($fields);
 
             return new ResponseRegister($this);
 
