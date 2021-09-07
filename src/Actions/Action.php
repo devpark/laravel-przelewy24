@@ -6,8 +6,12 @@ namespace Devpark\Transfers24\Actions;
 use Devpark\Transfers24\Contracts\IResponse;
 use Devpark\Transfers24\Contracts\ResponseFactory;
 use Devpark\Transfers24\Contracts\Translator;
+use Devpark\Transfers24\Exceptions\EmptyCredentialsException;
+use Devpark\Transfers24\Exceptions\NoEnvironmentChosenException;
 use Devpark\Transfers24\Factories\RegisterResponseFactory;
+use Devpark\Transfers24\Responses\InvalidResponse;
 use Devpark\Transfers24\Services\Gateways\Transfers24;
+use Psr\Log\LoggerInterface;
 
 class Action
 {
@@ -23,25 +27,48 @@ class Action
      * @var Transfers24
      */
     protected $gateway;
+    /**
+     * @var LoggerInterface
+     */
+    protected $logger;
 
-    public function __construct(Transfers24 $gateway)
+    public function __construct(Transfers24 $gateway, LoggerInterface $logger)
     {
         $this->gateway = $gateway;
+        $this->logger = $logger;
     }
 
     public function init(ResponseFactory $response_factory, Translator $translator):Action
     {
         $this->response_factory = $response_factory;
         $this->translator = $translator;
-        $this->gateway->configureGateway($translator->getCredentials());
         return $this;
     }
 
     public function execute():IResponse
     {
-        $form = $this->translator->translate();
-        $gateway_response = $this->gateway->callTransfers24($form);
+        try{
+            $this->translator->configure();
+            $form = $this->translator->translate();
 
-        return $this->response_factory->create($gateway_response);
+            $this->gateway->configureGateway($this->translator->getCredentials());
+            $gateway_response = $this->gateway->callTransfers24($form);
+
+            return $this->response_factory->create($gateway_response);
+
+        } catch (EmptyCredentialsException $exception)
+        {
+            $this->logger->error($exception->getMessage());
+            return new InvalidResponse($exception);
+
+        }catch (NoEnvironmentChosenException $exception)
+        {
+            $this->logger->error($exception->getMessage());
+            return new InvalidResponse($exception);
+        }
+        catch (\Throwable $exception)
+        {
+            return new InvalidResponse($exception);
+        }
     }
 }

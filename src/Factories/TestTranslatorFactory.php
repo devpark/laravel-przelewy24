@@ -28,18 +28,18 @@ class TestTranslatorFactory
 
     /**
      * @param Credentials $credentials
-     * @return ReceiveTranslator|Translator
+     * @return TestTranslator|Translator
      * @throws \Devpark\Transfers24\Exceptions\EmptyCredentialsException
      * @throws \Devpark\Transfers24\Exceptions\NoEnvironmentChosenException
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
-    public function create(Credentials $credentials):ReceiveTranslator
+    public function create(Credentials $credentials):TestTranslator
     {
         /**
-         * @var ReceiveTranslator $translator
+         * @var TestTranslator $translator
          */
         $translator = $this->app->make(TestTranslator::class);
-        return $translator->init($credentials)->configure();
+        return $translator->init($credentials);
 
     }
 }

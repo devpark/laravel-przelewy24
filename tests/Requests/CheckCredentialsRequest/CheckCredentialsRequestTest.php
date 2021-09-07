@@ -3,13 +3,21 @@ declare(strict_types=1);
 
 namespace Tests\Requests\CheckCredentialsRequest;
 
+use Devpark\Transfers24\Actions\Action;
+use Devpark\Transfers24\Contracts\Translator;
+use Devpark\Transfers24\Credentials;
 use Devpark\Transfers24\Exceptions\EmptyCredentialsException;
 use Devpark\Transfers24\Exceptions\NoEnvironmentChosenException;
+use Devpark\Transfers24\Factories\ActionFactory;
+use Devpark\Transfers24\Factories\TestResponseFactory;
+use Devpark\Transfers24\Factories\TestTranslatorFactory;
 use Devpark\Transfers24\Requests\CheckCredentialsRequest;
 use Devpark\Transfers24\Responses\InvalidResponse;
 use Devpark\Transfers24\Responses\Response;
 use Devpark\Transfers24\Responses\TestConnection;
 use Devpark\Transfers24\Services\Handlers\Transfers24;
+use Devpark\Transfers24\Translators\TestTranslator;
+use Mockery as m;
 use Tests\UnitTestCase;
 
 class CheckCredentialsRequestTest extends UnitTestCase
@@ -30,16 +38,46 @@ class CheckCredentialsRequestTest extends UnitTestCase
      * @var \Mockery\MockInterface|InvalidResponse
      */
     private $invalid_response;
+    /**
+     * @var m\MockInterface
+     */
+    private $test_translator_factory;
+    /**
+     * @var m\MockInterface
+     */
+    private $credentials_keeper;
+    /**
+     * @var m\MockInterface
+     */
+    private $action_factory;
+    /**
+     * @var m\MockInterface
+     */
+    private $test_response_factory;
+    /**
+     * @var m\MockInterface
+     */
+    private $translator;
 
     protected function setUp()
     {
         parent::setUp();
-        $this->handler = \Mockery::mock(Transfers24::class);
-        $this->response = \Mockery::mock(TestConnection::class);
-        $this->invalid_response = \Mockery::mock(InvalidResponse::class);
+        $this->translator = m::mock(TestTranslator::class);
+        $this->response = m::mock(TestConnection::class);
+        $this->invalid_response = m::mock(InvalidResponse::class);
+
+        $this->test_translator_factory = m::mock(TestTranslatorFactory::class);
+        $this->credentials_keeper = m::mock(Credentials::class);
+        $this->action_factory = m::mock(ActionFactory::class);
+        $this->test_response_factory = m::mock(TestResponseFactory::class);
+
+
 
         $this->request = $this->app->make(CheckCredentialsRequest::class, [
-            'handler' => $this->handler,
+            'credentials_keeper' => $this->credentials_keeper,
+            'test_translator_factory' => $this->test_translator_factory,
+            'action_factory' => $this->action_factory,
+            'test_response_factory' => $this->test_response_factory,
         ]);
 
     }
@@ -79,12 +117,19 @@ class CheckCredentialsRequestTest extends UnitTestCase
 
     protected function mockHandlerMethods($response): void
     {
-        $this->handler->shouldReceive('checkCredentials')
+        $this->test_translator_factory->shouldReceive('create')
+            ->once()
+            ->andReturn($this->translator);
+
+        $action = m::mock(Action::class);
+
+        $action->shouldReceive('execute')
             ->once()
             ->andReturn($response);
-        $this->handler->shouldReceive('viaCredentials')
+
+        $this->action_factory->shouldReceive('create')
             ->once()
-            ->andReturnSelf();
+            ->andReturn($action);
     }
 
 }

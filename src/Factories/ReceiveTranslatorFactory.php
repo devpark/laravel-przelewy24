@@ -39,7 +39,7 @@ class ReceiveTranslatorFactory
          * @var ReceiveTranslator $translator
          */
         $translator = $this->app->make(ReceiveTranslator::class);
-        return $translator->init($request, $credentials)->configure();
+        return $translator->init($request, $credentials);
 
     }
 }

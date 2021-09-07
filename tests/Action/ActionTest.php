@@ -16,6 +16,7 @@ use Devpark\Transfers24\Responses\Http\Response;
 use Devpark\Transfers24\Services\Gateways\Transfers24;
 use Devpark\Transfers24\Translators\RegisterTranslator;
 use Illuminate\Contracts\Container\Container;
+use Psr\Log\LoggerInterface;
 use stdClass;
 use Tests\UnitTestCase;
 use Mockery as m;
@@ -56,6 +57,10 @@ class ActionTest extends UnitTestCase
      * @var m\MockInterface
      */
     private $response_factory;
+    /**
+     * @var m\MockInterface
+     */
+    private $logger;
 
     protected function setUp()
     {
@@ -70,15 +75,16 @@ class ActionTest extends UnitTestCase
             ->once()
             ->andReturn($this->credentials);
 
+        $this->logger = m::mock(LoggerInterface::class);
+
         $this->gateway = m::mock(Transfers24::class);
-        $this->gateway->shouldReceive('configureGateway')
-            ->once()
-            ->with($this->credentials);
+
 
         $this->response_factory = m::mock(RegisterResponseFactory::class);
 
         $this->action = $this->app->make(Action::class, [
             'gateway' => $this->gateway,
+            'logger' => $this->logger,
         ]);
         $this->action->init($this->response_factory, $this->translator);
     }
@@ -93,6 +99,12 @@ class ActionTest extends UnitTestCase
         $this->translator->shouldReceive('translate')
             ->once()
             ->andReturn($form);
+        $this->translator->shouldReceive('configure')
+            ->once();
+
+        $this->gateway->shouldReceive('configureGateway')
+            ->once()
+            ->with($this->credentials);
 
         $gateway_response = m::mock(Response::class);
 

@@ -37,7 +37,7 @@ class RegisterTranslatorFactory
          * @var RegisterTranslator $translator
          */
         $translator = $this->app->make(RegisterTranslator::class);
-        return $translator->init($request, $credentials)->configure();
+        return $translator->init($request, $credentials);
 
     }
 }
