@@ -3,6 +3,7 @@
 namespace Devpark\Transfers24\Services\Gateways;
 
 use Devpark\Transfers24\Contracts\Form;
+use Devpark\Transfers24\Credentials;
 use Devpark\Transfers24\Factories\HttpResponseFactory;
 use Devpark\Transfers24\Forms\RegisterForm;
 use Devpark\Transfers24\Services\Crc;
@@ -154,38 +155,13 @@ class Transfers24
     }
 
     /**
-     * Function verify received from P24 system transaction's result.
-     *
-     * @param array $fields
-     *
-     * @return Response object
-     */
-    public function trnVerify(array $fields)
-    {
-//        $this->postData += $fields;
-
-//        $this->calculateSign(['p24_session_id', 'p24_order_id', 'p24_amount', 'p24_currency']);
-
-        return $this->callTransfers24('trnVerify');
-    }
-
-    /**
      * Function connect to P24 system.
      *
      * @param \Devpark\Transfers24\Services\Handlers\Transfers24 $handler
      * @return Response
      */
-//    public function callTransfers24(RegisterForm $form): Response
     public function callTransfers24(Form $form): Response
     {
-//        $this->postData += $fields;
-
-//        $this->configureGateway();
-//        $form = $handler->getForm();
-//        $this->postData += $form->toArray();
-
-//        $this->calculateSign(['p24_session_id', 'p24_merchant_id', 'p24_amount', 'p24_currency']);
-
         $uri = $form->getUri();
         $method = $form->getMethod();
         $form_params = $form->toArray();
@@ -199,17 +175,13 @@ class Transfers24
 
 
     /**
-     * @throws EmptyCredentialsException
      * @throws NoEnvironmentChosenException
      */
-    protected function configureGateway(): void
+    public function configureGateway(Credentials $credentials): void
     {
         if ($this->config->get('transfers24.credentials-scope')) {
-            if (!isset($this->credentials_keeper)) {
-                throw new EmptyCredentialsException("Empty credentials.");
-            }
             $this->configure(
-                $this->credentials_keeper->isTestMode()
+                $credentials->isTestMode()
             );
         }
     }
@@ -261,7 +233,7 @@ class Transfers24
     /**
      * @param Config $config
      */
-    public function configure(bool $sandbox): void
+    private function configure(bool $sandbox): void
     {
 
         $this->testMode = $sandbox;

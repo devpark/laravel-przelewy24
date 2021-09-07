@@ -1,13 +1,19 @@
 <?php
 
-namespace Tests\Requests\Http;
+namespace Tests\Requests;
 
+use Devpark\Transfers24\Actions\Action;
 use Devpark\Transfers24\Contracts\IResponse;
 use Devpark\Transfers24\Credentials;
 use Devpark\Transfers24\Currency;
 use Devpark\Transfers24\Exceptions\RequestExecutionException;
+use Devpark\Transfers24\Factories\ActionFactory;
+use Devpark\Transfers24\Factories\RegisterTranslatorFactory;
+use Devpark\Transfers24\Factories\ResponseFactory;
 use Devpark\Transfers24\Requests\Transfers24 as RequestTransfers24;
+use Devpark\Transfers24\Translators\RegisterTranslator;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Routing\UrlGenerator as Url;
 use stdClass;
 use Tests\UnitTestCase;
 use Mockery as m;
@@ -24,30 +30,42 @@ class Transfers24Test extends UnitTestCase
      * @var m\Mock
      */
     private $credentials;
+
+    /**
+     * @var RequestTransfers24
+     */
+    private $request;
     /**
      * @var m\MockInterface
      */
-    private $response;
+    private $action_factory;
+    /**
+     * @var m\MockInterface
+     */
+    private $translator_factory;
+    /**
+     * @var m\MockInterface
+     */
+    private $response_factory;
 
     protected function setUp()
     {
         parent::setUp();
-
-        $this->request_test = m::mock(RequestTransfers24::class)->makePartial();
-        $this->response = m::mock(IResponse::class);
+        $this->app->bind(Container::class, \Illuminate\Container\Container::class);
+        $this->request = $this->createConcreteRequest();
     }
 
     /** @test */
     public function validation_setDescription()
     {
         $test_array = [];
-        $this->request_test->setDescription($test_array);
-        $set_fields = $this->request_test->getField('description');
+        $this->request->setDescription($test_array);
+        $set_fields = $this->request->getField('description');
         $this->assertTrue(is_string($set_fields));
 
         $test_array = 'dsfdf';
-        $this->request_test->setDescription($test_array);
-        $set_fields = $this->request_test->getField('description');
+        $this->request->setDescription($test_array);
+        $set_fields = $this->request->getField('description');
         $this->assertEquals($test_array, $set_fields);
     }
 
@@ -55,13 +73,13 @@ class Transfers24Test extends UnitTestCase
     public function validate_setEmail()
     {
         $email = 'test';
-        $this->request_test->setEmail($email);
-        $set_email = $this->request_test->getField('customer_email');
+        $this->request->setEmail($email);
+        $set_email = $this->request->getField('customer_email');
         $this->assertNull($set_email);
 
         $email = 'test@test.pl';
-        $this->request_test->setEmail($email);
-        $set_email = $this->request_test->getField('customer_email');
+        $this->request->setEmail($email);
+        $set_email = $this->request->getField('customer_email');
         $this->assertEquals($set_email, $email);
     }
 
@@ -71,27 +89,27 @@ class Transfers24Test extends UnitTestCase
         $amount = 12.5;
         $currency = 'eur';
         $except_currency = 'EUR';
-        $this->request_test->setAmount($amount, $currency);
-        $set_amount = $this->request_test->getField('amount');
-        $set_currency = $this->request_test->getField('currency');
+        $this->request->setAmount($amount, $currency);
+        $set_amount = $this->request->getField('amount');
+        $set_currency = $this->request->getField('currency');
         $this->assertEquals($set_amount, 1250);
         $this->assertEquals($set_currency, $except_currency);
 
         $amount = '12,5';
-        $this->request_test->setAmount($amount);
-        $set_amount = $this->request_test->getField('amount');
-        $set_currency = $this->request_test->getField('currency');
+        $this->request->setAmount($amount);
+        $set_amount = $this->request->getField('amount');
+        $set_currency = $this->request->getField('currency');
         $this->assertEquals($set_amount, 1250);
         $this->assertEquals($set_currency, Currency::PLN);
 
         $amount = '12';
-        $this->request_test->setAmount($amount);
-        $set_amount = $this->request_test->getField('amount');
+        $this->request->setAmount($amount);
+        $set_amount = $this->request->getField('amount');
         $this->assertEquals($set_amount, 1200);
 
         $amount = 'text';
-        $this->request_test->setAmount($amount);
-        $set_amount = $this->request_test->getField('amount');
+        $this->request->setAmount($amount);
+        $set_amount = $this->request->getField('amount');
         $this->assertEquals($set_amount, 0);
     }
 
@@ -99,8 +117,8 @@ class Transfers24Test extends UnitTestCase
     public function validate_setCountry()
     {
         $country = 'Portugal';
-        $this->request_test->setCountry($country);
-        $set_country = $this->request_test->getField('country');
+        $this->request->setCountry($country);
+        $set_country = $this->request->getField('country');
         $this->assertEquals($set_country, 'PT');
     }
 
@@ -108,13 +126,13 @@ class Transfers24Test extends UnitTestCase
     public function validate_setLanguage()
     {
         $language = 'german';
-        $this->request_test->setLanguage($language);
-        $set_language = $this->request_test->getField('language');
+        $this->request->setLanguage($language);
+        $set_language = $this->request->getField('language');
         $this->assertEquals($set_language, 'de');
 
         $language = 'de';
-        $this->request_test->setLanguage($language);
-        $set_language = $this->request_test->getField('language');
+        $this->request->setLanguage($language);
+        $set_language = $this->request->getField('language');
         $this->assertEquals($set_language, 'de');
     }
 
@@ -122,39 +140,35 @@ class Transfers24Test extends UnitTestCase
     public function validate_set_url_return()
     {
         $url = 'www.url.not.valid';
-        $this->request_test->setUrlReturn($url);
-        $set_url = $this->request_test->getField('url_return');
-        $this->assertNull($set_url);
+        $this->request->setUrlReturn($url);
 
         $url = 'http://localhost/callback';
-        $this->request_test->setUrlReturn($url);
-        $set_url = $this->request_test->getField('url_return');
-        $this->assertEquals($set_url, $url);
+        $this->request->setUrlReturn($url);
+        $set_url = $this->request->getField('url_return');
+        $this->assertEquals($url, $set_url);
     }
 
     /** @test */
     public function validate_set_url_status()
     {
         $url = 'www.url.not.valid';
-        $this->request_test->setUrlStatus($url);
-        $set_url = $this->request_test->getField('url_status');
-        $this->assertNull($set_url);
+        $this->request->setUrlStatus($url);
 
         $url = 'http://localhost/status';
-        $this->request_test->setUrlStatus($url);
-        $set_url = $this->request_test->getField('url_status');
-        $this->assertEquals($set_url, $url);
+        $this->request->setUrlStatus($url);
+        $set_url = $this->request->getField('url_status');
+        $this->assertEquals($url, $set_url);
     }
 
     /** @test */
     public function filterString_validate()
     {
         $name_array = [];
-        $filter = $this->request_test->filterString($name_array);
+        $filter = $this->request->filterString($name_array);
         $this->assertFalse($filter);
 
         $name = 'string';
-        $filter = $this->request_test->filterString($name);
+        $filter = $this->request->filterString($name);
         $this->assertTrue($filter);
     }
 
@@ -162,15 +176,15 @@ class Transfers24Test extends UnitTestCase
     public function filterNumber_validate()
     {
         $name_array = [];
-        $filter = $this->request_test->filterNumber($name_array);
+        $filter = $this->request->filterNumber($name_array);
         $this->assertFalse($filter);
 
         $name = 'string';
-        $filter = $this->request_test->filterNumber($name);
+        $filter = $this->request->filterNumber($name);
         $this->assertfalse($filter);
 
         $name = 100;
-        $filter = $this->request_test->filterNumber($name);
+        $filter = $this->request->filterNumber($name);
         $this->assertTrue($filter);
     }
 
@@ -179,19 +193,19 @@ class Transfers24Test extends UnitTestCase
     {
         $name_array = [];
         $price_array = [];
-        $this->request_test->setArticle($name_array, $price_array);
-        $set_fields = $this->request_test->getField('article_name');
+        $this->request->setArticle($name_array, $price_array);
+        $set_fields = $this->request->getField('article_name');
         $this->assertNull($set_fields);
-        $set_amount = $this->request_test->getField('article_price');
+        $set_amount = $this->request->getField('article_price');
         $this->assertNull($set_amount);
 
         $test_name = 'testowa nazwa';
         $test_price = '100';
         $test_quantity = 'no number';
-        $this->request_test->setArticle($test_name, $test_price, $test_quantity);
-        $set_fields = $this->request_test->getField('article_name');
-        $set_amount = $this->request_test->getField('article_price');
-        $set_quantity = $this->request_test->getField('article_quantity');
+        $this->request->setArticle($test_name, $test_price, $test_quantity);
+        $set_fields = $this->request->getField('article_name');
+        $set_amount = $this->request->getField('article_price');
+        $set_quantity = $this->request->getField('article_quantity');
         $this->assertEquals($test_name, $set_fields);
         $this->assertEquals($set_amount, 10000);
         $this->assertEquals($set_quantity, RequestTransfers24::DEFAULT_ARTICLE_QUANTITY);
@@ -199,10 +213,10 @@ class Transfers24Test extends UnitTestCase
         $test_name = 'testowa nazwa';
         $amount = '12,5';
         $test_quantity = 21.4;
-        $this->request_test->setArticle($test_name, $amount, $test_quantity);
-        $set_fields = $this->request_test->getField('article_name');
-        $set_amount = $this->request_test->getField('article_price');
-        $set_quantity = $this->request_test->getField('article_quantity');
+        $this->request->setArticle($test_name, $amount, $test_quantity);
+        $set_fields = $this->request->getField('article_name');
+        $set_amount = $this->request->getField('article_price');
+        $set_quantity = $this->request->getField('article_quantity');
         $this->assertEquals($test_name, $set_fields);
         $this->assertEquals($set_amount, 1250);
         $this->assertEquals($set_quantity, (int) $test_quantity);
@@ -212,13 +226,13 @@ class Transfers24Test extends UnitTestCase
     public function setTransferLabel_validation()
     {
         $test_array = [];
-        $this->request_test->setTransferLabel($test_array);
-        $set_fields = $this->request_test->getField('transfer_label');
+        $this->request->setTransferLabel($test_array);
+        $set_fields = $this->request->getField('transfer_label');
         $this->assertNull($set_fields);
 
         $label = 'transfer label';
-        $this->request_test->setTransferLabel($label);
-        $set_fields = $this->request_test->getField('transfer_label');
+        $this->request->setTransferLabel($label);
+        $set_fields = $this->request->getField('transfer_label');
         $this->assertEquals($label, $set_fields);
     }
 
@@ -226,13 +240,13 @@ class Transfers24Test extends UnitTestCase
     public function validation_set_article_description()
     {
         $test_array = [];
-        $this->request_test->setArticleDescription($test_array);
-        $set_fields = $this->request_test->getField('article_description');
+        $this->request->setArticleDescription($test_array);
+        $set_fields = $this->request->getField('article_description');
         $this->assertNull($set_fields);
 
         $test_array = 'dsfdf';
-        $this->request_test->setArticleDescription($test_array);
-        $set_fields = $this->request_test->getField('article_description');
+        $this->request->setArticleDescription($test_array);
+        $set_fields = $this->request->getField('article_description');
         $this->assertEquals($test_array, $set_fields);
     }
 
@@ -240,13 +254,13 @@ class Transfers24Test extends UnitTestCase
     public function validation_set_client_name()
     {
         $test_array = [];
-        $this->request_test->setClientName($test_array);
-        $set_fields = $this->request_test->getField('client_name');
+        $this->request->setClientName($test_array);
+        $set_fields = $this->request->getField('client_name');
         $this->assertNull($set_fields);
 
         $test_array = 'dsfdf';
-        $this->request_test->setClientName($test_array);
-        $set_fields = $this->request_test->getField('client_name');
+        $this->request->setClientName($test_array);
+        $set_fields = $this->request->getField('client_name');
         $this->assertEquals($test_array, $set_fields);
     }
 
@@ -254,13 +268,13 @@ class Transfers24Test extends UnitTestCase
     public function validation_set_client_phone()
     {
         $test_array = [];
-        $this->request_test->setClientPhone($test_array);
-        $set_fields = $this->request_test->getField('client_phone');
+        $this->request->setClientPhone($test_array);
+        $set_fields = $this->request->getField('client_phone');
         $this->assertNull($set_fields);
 
         $test_array = 'dsfdf';
-        $this->request_test->setClientPhone($test_array);
-        $set_fields = $this->request_test->getField('client_phone');
+        $this->request->setClientPhone($test_array);
+        $set_fields = $this->request->getField('client_phone');
         $this->assertEquals($test_array, $set_fields);
     }
 
@@ -268,13 +282,13 @@ class Transfers24Test extends UnitTestCase
     public function validation_set_address()
     {
         $test_array = [];
-        $this->request_test->setAddress($test_array);
-        $set_fields = $this->request_test->getField('address');
+        $this->request->setAddress($test_array);
+        $set_fields = $this->request->getField('address');
         $this->assertNull($set_fields);
 
         $test_array = 'dsfdf';
-        $this->request_test->setAddress($test_array);
-        $set_fields = $this->request_test->getField('address');
+        $this->request->setAddress($test_array);
+        $set_fields = $this->request->getField('address');
         $this->assertEquals($test_array, $set_fields);
     }
 
@@ -282,13 +296,13 @@ class Transfers24Test extends UnitTestCase
     public function validation_set_zip_code()
     {
         $test_array = [];
-        $this->request_test->setZipCode($test_array);
-        $set_fields = $this->request_test->getField('zip_code');
+        $this->request->setZipCode($test_array);
+        $set_fields = $this->request->getField('zip_code');
         $this->assertNull($set_fields);
 
         $test_array = 'dsfdf';
-        $this->request_test->setZipCode($test_array);
-        $set_fields = $this->request_test->getField('zip_code');
+        $this->request->setZipCode($test_array);
+        $set_fields = $this->request->getField('zip_code');
         $this->assertEquals($test_array, $set_fields);
     }
 
@@ -296,13 +310,13 @@ class Transfers24Test extends UnitTestCase
     public function validation_set_city()
     {
         $test_array = [];
-        $this->request_test->setCity($test_array);
-        $set_fields = $this->request_test->getField('city');
+        $this->request->setCity($test_array);
+        $set_fields = $this->request->getField('city');
         $this->assertNull($set_fields);
 
         $test_array = 'dsfdf';
-        $this->request_test->setCity($test_array);
-        $set_fields = $this->request_test->getField('city');
+        $this->request->setCity($test_array);
+        $set_fields = $this->request->getField('city');
         $this->assertEquals($test_array, $set_fields);
     }
 
@@ -310,86 +324,130 @@ class Transfers24Test extends UnitTestCase
     public function validation_set_article_number()
     {
         $test_array = [];
-        $this->request_test->setArticleNumber($test_array);
-        $set_fields = $this->request_test->getField('article_number');
+        $this->request->setArticleNumber($test_array);
+        $set_fields = $this->request->getField('article_number');
         $this->assertNull($set_fields);
 
         $test_array = 'AXC123';
-        $this->request_test->setArticleNumber($test_array);
-        $set_fields = $this->request_test->getField('article_number');
+        $this->request->setArticleNumber($test_array);
+        $set_fields = $this->request->getField('article_number');
         $this->assertEquals($test_array, $set_fields);
     }
 
-    /** @test */
+    /**
+     * @Feature Payments
+     * @Scenario Register Payment
+     * @Case Set shipping cost
+     * @test
+     */
     public function shippingCost_validate()
     {
         $test_array = [];
-        $this->request_test->setShipping($test_array);
-        $set_fields = $this->request_test->getField('shipping_cost');
+        $this->request->setShipping($test_array);
+        $set_fields = $this->request->getField('shipping_cost');
         $this->assertNull($set_fields);
 
         $test_array = 21.4;
-        $this->request_test->setShipping($test_array);
-        $set_fields = $this->request_test->getField('shipping_cost');
+        $this->request->setShipping($test_array);
+        $set_fields = $this->request->getField('shipping_cost');
         $this->assertEquals((int) $test_array, $set_fields);
     }
 
-    /** @test */
+    /**
+     * @Feature Payments
+     * @Scenario Register Payment
+     * @Case Register payment
+     * @test
+     */
     public function validation_init()
     {
-        $this->request_concrete = $this->createConcreteRequest();
+        $translator = m::mock(RegisterTranslator::class);
+        $action = m::mock(Action::class);
+        $expected_response = m::mock(IResponse::class);
 
-        $this->handler->shouldReceive('init')->once()->andReturn($this->response);
-        $this->handler->shouldReceive('viaCredentials')->once()->andReturnSelf();
 
-        $response = $this->request_concrete->setEmail('test@test.pl')->setAmount(100)
+        $this->translator_factory->shouldReceive('create')->once()
+            ->with($this->request, m::any())
+            ->andReturn($translator);
+        $this->action_factory->shouldReceive('create')
+            ->once()
+            ->with($this->response_factory, $translator)
+            ->andReturn($action);
+
+        $action->shouldReceive('execute')
+            ->once()
+            ->andReturn($expected_response);
+
+        $response = $this->request->setEmail('test@test.pl')->setAmount(100)
             ->setArticle('Article 1')->init();
 
-        $this->assertEquals($this->response, $response);
+        $this->assertEquals($expected_response, $response);
 
+    }
+
+
+    /**
+     * @Feature Payments
+     * @Scenario Register Payment
+     * @Case Validation exception
+     * @test
+     */
+    public function validation_exception()
+    {
         try {
-            $response = $this->request_test->init();
+            $this->request->init();
         } catch (\Exception $e) {
             $this->assertInstanceOf(RequestException::class, $e);
             $this->assertEquals($e->getMessage(), 'Empty email or amount');
         }
     }
 
-    /** @test */
+    /**
+     * @Feature Payments
+     * @Scenario Register Payment
+     * @Case Set default Urls
+     * @test
+     */
     public function validate_set_Default_urls()
     {
-        $this->request_concrete = $this->createConcreteRequest();
 
-        $this->request_concrete->setDefaultUrls();
+        $this->request->setDefaultUrls();
 
-        $url_status = $this->request_concrete->getField('url_status');
-        $url_return = $this->request_concrete->getField('url_return');
+        $url_status = $this->request->getField('url_status');
+        $url_return = $this->request->getField('url_return');
 
         $this->assertEquals($url_status, 'http://:');
         $this->assertEquals($url_return, 'http://:');
     }
 
-    /** @test */
+
+    /**
+     * @Feature Payments
+     * @Scenario Register Payment
+     * @Case Set relative Urls
+     * @test
+     */
     public function it_sets_valid_urls_for_relative_urls()
     {
-        $this->app = m::mock(Application::class)->makePartial();
-        $config = m::mock(stdClass::class);
+        $config = m::mock(Config::class);
         $config->shouldReceive('get')->with('transfers24.url_return')->andReturn('abc');
         $config->shouldReceive('get')->with('transfers24.url_status')->andReturn('def');
-        $this->app->shouldReceive('make')->once()->with(Config::class)->andReturn($config);
-        $url = m::mock(stdClass::class);
-        $this->app->shouldReceive('make')->once()->with(\Illuminate\Routing\UrlGenerator::class)
-            ->andReturn($url);
+
+        $url = m::mock(Url::class);
         $url->shouldReceive('to')->atLeast()->once()->with('abc')
             ->andReturn('http://sample.domain/abc');
         $url->shouldReceive('to')->atLeast()->once()->with('def')
             ->andReturn('http://sample.domain/def');
-        $this->request_concrete = $this->createConcreteRequest();
 
-        $this->request_concrete->setDefaultUrls();
+        $this->request = $this->createConcreteRequest([
+            'config' => $config,
+            'url' => $url,
+        ]);
 
-        $url_status = $this->request_concrete->getField('url_status');
-        $url_return = $this->request_concrete->getField('url_return');
+        $this->request->setDefaultUrls();
+
+        $url_status = $this->request->getField('url_status');
+        $url_return = $this->request->getField('url_return');
 
         $this->assertEquals('http://sample.domain/abc', $url_return);
         $this->assertEquals('http://sample.domain/def', $url_status);
@@ -398,21 +456,22 @@ class Transfers24Test extends UnitTestCase
     /** @test */
     public function it_sets_valid_urls_for_absolute_urls()
     {
-        $this->app = m::mock(Application::class)->makePartial();
-        $config = m::mock(stdClass::class);
+        $config = m::mock(Config::class);
         $config->shouldReceive('get')->with('transfers24.url_return')->andReturn('http://abc.example');
         $config->shouldReceive('get')->with('transfers24.url_status')->andReturn('https://def.example');
-        $this->app->shouldReceive('make')->once()->with(Config::class)->andReturn($config);
-        $url = m::mock(stdClass::class);
-        $this->app->shouldReceive('make')->once()->with(\Illuminate\Routing\UrlGenerator::class)
-            ->andReturn($url);
+
+        $url = m::mock(Url::class);
         $url->shouldNotReceive('to');
-        $this->request_concrete = $this->createConcreteRequest();
 
-        $this->request_concrete->setDefaultUrls();
+        $this->request = $this->createConcreteRequest([
+            'config' => $config,
+            'url' => $url,
+        ]);
 
-        $url_status = $this->request_concrete->getField('url_status');
-        $url_return = $this->request_concrete->getField('url_return');
+        $this->request->setDefaultUrls();
+
+        $url_status = $this->request->getField('url_status');
+        $url_return = $this->request->getField('url_return');
 
         $this->assertEquals('http://abc.example', $url_return);
         $this->assertEquals('https://def.example', $url_status);
@@ -502,18 +561,20 @@ class Transfers24Test extends UnitTestCase
         $this->assertEquals($set_fields, $payment_form);
     }
 
-    public function createConcreteRequest()
+    public function createConcreteRequest(array $dependent = [])
     {
-        $this->handler = m::mock(HandlersTransfers24::class)->makePartial();
-        $this->response = m::mock(RegisterResponse::class)->makePartial();
-        $this->credentials = m::mock(Credentials::class)->makePartial();
-        if (! isset($this->app)) {
-            $this->app = m::mock(Container::class)->makePartial();
-        }
+        $this->credentials = m::mock(Credentials::class);
+        $this->action_factory = m::mock(ActionFactory::class);
+        $this->translator_factory = m::mock(RegisterTranslatorFactory::class);
+        $this->response_factory = m::mock(ResponseFactory::class);
 
-        $request_concrete = new RequestTransfers24($this->handler, $this->response, $this->app, $this->credentials);
 
-        return $request_concrete;
+        return $this->app->make(RequestTransfers24::class, [
+            'credentials_keeper', $this->credentials,
+            'action_factory' => $this->action_factory,
+            'translator_factory' => $this->translator_factory,
+            'response_factory' => $this->response_factory,
+        ] + $dependent);
     }
 
     /** @test */
@@ -534,10 +595,10 @@ class Transfers24Test extends UnitTestCase
             'quantity' => 100,
         ];
 
-        $this->request_test->setNextArticle($next_article['name'], $next_article['price'],
+        $this->request->setNextArticle($next_article['name'], $next_article['price'],
             $next_article['quantity'], $next_article['number']);
 
-        $additional_articles = $this->request_test->getField('additional_articles');
+        $additional_articles = $this->request->getField('additional_articles');
         $first_article = array_pop($additional_articles);
         ksort($first_article);
         $this->assertSame($expected_article, $first_article);

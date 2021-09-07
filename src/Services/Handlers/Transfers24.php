@@ -58,39 +58,6 @@ class Transfers24
     private $form;
 
 
-    public function __construct(Crc $crc)
-//    public function __construct(GatewayTransfers24 $transfers24, Repository $config, LoggerInterface $logger)
-    {
-//        $this->transfers24 = $transfers24;
-//        $this->config = $config;
-//        $this->logger = $logger;
-        $this->crc = $crc;
-    }
-
-    public function configure():self{
-        try{
-            $this->configureGateway();
-            return $this;
-
-//            $this->session_id = $fields['p24_session_id'];
-
-        } catch (EmptyCredentialsException $exception)
-        {
-//            $this->logger->error($exception->getMessage());
-//            throw new InvalidResponse($exception);
-//
-//        }catch (NoEnvironmentChosenException $exception)
-//        {
-//            $this->logger->error($exception->getMessage());
-//            throw new InvalidResponse($exception);
-//        }
-//        catch (\Throwable $exception)
-//        {
-//            throw new InvalidResponse($exception);
-        }
-    }
-
-
     /**
      * Register new payment in transfers24.
      *
@@ -133,7 +100,6 @@ class Transfers24
     public function receive($post_data, $verify_check_sum = true):IResponse
     {
         try{
-            $this->configureGateway();
 
             $this->receive_parameters = $post_data;
 
@@ -150,7 +116,7 @@ class Transfers24
                     'p24_currency' => $this->receive_parameters['p24_currency'],
                 ];
 
-                $this->http_response = $this->transfers24->trnVerify($fields);
+//                $this->http_response = $this->transfers24->trnVerify($fields);
 
             }
 
@@ -169,37 +135,6 @@ class Transfers24
         catch (\Throwable $exception)
         {
             return new InvalidResponse($exception);
-        }
-    }
-
-    /**
-     * Generation url to registered payment with token.
-     *
-     * @param $token
-     * @param bool $redirect
-     *
-     * @return string
-     */
-    public function execute($token, $redirect = false):string
-    {
-        try{
-            $this->configureGateway();
-
-            return $this->transfers24->trnRequest($token, $redirect);
-
-        } catch (EmptyCredentialsException $exception)
-        {
-            $this->logger->error($exception->getMessage());
-            return $exception->getMessage();
-
-        }catch (NoEnvironmentChosenException $exception)
-        {
-            $this->logger->error($exception->getMessage());
-            return $exception->getMessage();
-        }
-        catch (\Throwable $exception)
-        {
-            return $exception->getMessage();
         }
     }
 
@@ -241,7 +176,4 @@ class Transfers24
         return $this;
     }
 
-
-
-    public function getForm():RegisterForm{}
 }

@@ -4,12 +4,14 @@ declare(strict_types=1);
 namespace Devpark\Transfers24\Factories;
 
 use Devpark\Transfers24\Actions\Action;
+use Devpark\Transfers24\Actions\Runner;
 use Devpark\Transfers24\Contracts\IResponse;
 use Devpark\Transfers24\Credentials;
+use Devpark\Transfers24\Exceptions\NoEnvironmentChosenException;
 use Devpark\Transfers24\Translators\RegisterTranslator;
 use Illuminate\Contracts\Container\Container;
 
-class ActionFactory
+class RunnerFactory
 {
     /**
      * @var Container
@@ -20,13 +22,19 @@ class ActionFactory
     {
         $this->app = $app;
     }
-    public function create(ResponseFactory $response_factory, RegisterTranslator $translator):Action
+
+    /**
+     * @param Credentials $credentials
+     * @return Runner
+     * @throws NoEnvironmentChosenException
+     */
+    public function create(Credentials $credentials):Runner
     {
         /**
-         * @var Action $handler
+         * @var Runner $handler
          */
-        $handler = $this->app->make(Action::class);
-        $handler->init($response_factory, $translator);
+        $handler = $this->app->make(Runner::class);
+        $handler->init($credentials);
         return $handler;
     }
 }

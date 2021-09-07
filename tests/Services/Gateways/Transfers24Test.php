@@ -194,13 +194,6 @@ class Transfers24Test extends UnitTestCase
         $this->assertEquals($response->getStatusCode(), 200);
     }
 
-    /** @test */
-    public function trnVerify_return_response()
-    {
-        $this->get_mock_callTransfers24();
-        $response = $this->gateway->trnVerify([]);
-        $this->assertTrue($response);
-    }
 
     /** @test */
     public function testConnection_return_response()

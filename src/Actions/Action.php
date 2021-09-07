@@ -25,21 +25,17 @@ class Action
      * @var Transfers24
      */
     protected $gateway;
-    /**
-     * @var Credentials
-     */
-    protected $credentials;
 
     public function __construct(Transfers24 $gateway)
     {
         $this->gateway = $gateway;
     }
 
-    public function init(ResponseFactory $response_factory, RegisterTranslator $translator, Credentials $credentials):Action
+    public function init(ResponseFactory $response_factory, RegisterTranslator $translator):Action
     {
         $this->response_factory = $response_factory;
         $this->translator = $translator;
-        $this->credentials = $credentials;
+        $this->gateway->configureGateway($translator->getCredentials());
         return $this;
     }
 

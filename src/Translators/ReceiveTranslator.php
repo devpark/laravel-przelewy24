@@ -7,27 +7,29 @@ use Devpark\Transfers24\Contracts\IResponse;
 use Devpark\Transfers24\Credentials;
 use Devpark\Transfers24\Exceptions\EmptyCredentialsException;
 use Devpark\Transfers24\Exceptions\NoEnvironmentChosenException;
+use Devpark\Transfers24\Forms\ReceiveForm;
 use Devpark\Transfers24\Forms\RegisterForm;
 use Devpark\Transfers24\Requests\Transfers24;
 use Devpark\Transfers24\Services\Crc;
 use Illuminate\Config\Repository as Config;
 
-class RegisterTranslator
+class ReceiveTranslator
 {
     /**
      * @var Config
      */
     protected $config;
     /**
-     * @var Transfers24
+     * @var array
      */
-    private $request;
+    private $receive_parameters;
     /**
      * @var Credentials
      */
     private $credentials_keeper;
 
-    private $params = ['p24_session_id', 'p24_merchant_id', 'p24_amount', 'p24_currency'];
+    private $params = ['p24_session_id', 'p24_order_id', 'p24_amount', 'p24_currency'];
+
     /**
      * @var Crc
      */
@@ -56,53 +58,44 @@ class RegisterTranslator
     }
 
 
-    public function init(Transfers24 $request, Credentials $credentials):RegisterTranslator{
+    public function init(array $receive_data, Credentials $credentials):ReceiveTranslator{
 
-        $this->request = $request;
+        $this->receive_parameters = $receive_data;
         $this->credentials_keeper = $credentials;
         return $this;
     }
 
     public function translate():RegisterForm
     {
-        $this->form = new RegisterForm();
+        $this->form = new ReceiveForm();
 
-        $session_id = uniqid();
-        $this->form->addValue('p24_session_id', $session_id);
-        $this->form->setSessionId($session_id);
-        $this->form->addValue('p24_amount', $this->request->getAmount());
-        $this->form->addValue('p24_currency', $this->request->getCurrency());
-        $this->form->addValue('p24_description', $this->request->getDescription());
-        $this->form->addValue('p24_email', $this->request->getCustomerEmail());
-        $this->form->addValue('p24_client', $this->request->getClientName());
-        $this->form->addValue('p24_address', $this->request->getAddress());
-        $this->form->addValue('p24_zip', $this->request->getZipCode());
-        $this->form->addValue('p24_city', $this->request->getCity());
-        $this->form->addValue('p24_country', $this->request->getCountry());
-        $this->form->addValue('p24_phone', $this->request->getClientPhone());
-        $this->form->addValue('p24_language', $this->request->getLanguage());
+        $check_sum = true;
+//        $check_sum = $verify_check_sum ? $this->transfers24->checkSum($post_data) : true;
 
-        $this->form->addValue('p24_url_return', $this->request->getUrlReturn());
-        $this->form->addValue('p24_url_status', $this->request->getUrlStatus());
-        $this->form->addValue('p24_channel', $this->request->getChannel());
+        if ($check_sum) {
 
-        $this->form->addValue('p24_name_1', $this->request->getArticleName());
-        $this->form->addValue('p24_description_1', $this->request->getArticleDescription());
-        $this->form->addValue('p24_quantity_1', $this->request->getArticleQuantity());
-        $this->form->addValue('p24_price_1', $this->request->getArticlePrice());
-        $this->form->addValue('p24_number_1', $this->request->getArticleNumber());
-        $this->form->addValue('p24_shipping', $this->request->getShippingCost());
+            $session_id = $this->receive_parameters['p24_session_id'];
+            $this->form->addValue('p24_session_id', $session_id);
+            $this->form->setSessionId($session_id);
 
-        $next = 2;
-        foreach ($this->request->getAdditionalArticles() as $article) {
-            $this->form->addValue('p24_name_' . $next, $article['name']);
-            $this->form->addValue('p24_description_' . $next, $article['description']);
-            $this->form->addValue('p24_quantity_' . $next, $article['quantity']);
-            $this->form->addValue('p24_price_' . $next, $article['price']);
-            $this->form->addValue('p24_number_' . $next, $article['number']);
-            ++$next;
+            $order_id = $this->receive_parameters['p24_order_id'];
+            $this->form->addValue('p24_order_id', $order_id);
+            $this->form->setOrderId($order_id);
+
+            $this->form->addValue('p24_amount', $this->receive_parameters['p24_amount']);
+            $this->form->addValue('p24_currency', $this->receive_parameters['p24_currency']);
+
+
+//            $fields = [
+//                'p24_session_id' => $this->session_id,
+//                'p24_order_id' => $this->order_id,
+//                'p24_amount' => ,
+//                '' => $this->receive_parameters[''],
+//            ];
+//
+//            $this->http_response = $this->transfers24->trnVerify($fields);
+
         }
-
 
         $p24_api_version = $this->config->get('transfers24.version');
         $this->form->addValue('p24_api_version', $p24_api_version);

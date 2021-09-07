@@ -5,11 +5,14 @@ namespace Devpark\Transfers24\Requests;
 use Devpark\Transfers24\Actions\Action;
 use Devpark\Transfers24\Contracts\IResponse;
 use Devpark\Transfers24\Credentials;
+use Devpark\Transfers24\Exceptions\NoEnvironmentChosenException;
 use Devpark\Transfers24\Exceptions\RequestExecutionException;
 use Devpark\Transfers24\Factories\ActionFactory;
 use Devpark\Transfers24\Factories\HandlerFactory;
+use Devpark\Transfers24\Factories\ReceiveTranslatorFactory;
 use Devpark\Transfers24\Factories\RegisterTranslatorFactory;
 use Devpark\Transfers24\Factories\ResponseFactory;
+use Devpark\Transfers24\Factories\RunnerFactory;
 use Devpark\Transfers24\Responses\Verify;
 use Illuminate\Config\Repository as Config;
 use Illuminate\Contracts\Container\Container;
@@ -25,6 +28,7 @@ use Devpark\Transfers24\Services\Handlers\Transfers24 as HandlersTransfers24;
 use Devpark\Transfers24\Exceptions\RequestException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Psr\Log\LoggerInterface;
 
 /**
  * Class Transfers24.
@@ -183,11 +187,6 @@ class Transfers24
     protected $fields = [];
 
     /**
-     * @var HandlersTransfers24
-     */
-    protected $transfers24;
-
-    /**
      * @var RegisterResponse
      */
     protected $response;
@@ -211,9 +210,13 @@ class Transfers24
      */
     protected $response_factory;
     /**
-     * @var HandlerFactory
+     * @var RunnerFactory
      */
-    protected $handle_factory;
+    private $runner_factory;
+    /**
+     * @var ReceiveTranslatorFactory
+     */
+    private $receive_translator_factory;
 
     /**
      * Transfers24 constructor.
@@ -228,26 +231,25 @@ class Transfers24
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
     public function __construct(
-        HandlersTransfers24 $transfers24,
-        RegisterResponse $response,
-        Container $app,
+        Config $config,
+        Url $url,
         Credentials $credentials_keeper,
         ActionFactory $action_factory,
+        RunnerFactory $runner_factory,
         RegisterTranslatorFactory $translator_factory,
         ResponseFactory $response_factory,
-        HandlerFactory $handle_factory
+        ReceiveTranslatorFactory $receive_translator_factory
     ) {
-        $this->response = $response;
-        $this->transfers24 = $transfers24;
-        $this->app = $app;
         $this->credentials_keeper = $credentials_keeper;
-
-        $this->config = $this->app->make(Config::class);
-        $this->url = $this->app->make(Url::class);
+        $this->config = $config;
+        $this->url = $url;
 
         $this->setDefaultUrls();
         $this->action_factory = $action_factory;
         $this->translator_factory = $translator_factory;
+        $this->response_factory = $response_factory;
+        $this->runner_factory = $runner_factory;
+        $this->receive_translator_factory = $receive_translator_factory;
     }
 
     /**
@@ -257,7 +259,7 @@ class Transfers24
      *
      * @return bool
      */
-    protected function filterString($string)
+    public function filterString($string)
     {
         return (! empty($string) && is_string($string));
     }
@@ -269,7 +271,7 @@ class Transfers24
      *
      * @return bool
      */
-    protected function filterNumber($number)
+    public function filterNumber($number)
     {
         return (! empty($number) && is_numeric($number));
     }
@@ -638,20 +640,9 @@ class Transfers24
             throw new RequestException('Empty email or amount');
         }
 
-        $form_generator = $this->translator_factory->create($this, $this->credentials_keeper);
-
-        $action = $this->action_factory->create($form_generator);
-
+        $translator = $this->translator_factory->create($this, $this->credentials_keeper);
+        $action = $this->action_factory->create($this->response_factory, $translator);
         return $action->execute();
-
-
-//
-//        $response = $this->transfers24
-//            ->viaCredentials($this->credentials_keeper)
-//            ->init($this->setFields());
-
-//        return $response;
-//        return $this->response;
     }
 
     /**
@@ -696,9 +687,8 @@ class Transfers24
             throw new RequestExecutionException('Empty or not valid Token');
         }
 
-        return $this->transfers24
-            ->viaCredentials($this->credentials_keeper)
-            ->execute($token, $redirect);
+        $runner = $this->runner_factory->create($this->credentials_keeper);
+        return $runner->execute($token, $redirect);
     }
 
     /**
@@ -710,9 +700,10 @@ class Transfers24
      */
     public function receive(Request $request)
     {
-        return $this->transfers24
-            ->viaCredentials($this->credentials_keeper)
-            ->receive($request->all());
+
+        $translator = $this->receive_translator_factory->create($request->all(), $this->credentials_keeper);
+        $action = $this->action_factory->create($this->response_factory, $translator);
+        return $action->execute();
     }
 
     /**
