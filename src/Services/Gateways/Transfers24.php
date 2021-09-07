@@ -173,7 +173,7 @@ class Transfers24
 
     protected function init(): void
     {
-        $this->client = $this->app->make(Client::class, [
+        $this->client = new Client([
             'base_uri' => $this->getHost()
         ]);
     }

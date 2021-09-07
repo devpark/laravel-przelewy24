@@ -21,7 +21,7 @@ class BodyDecoder
      */
     const MESSAGE_LABEL = 'errorMessage';
 
-    public function decode(string $body):DecodedBody
+    public function decode($body):DecodedBody
     {
         $decoded_body = new DecodedBody();
 
