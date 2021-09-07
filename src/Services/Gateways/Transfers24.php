@@ -130,7 +130,6 @@ class Transfers24
      */
     public function testConnection()
     {
-        $this->calculateSign(['p24_merchant_id', 'p24_pos_id']);
 
         return $this->callTransfers24('testConnection');
     }
