@@ -209,25 +209,25 @@ class RegisterTranslatorTest extends UnitTestCase
 
 
 
-        $this->request->shouldReceive('getArticleName')
-            ->once()
-            ->andReturn($p24_article_name);
-
-        $this->request->shouldReceive('getArticleDescription')
-            ->once()
-            ->andReturn($p24_article_description);
-
-        $this->request->shouldReceive('getArticleQuantity')
-            ->once()
-            ->andReturn($p24_article_quantity);
-
-        $this->request->shouldReceive('getArticlePrice')
-            ->once()
-            ->andReturn($p24_article_price);
-
-        $this->request->shouldReceive('getArticleNumber')
-            ->once()
-            ->andReturn($p24_article_number);
+//        $this->request->shouldReceive('getArticleName')
+//            ->once()
+//            ->andReturn($p24_article_name);
+//
+//        $this->request->shouldReceive('getArticleDescription')
+//            ->once()
+//            ->andReturn($p24_article_description);
+//
+//        $this->request->shouldReceive('getArticleQuantity')
+//            ->once()
+//            ->andReturn($p24_article_quantity);
+//
+//        $this->request->shouldReceive('getArticlePrice')
+//            ->once()
+//            ->andReturn($p24_article_price);
+//
+//        $this->request->shouldReceive('getArticleNumber')
+//            ->once()
+//            ->andReturn($p24_article_number);
 
         $this->request->shouldReceive('getShippingCost')
             ->once()

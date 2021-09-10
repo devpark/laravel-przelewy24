@@ -51,20 +51,28 @@ class RegisterTranslator extends AbstractTranslator implements Translator
         $this->form->addValue('urlStatus', $this->request->getUrlStatus());
         $this->form->addValue('channel', $this->request->getChannel());
 
-//        $this->form->addValue('p24_name_1', $this->request->getArticleName());
-//        $this->form->addValue('p24_description_1', $this->request->getArticleDescription());
-//        $this->form->addValue('p24_quantity_1', $this->request->getArticleQuantity());
-//        $this->form->addValue('p24_price_1', $this->request->getArticlePrice());
-//        $this->form->addValue('p24_number_1', $this->request->getArticleNumber());
-        $this->form->addValue('shipping', $this->request->getShippingCost());
 
-        foreach ($this->request->getCart() as $article) {
-            $this->form->addValue('p24_name_', $article['name']);
-            $this->form->addValue('p24_description_', $article['description']);
-            $this->form->addValue('p24_quantity_', $article['quantity']);
-            $this->form->addValue('p24_price_', $article['price']);
-            $this->form->addValue('p24_number_', $article['number']);
-        }
+        $this->form->addValue('shipping', $this->request->getShippingCost());
+        $this->form->addValue('method', $this->request->getMethod());
+        $this->form->addValue('timeLimit', $this->request->getTimeLimit());
+        $this->form->addValue('waitForResult', $this->request->getWaitForResult());
+        $this->form->addValue('regulationAccept', $this->request->getRegulationAccept());
+        $this->form->addValue('transferLabel', $this->request->getTransferLabel());
+        $this->form->addValue('mobileLib', $this->request->getMobileLib());
+        $this->form->addValue('sdkVersion', $this->request->getSdkVersion());
+        $this->form->addValue('encoding', $this->request->getEncoding());
+        $this->form->addValue('methodRefId', $this->request->getMethodRefId());
+
+//            $this->form->addValue('sellerId', $article['sellerId']);
+//            $this->form->addValue('sellerCategory', $article['sellerCategory']);
+//            $this->form->addValue('name', $article['name']);
+//            $this->form->addValue('description', $article['description']);
+//            $this->form->addValue('quantity', $article['quantity']);
+//            $this->form->addValue('price', $article['price']);
+//            $this->form->addValue('number', $article['number']);
+
+        $this->form->addValue('additional', ['shipping'  => $this->request->getShippingDetails()]);
+        $this->form->addValue('cart', $this->request->getCart());
 
 
         $p24_api_version = $this->config->get('transfers24.version');
@@ -72,7 +80,7 @@ class RegisterTranslator extends AbstractTranslator implements Translator
         $this->form->addValue('merchantId', $this->merchant_id);
         $this->form->addValue('posId', $this->pos_id);
 
-        $this->form->addValue('p24_sign', $this->calculateSign());
+        $this->form->addValue('sign', $this->calculateSign());
 
         return $this->form;
     }
