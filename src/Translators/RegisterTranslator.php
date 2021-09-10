@@ -33,12 +33,12 @@ class RegisterTranslator extends AbstractTranslator implements Translator
         $this->form = new RegisterForm();
 
         $session_id = uniqid();
-        $this->form->addValue('p24_session_id', $session_id);
+        $this->form->addValue('sessionId', $session_id);
         $this->form->setSessionId($session_id);
-        $this->form->addValue('p24_amount', $this->request->getAmount());
-        $this->form->addValue('p24_currency', $this->request->getCurrency());
-        $this->form->addValue('p24_description', $this->request->getDescription());
-        $this->form->addValue('p24_email', $this->request->getCustomerEmail());
+        $this->form->addValue('amount', $this->request->getAmount());
+        $this->form->addValue('currency', $this->request->getCurrency());
+        $this->form->addValue('description', $this->request->getDescription());
+        $this->form->addValue('email', $this->request->getCustomerEmail());
         $this->form->addValue('p24_client', $this->request->getClientName());
         $this->form->addValue('p24_address', $this->request->getAddress());
         $this->form->addValue('p24_zip', $this->request->getZipCode());
@@ -71,8 +71,8 @@ class RegisterTranslator extends AbstractTranslator implements Translator
 
         $p24_api_version = $this->config->get('transfers24.version');
         $this->form->addValue('p24_api_version', $p24_api_version);
-        $this->form->addValue('p24_merchant_id', $this->merchant_id);
-        $this->form->addValue('p24_pos_id', $this->pos_id);
+        $this->form->addValue('merchantId', $this->merchant_id);
+        $this->form->addValue('posId', $this->pos_id);
 
         $this->form->addValue('p24_sign', $this->calculateSign());
 

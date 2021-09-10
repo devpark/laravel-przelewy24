@@ -12,6 +12,15 @@ class Language extends CodeTranslate
     const SPANISH = 'es';
     const ITALIAN = 'it';
     const GERMAN = 'de';
+    const BULGARIA = 'bg';
+    const CZECHIA = 'cz';
+    const FRANCE = 'fr';
+    const CROATIA = 'hr';
+    const HUNGARY = 'hu';
+    const NETHERLANDS = 'nl';
+    const PORTUGAL = 'pt';
+    const SWEDEN = 'se';
+    const SLOVAKIA = 'sk';
 
     /**
      * Get Code language.

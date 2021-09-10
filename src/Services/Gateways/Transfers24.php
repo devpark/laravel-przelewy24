@@ -23,14 +23,14 @@ class Transfers24
      *
      * @var string
      */
-    protected $hostLive = 'https://secure.przelewy24.pl/';
+    protected $hostLive = 'https://secure.przelewy24.pl/api/v1/';
 
     /**
      * Sandbox system URL address.
      *
      * @var string
      */
-    protected $hostSandbox = 'https://sandbox.przelewy24.pl/';
+    protected $hostSandbox = 'https://sandbox.przelewy24.pl/api/v1/';
 
     /**
      * Use Live (false) or Sandbox (true) environment.

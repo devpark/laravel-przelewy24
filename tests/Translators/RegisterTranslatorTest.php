@@ -84,6 +84,26 @@ class RegisterTranslatorTest extends UnitTestCase
         $p24_article_number = 10;
         $p24_shipping_cost = 10;
 
+        $p24_merchant_id = 'p24-merchant-id';
+        $p24_pos_id = 'p24-pos-id';
+
+        $p24_method = 'method';
+        $p24_time_limit = 'time_limit';
+        $p24_wait_for_result = 'wait-for-result';
+        $p24_regulation_accept = 'regulation-accept';
+        $p24_transfer_label = 'transfet-label';
+        $p24_mobile_lib = 'mobile-lib';
+        $p24_sdk_version = 'sdk-version';
+        $p24_encoding = 'encoding';
+        $p24_method_ref_id = 'method-ref-id';
+        $p24_seller_id = 'seller-id';
+        $p24_seller_category = 'seller-category';
+        $p24_shipping_type = 'shipping-type';
+        $p24_shipping_address = 'shipping-address';
+        $p24_shipping_zip = 'shipping-zip';
+        $p24_shipping_city = 'shipping-city';
+        $p24_shipping_country = 'shipping-country';
+
         //When
         $this->config->shouldReceive('get')
             ->once()
@@ -178,34 +198,62 @@ class RegisterTranslatorTest extends UnitTestCase
             ->once()
             ->andReturn([]);
 
+        $this->config->shouldReceive('get')->times(4)->andReturn(false, $p24_pos_id, $p24_merchant_id, null);
 
 
-        $form = $this->translator->translate();
+
+        $form = $this->translator->configure()->translate();
 
         $data = $form->toArray();
-        $this->assertSame($p24_api_version,Arr::get($data, $p24_api_version));
-        $this->assertSame($p24_sign,Arr::get($data, $p24_sign));
-        $this->assertNotEmpty(Arr::get($data, $p24_session_id));
-        $this->assertSame($p24_amount,Arr::get($data, 'p24_amount'));
-        $this->assertSame($p24_currency,Arr::get($data, 'p24_currency'));
-        $this->assertSame($p24_description,Arr::get($data, 'p24_description'));
-        $this->assertSame($p24_email,Arr::get($data, 'p24_email'));
-        $this->assertSame($p24_client,Arr::get($data, 'p24_client'));
-        $this->assertSame($p24_address,Arr::get($data, 'p24_address'));
-        $this->assertSame($p24_zip_code,Arr::get($data, 'p24_zip'));
-        $this->assertSame($p24_city,Arr::get($data, 'p24_city'));
-        $this->assertSame($p24_country,Arr::get($data, 'p24_country'));
-        $this->assertSame($p24_phone,Arr::get($data, 'p24_phone'));
-        $this->assertSame($p24_language,Arr::get($data, 'p24_language'));
-        $this->assertSame($p24_url_return,Arr::get($data, 'p24_url_return'));
-        $this->assertSame($p24_url_status,Arr::get($data, 'p24_url_status'));
-        $this->assertSame($p24_channel,Arr::get($data, 'p24_channel'));
-        $this->assertSame($p24_article_name,Arr::get($data, 'p24_name_1'));
-        $this->assertSame($p24_article_description,Arr::get($data, 'p24_description_1'));
-        $this->assertSame($p24_article_quantity,Arr::get($data, 'p24_quantity_1'));
-        $this->assertSame($p24_article_price,Arr::get($data, 'p24_price_1'));
-        $this->assertSame($p24_article_number, Arr::get($data, 'p24_number_1'));
-        $this->assertSame($p24_shipping_cost, Arr::get($data, 'p24_shipping'));
+        $this->assertSame($p24_merchant_id,Arr::get($data, 'merchantId'));
+        $this->assertSame($p24_pos_id, Arr::get($data, 'posId'));
+
+        $this->assertNotEmpty(Arr::get($data, 'sessionId'));
+        $this->assertSame($p24_amount,Arr::get($data, 'amount'));
+        $this->assertSame($p24_currency,Arr::get($data, 'currency'));
+        $this->assertSame($p24_description,Arr::get($data, 'description'));
+        $this->assertSame($p24_email,Arr::get($data, 'email'));
+        $this->assertSame($p24_client,Arr::get($data, 'client'));
+        $this->assertSame($p24_address,Arr::get($data, 'address'));
+        $this->assertSame($p24_zip_code,Arr::get($data, 'zip'));
+        $this->assertSame($p24_city,Arr::get($data, 'city'));
+        $this->assertSame($p24_country,Arr::get($data, 'country'));
+        $this->assertSame($p24_phone,Arr::get($data, 'phone'));
+        $this->assertSame($p24_language,Arr::get($data, 'language'));
+
+
+        $this->assertSame($p24_method,Arr::get($data, 'method'));
+        $this->assertSame($p24_url_return,Arr::get($data, 'urlReturn'));
+        $this->assertSame($p24_url_status,Arr::get($data, 'urlStatus'));
+        $this->assertSame($p24_time_limit,Arr::get($data, 'timeLimit'));
+        $this->assertSame($p24_channel,Arr::get($data, 'channel'));
+        $this->assertSame($p24_wait_for_result,Arr::get($data, 'waitForResult'));
+        $this->assertSame($p24_regulation_accept,Arr::get($data, 'regulationAccept'));
+        $this->assertSame($p24_shipping_cost, Arr::get($data, 'shipping'));
+        $this->assertSame($p24_transfer_label,Arr::get($data, 'transferLabel'));
+        $this->assertSame($p24_mobile_lib,Arr::get($data, 'mobileLib'));
+        $this->assertSame($p24_sdk_version,Arr::get($data, 'sdkVersion'));
+        $this->assertSame($p24_sign,Arr::get($data, 'sign'));
+        $this->assertSame($p24_encoding,Arr::get($data, 'encoding'));
+        $this->assertSame($p24_method_ref_id,Arr::get($data, 'methodRefId'));
+
+        $this->assertSame($p24_seller_id,Arr::get($data, 'cart.0.sellerId'));
+        $this->assertSame($p24_seller_category,Arr::get($data, 'cart.0.sellerCategory'));
+        $this->assertSame($p24_article_name,Arr::get($data, 'cart.0.name'));
+        $this->assertSame($p24_article_description,Arr::get($data, 'cart.0.description'));
+        $this->assertSame($p24_article_quantity,Arr::get($data, 'cart.0.quantity'));
+        $this->assertSame($p24_article_price,Arr::get($data, 'cart.0.price'));
+        $this->assertSame($p24_article_number, Arr::get($data, 'cart.0.number'));
+
+        $this->assertSame($p24_shipping_type, Arr::get($data, 'additional.shipping.type'));
+        $this->assertSame($p24_shipping_address, Arr::get($data, 'additional.shipping.address'));
+        $this->assertSame($p24_shipping_zip, Arr::get($data, 'additional.shipping.zip'));
+        $this->assertSame($p24_shipping_city, Arr::get($data, 'additional.shipping.city'));
+        $this->assertSame($p24_shipping_country, Arr::get($data, 'additional.shipping.country'));
+
+
+
+
     }
 
 }
