@@ -39,33 +39,31 @@ class RegisterTranslator extends AbstractTranslator implements Translator
         $this->form->addValue('currency', $this->request->getCurrency());
         $this->form->addValue('description', $this->request->getDescription());
         $this->form->addValue('email', $this->request->getCustomerEmail());
-        $this->form->addValue('p24_client', $this->request->getClientName());
-        $this->form->addValue('p24_address', $this->request->getAddress());
-        $this->form->addValue('p24_zip', $this->request->getZipCode());
-        $this->form->addValue('p24_city', $this->request->getCity());
-        $this->form->addValue('p24_country', $this->request->getCountry());
-        $this->form->addValue('p24_phone', $this->request->getClientPhone());
-        $this->form->addValue('p24_language', $this->request->getLanguage());
+        $this->form->addValue('client', $this->request->getClientName());
+        $this->form->addValue('address', $this->request->getAddress());
+        $this->form->addValue('zip', $this->request->getZipCode());
+        $this->form->addValue('city', $this->request->getCity());
+        $this->form->addValue('country', $this->request->getCountry());
+        $this->form->addValue('phone', $this->request->getClientPhone());
+        $this->form->addValue('language', $this->request->getLanguage());
 
-        $this->form->addValue('p24_url_return', $this->request->getUrlReturn());
-        $this->form->addValue('p24_url_status', $this->request->getUrlStatus());
-        $this->form->addValue('p24_channel', $this->request->getChannel());
+        $this->form->addValue('urlReturn', $this->request->getUrlReturn());
+        $this->form->addValue('urlStatus', $this->request->getUrlStatus());
+        $this->form->addValue('channel', $this->request->getChannel());
 
-        $this->form->addValue('p24_name_1', $this->request->getArticleName());
-        $this->form->addValue('p24_description_1', $this->request->getArticleDescription());
-        $this->form->addValue('p24_quantity_1', $this->request->getArticleQuantity());
-        $this->form->addValue('p24_price_1', $this->request->getArticlePrice());
-        $this->form->addValue('p24_number_1', $this->request->getArticleNumber());
-        $this->form->addValue('p24_shipping', $this->request->getShippingCost());
+//        $this->form->addValue('p24_name_1', $this->request->getArticleName());
+//        $this->form->addValue('p24_description_1', $this->request->getArticleDescription());
+//        $this->form->addValue('p24_quantity_1', $this->request->getArticleQuantity());
+//        $this->form->addValue('p24_price_1', $this->request->getArticlePrice());
+//        $this->form->addValue('p24_number_1', $this->request->getArticleNumber());
+        $this->form->addValue('shipping', $this->request->getShippingCost());
 
-        $next = 2;
-        foreach ($this->request->getAdditionalArticles() as $article) {
-            $this->form->addValue('p24_name_' . $next, $article['name']);
-            $this->form->addValue('p24_description_' . $next, $article['description']);
-            $this->form->addValue('p24_quantity_' . $next, $article['quantity']);
-            $this->form->addValue('p24_price_' . $next, $article['price']);
-            $this->form->addValue('p24_number_' . $next, $article['number']);
-            ++$next;
+        foreach ($this->request->getCart() as $article) {
+            $this->form->addValue('p24_name_', $article['name']);
+            $this->form->addValue('p24_description_', $article['description']);
+            $this->form->addValue('p24_quantity_', $article['quantity']);
+            $this->form->addValue('p24_price_', $article['price']);
+            $this->form->addValue('p24_number_', $article['number']);
         }
 
 

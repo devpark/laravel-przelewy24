@@ -170,6 +170,45 @@ class RegisterTranslatorTest extends UnitTestCase
             ->once()
             ->andReturn($p24_channel);
 
+        $this->request->shouldReceive('getMethod')
+            ->once()
+            ->andReturn($p24_method);
+
+        $this->request->shouldReceive('getMethodRefId')
+            ->once()
+            ->andReturn($p24_method_ref_id);
+
+        $this->request->shouldReceive('getTimeLimit')
+            ->once()
+            ->andReturn($p24_time_limit);
+
+        $this->request->shouldReceive('getWaitForResult')
+            ->once()
+            ->andReturn($p24_wait_for_result);
+
+        $this->request->shouldReceive('getRegulationAccept')
+            ->once()
+            ->andReturn($p24_regulation_accept);
+
+        $this->request->shouldReceive('getTransferLabel')
+            ->once()
+            ->andReturn($p24_transfer_label);
+
+        $this->request->shouldReceive('getMobileLib')
+            ->once()
+            ->andReturn($p24_mobile_lib);
+
+        $this->request->shouldReceive('getSdkVersion')
+            ->once()
+            ->andReturn($p24_sdk_version);
+
+        $this->request->shouldReceive('getEncoding')
+            ->once()
+            ->andReturn($p24_encoding);
+
+
+
+
         $this->request->shouldReceive('getArticleName')
             ->once()
             ->andReturn($p24_article_name);
@@ -194,13 +233,32 @@ class RegisterTranslatorTest extends UnitTestCase
             ->once()
             ->andReturn($p24_shipping_cost);
 
-        $this->request->shouldReceive('getAdditionalArticles')
+        $this->request->shouldReceive('getCart')
             ->once()
-            ->andReturn([]);
+            ->andReturn([
+                [
+                    'sellerId' => $p24_seller_id,
+                    'sellerCategory' => $p24_seller_category,
+                    'name' => $p24_article_name,
+                    'description' => $p24_article_description,
+                    'quantity' => $p24_article_quantity,
+                    'price' => $p24_article_price,
+                    'number' => $p24_article_number,
+                ]
+            ]);
+
+        $this->request->shouldReceive('getShippingDetails')
+            ->once()
+            ->andReturn([
+                'type' => $p24_shipping_type,
+                'address' => $p24_shipping_address,
+                'zip' => $p24_shipping_zip,
+                'city' => $p24_shipping_city,
+                'country' => $p24_shipping_country,
+
+            ]);
 
         $this->config->shouldReceive('get')->times(4)->andReturn(false, $p24_pos_id, $p24_merchant_id, null);
-
-
 
         $form = $this->translator->configure()->translate();
 
@@ -220,11 +278,10 @@ class RegisterTranslatorTest extends UnitTestCase
         $this->assertSame($p24_country,Arr::get($data, 'country'));
         $this->assertSame($p24_phone,Arr::get($data, 'phone'));
         $this->assertSame($p24_language,Arr::get($data, 'language'));
-
-
         $this->assertSame($p24_method,Arr::get($data, 'method'));
         $this->assertSame($p24_url_return,Arr::get($data, 'urlReturn'));
         $this->assertSame($p24_url_status,Arr::get($data, 'urlStatus'));
+
         $this->assertSame($p24_time_limit,Arr::get($data, 'timeLimit'));
         $this->assertSame($p24_channel,Arr::get($data, 'channel'));
         $this->assertSame($p24_wait_for_result,Arr::get($data, 'waitForResult'));
@@ -250,9 +307,6 @@ class RegisterTranslatorTest extends UnitTestCase
         $this->assertSame($p24_shipping_zip, Arr::get($data, 'additional.shipping.zip'));
         $this->assertSame($p24_shipping_city, Arr::get($data, 'additional.shipping.city'));
         $this->assertSame($p24_shipping_country, Arr::get($data, 'additional.shipping.country'));
-
-
-
 
     }
 
