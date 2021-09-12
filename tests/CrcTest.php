@@ -136,13 +136,13 @@ class CrcTest extends UnitTestCase
     public function test_is_true_check_sum()
     {
         $post_data = [
-            'p24_session_id' => '1234',
+            'sessionId' => '1234',
             'p24_order_id' => '5678',
             'p24_amount' => 'abcd',
             'p24_currency' => 'efgh',
         ];
         $crc_array = $post_data + ['salt' => 'salt'];
-        $crc = md5(implode('|', $crc_array));
+        $crc = hash('sha384', json_encode($crc_array, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
 
         $post_data['p24_sign'] = $crc;
 
@@ -158,9 +158,9 @@ class CrcTest extends UnitTestCase
     {
         $crc_array = array_combine($keys, $values);
         if (!empty($this->salt)){
-            $crc_array += ['salt' => $this->salt];
+            $crc_array += ['crc' => $this->salt];
         }
-        return md5(implode('|', $crc_array));
+        return hash('sha384', json_encode($crc_array, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
     }
 
 

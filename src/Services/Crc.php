@@ -26,10 +26,10 @@ class Crc
             $form_params[] = $this->salt;
         }
 
-        $concat = implode('|', $form_params);
-        $crc = md5($concat);
-
-        return $crc;
+        if (!empty($this->salt)){
+            $crc_array += ['crc' => $this->salt];
+        }
+        return hash('sha384', json_encode($crc_array, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
     }
 
     public function setSalt(string $salt)

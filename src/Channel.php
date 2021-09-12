@@ -13,6 +13,9 @@ class Channel extends CodeTranslate
     const N_A = '8';
     const ALL_METHOD = '16';
     const PREPAYMENT = '32';
+    const PAY_BY_LINK = '64';
+    const INSTALMENT_PAYMENT = '128';
+    const WALLET = '256';
 
     /**
      * Get Code channel.

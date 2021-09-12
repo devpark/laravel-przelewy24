@@ -69,7 +69,7 @@ class RegisterFormTest extends UnitTestCase
         $method = $this->form->getUri();
 
         //Then
-        $this->assertSame('trnRegister', $method);
+        $this->assertSame('transaction/register', $method);
     }
 
 }

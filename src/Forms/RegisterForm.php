@@ -10,7 +10,7 @@ class RegisterForm extends AbstractForm implements Form
 
     public function getUri(): string
     {
-        return 'trnRegister';
+        return 'transaction/register';
     }
 
     public function getMethod(): string

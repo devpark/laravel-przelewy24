@@ -361,12 +361,12 @@ class Transfers24Test extends UnitTestCase
     public function shippingCost_validate()
     {
         $test_array = [];
-        $this->request->setShipping($test_array);
+        $this->request->setShippingDetails($test_array);
         $set_fields = $this->request->getField('shipping_cost');
         $this->assertNull($set_fields);
 
         $test_array = 21.4;
-        $this->request->setShipping($test_array);
+        $this->request->setShippingDetails($test_array);
         $set_fields = $this->request->getField('shipping_cost');
         $this->assertEquals((int) $test_array, $set_fields);
     }

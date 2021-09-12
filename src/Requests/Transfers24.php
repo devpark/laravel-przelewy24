@@ -14,6 +14,7 @@ use Devpark\Transfers24\Factories\ReceiveTranslatorFactory;
 use Devpark\Transfers24\Factories\RegisterTranslatorFactory;
 use Devpark\Transfers24\Factories\RegisterResponseFactory;
 use Devpark\Transfers24\Factories\RunnerFactory;
+use Devpark\Transfers24\Models\ShippingDetails;
 use Devpark\Transfers24\Responses\Verify;
 use Illuminate\Config\Repository as Config;
 use Illuminate\Contracts\Container\Container;
@@ -178,9 +179,9 @@ class Transfers24
     protected $article_number = null;
 
     /**
-     * @var array|null;
+     * @var array;
      */
-    protected $additional_articles = [];
+    protected $cart = [];
 
     /**
      * @var array
@@ -192,12 +193,6 @@ class Transfers24
      */
     protected $response;
 
-    /**
-     * Id of transaction.
-     *
-     * @var string
-     */
-    protected $transaction_id;
     /**
      * @var ActionFactory
      */
@@ -222,6 +217,13 @@ class Transfers24
      * @var ReceiveResponseFactory
      */
     private $receive_response_factory;
+
+    private $method;
+    private $method_ref_id;
+    /**
+     * @var ShippingDetails
+     */
+    private $shipping_details;
 
     /**
      * Transfers24 constructor.
@@ -396,51 +398,6 @@ class Transfers24
     }
 
     /**
-     * Set sale article name, price, quantity.
-     *
-     * @param string $article_name
-     * @param float $article_price
-     * @param int $article_quantity
-     *
-     * @return $this
-     */
-    public function setArticle(
-        $article_name,
-        $article_price = self::NO_PRICE_VALUE,
-        $article_quantity = self::DEFAULT_ARTICLE_QUANTITY
-    ) {
-        if ($this->filterString($article_name)) {
-            $this->article_name = $article_name;
-        }
-
-        if (! empty($article_price) && (is_string($article_price) || is_numeric($article_price))) {
-            $this->article_price = Amount::get($article_price);
-        }
-
-        if ($this->filterNumber($article_quantity)) {
-            $this->article_quantity = (int) $article_quantity;
-        }
-
-        return $this;
-    }
-
-    /**
-     * Set sale article description.
-     *
-     * @param string $article_description
-     *
-     * @return $this
-     */
-    public function setArticleDescription($article_description)
-    {
-        if ($this->filterString($article_description)) {
-            $this->article_description = $article_description;
-        }
-
-        return $this;
-    }
-
-    /**
      * Set client Name.
      *
      * @param string $client_name
@@ -555,11 +512,26 @@ class Transfers24
      *
      * @return $this
      */
-    public function setShipping($shipping_cost)
+    public function setShippingDetails($shipping_cost)
     {
         if ($this->filterNumber($shipping_cost)) {
             $this->shipping_cost = (int) $shipping_cost;
         }
+
+        return $this;
+    }
+
+
+    /**
+     * Set Shipping price.
+     *
+     * @param $shipping_cost
+     *
+     * @return $this
+     */
+    public function setShippingPlace(ShippingDetails $shipping_details)
+    {
+        $this->shipping_details = $shipping_details;
 
         return $this;
     }
@@ -608,6 +580,8 @@ class Transfers24
      * @return $this
      */
     public function setNextArticle(
+        $seller_id,
+        $seller_category,
         $name,
         $price,
         $quantity = self::DEFAULT_ARTICLE_QUANTITY,
@@ -615,10 +589,14 @@ class Transfers24
         $description = self::DEFAULT_ARTICLE_DESCRIPTION
     ) {
         if ($this->filterString($name)
+            && $this->filterString($seller_id)
+            && $this->filterString($seller_category)
             && ! empty($price)
             && (is_numeric($price) || is_string($price))
         ) {
-            $this->additional_articles[] = [
+            $this->cart[] = [
+                'sellerId' => $seller_id,
+                'sellerCategory' => $seller_category,
                 'name' => $name,
                 'description' => $description,
                 'quantity' => $quantity,
@@ -716,7 +694,7 @@ class Transfers24
     /**
      * @return int|null
      */
-    public function getAmount(): ?int
+    public function getAmount()
     {
         return $this->amount;
     }
@@ -740,7 +718,7 @@ class Transfers24
     /**
      * @return string|null
      */
-    public function getCustomerEmail(): ?string
+    public function getCustomerEmail()
     {
         return $this->customer_email;
     }
@@ -874,10 +852,56 @@ class Transfers24
     }
 
     /**
-     * @return array|null
+     * @return array
      */
-    public function getAdditionalArticles(): ?array
+    public function getCart(): array
     {
-        return $this->additional_articles;
+        return $this->cart;
     }
+
+    public function getMethod()
+    {
+        return $this->method;
+    }
+
+    public function getTransferLabel()
+    {
+        return $this->transfer_label;
+    }
+
+    public function getMethodRefId()
+    {
+        return $this->method_ref_id;
+    }
+
+    public function getShippingDetails()
+    {
+        return $this->shipping_details->toArray();
+    }
+
+    /**
+     * @param mixed $method
+     *
+     * @return Transfers24
+     */
+    public function setMethod($method)
+    {
+        if ($this->filterNumber($method)) {
+            $this->method = $method;
+        }
+        return $this;
+}
+
+    /**
+     * @param mixed $method_ref_id
+     *
+     * @return Transfers24
+     */
+    public function setMethodRefId($method_ref_id)
+    {
+        if ($this->filterString($method_ref_id)) {
+            $this->method_ref_id = $method_ref_id;
+        }
+        return $this;
+}
 }

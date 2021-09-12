@@ -54,13 +54,7 @@ class RegisterTranslator extends AbstractTranslator implements Translator
 
         $this->form->addValue('shipping', $this->request->getShippingCost());
         $this->form->addValue('method', $this->request->getMethod());
-        $this->form->addValue('timeLimit', $this->request->getTimeLimit());
-        $this->form->addValue('waitForResult', $this->request->getWaitForResult());
-        $this->form->addValue('regulationAccept', $this->request->getRegulationAccept());
-        $this->form->addValue('transferLabel', $this->request->getTransferLabel());
-        $this->form->addValue('mobileLib', $this->request->getMobileLib());
-        $this->form->addValue('sdkVersion', $this->request->getSdkVersion());
-        $this->form->addValue('encoding', $this->request->getEncoding());
+       $this->form->addValue('transferLabel', $this->request->getTransferLabel());
         $this->form->addValue('methodRefId', $this->request->getMethodRefId());
 
 //            $this->form->addValue('sellerId', $article['sellerId']);
@@ -75,8 +69,11 @@ class RegisterTranslator extends AbstractTranslator implements Translator
         $this->form->addValue('cart', $this->request->getCart());
 
 
-        $p24_api_version = $this->config->get('transfers24.version');
-        $this->form->addValue('p24_api_version', $p24_api_version);
+        $this->form->addValue('timeLimit', $this->config->get('transfers24.time-limit'));
+        $this->form->addValue('waitForResult', $this->config->get('transfers24.wait-for-result'));
+        $this->form->addValue('regulationAccept', $this->config->get('transfers24.regulation-accept'));
+        $this->form->addValue('encoding', $this->config->get('transfers24.encoding'));
+
         $this->form->addValue('merchantId', $this->merchant_id);
         $this->form->addValue('posId', $this->pos_id);
 
