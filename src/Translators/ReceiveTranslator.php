@@ -33,23 +33,16 @@ class ReceiveTranslator extends AbstractTranslator implements Translator
     {
         $this->form = new ReceiveForm();
 
-        $check_sum = true;
-//        $check_sum = $verify_check_sum ? $this->transfers24->checkSum($post_data) : true;
+        $session_id = $this->receive_parameters['p24_session_id'];
+        $this->form->addValue('p24_session_id', $session_id);
+        $this->form->setSessionId($session_id);
 
-        if ($check_sum) {
+        $order_id = $this->receive_parameters['p24_order_id'];
+        $this->form->addValue('p24_order_id', $order_id);
+        $this->form->setOrderId($order_id);
 
-            $session_id = $this->receive_parameters['p24_session_id'];
-            $this->form->addValue('p24_session_id', $session_id);
-            $this->form->setSessionId($session_id);
-
-            $order_id = $this->receive_parameters['p24_order_id'];
-            $this->form->addValue('p24_order_id', $order_id);
-            $this->form->setOrderId($order_id);
-
-            $this->form->addValue('p24_amount', $this->receive_parameters['p24_amount']);
-            $this->form->addValue('p24_currency', $this->receive_parameters['p24_currency']);
-
-        }
+        $this->form->addValue('p24_amount', $this->receive_parameters['p24_amount']);
+        $this->form->addValue('p24_currency', $this->receive_parameters['p24_currency']);
 
         $p24_api_version = $this->config->get('transfers24.version');
         $this->form->addValue('p24_api_version', $p24_api_version);

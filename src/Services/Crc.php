@@ -8,6 +8,16 @@ namespace Devpark\Transfers24\Services;
 class Crc
 {
     /**
+     * @var HashWrapper
+     */
+    protected $hash_wrapper;
+
+    public function __construct(HashWrapper $hash_wrapper)
+    {
+        $this->hash_wrapper = $hash_wrapper;
+    }
+
+    /**
      * @var string
      */
     private $salt;
@@ -20,36 +30,16 @@ class Crc
             if (! isset($array_values[$param])) {
                 return '';
             }
-            $form_params[] = $array_values[$param];
+            $form_params[$param] = $array_values[$param];
         }
         if (!empty($this->salt)){
-            $form_params[] = $this->salt;
+            $form_params += ['crc' => $this->salt];
         }
-
-        if (!empty($this->salt)){
-            $crc_array += ['crc' => $this->salt];
-        }
-        return hash('sha384', json_encode($crc_array, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+        return $this->hash_wrapper->hash($form_params);
     }
 
     public function setSalt(string $salt)
     {
         $this->salt = $salt;
-    }
-
-    /**
-     * Check Sum Control incoming data with status payment.
-     *
-     * @param array $post_data
-     *
-     * @return bool
-     */
-    public function checkSum(array $post_data)
-    {
-        $params = ['p24_session_id', 'p24_order_id', 'p24_amount', 'p24_currency'];
-
-        $crc = $this->sum($params, $post_data);
-
-        return $crc == $post_data['p24_sign'];
     }
 }
