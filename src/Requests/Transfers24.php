@@ -553,22 +553,6 @@ class Transfers24
     }
 
     /**
-     * Set sale article number.
-     *
-     * @param int $article_number
-     *
-     * @return $this
-     */
-    public function setArticleNumber($article_number)
-    {
-        if ($this->filterString($article_number)) {
-            $this->article_number = $article_number;
-        }
-
-        return $this;
-    }
-
-    /**
      * Add next sale article.
      *
      * @param string $name
@@ -579,7 +563,7 @@ class Transfers24
      *
      * @return $this
      */
-    public function setNextArticle(
+    public function setArticle(
         $seller_id,
         $seller_category,
         $name,
@@ -620,7 +604,6 @@ class Transfers24
     {
         if (empty($this->customer_email)
             || empty($this->amount)
-            || empty($this->article_name)
         ) {
             throw new RequestException('Empty email or amount');
         }
@@ -803,45 +786,6 @@ class Transfers24
         return $this->channel;
     }
 
-    /**
-     * @return string|null
-     */
-    public function getArticleName(): ?string
-    {
-        return $this->article_name;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getArticleDescription(): ?string
-    {
-        return $this->article_description;
-    }
-
-    /**
-     * @return string
-     */
-    public function getArticleQuantity()
-    {
-        return $this->article_quantity;
-    }
-
-    /**
-     * @return int
-     */
-    public function getArticlePrice(): ?int
-    {
-        return $this->article_price;
-    }
-
-    /**
-     * @return int|null
-     */
-    public function getArticleNumber(): ?int
-    {
-        return $this->article_number;
-    }
 
     /**
      * @return int|null

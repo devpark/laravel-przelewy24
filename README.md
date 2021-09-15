@@ -10,6 +10,7 @@ The package was enhancement on two features.
 
 2. Extracting setting merchant credentials package method. Now the package could be used by Saas and could provide separate payment service for every Merchant   
  
+Change Method Request::setArticle('Article Name')
  
 ### Installation
 
@@ -68,7 +69,7 @@ The most basic sample code for authorization request could look like this:
 $payment = app()->make(\App\Payment::class);
 $registration_request = app()->make(\Devpark\Transfers24\Requests\Transfers24::class);
 
-$register_payment = $registration_request->setEmail('test@example.com')->setAmount(100)->setArticle('Article Name')->init();
+$register_payment = $registration_request->setEmail('test@example.com')->setAmount(100)->init();
 
 if($register_payment->isSuccess())
 {

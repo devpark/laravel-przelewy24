@@ -4,6 +4,7 @@ namespace Tests\Services;
 
 use Devpark\Transfers24\ErrorCode;
 use Devpark\Transfers24\Services\BodyDecoder;
+use Devpark\Transfers24\Services\DecodedBody;
 use Tests\UnitTestCase;
 use function GuzzleHttp\Psr7\build_query;
 
@@ -24,7 +25,12 @@ class BodyDecoderTest extends UnitTestCase
     /** @test */
     public function decode_token()
     {
-        $body = build_query([BodyDecoder::TOKEN_LABEL => 'token']);
+        $body = json_encode([
+            BodyDecoder::DATA_LABEL => [
+                BodyDecoder::TOKEN_LABEL => 'token'
+            ],
+            BodyDecoder::RESPONSE_CODE => 0,
+        ]);
 
         $decoded = $this->body_decoder->decode($body);
 

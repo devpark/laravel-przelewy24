@@ -207,40 +207,6 @@ class Transfers24Test extends UnitTestCase
     }
 
     /** @test */
-    public function validation_set_article_name()
-    {
-        $name_array = [];
-        $price_array = [];
-        $this->request->setArticle($name_array, $price_array);
-        $set_fields = $this->request->getField('article_name');
-        $this->assertNull($set_fields);
-        $set_amount = $this->request->getField('article_price');
-        $this->assertNull($set_amount);
-
-        $test_name = 'testowa nazwa';
-        $test_price = '100';
-        $test_quantity = 'no number';
-        $this->request->setArticle($test_name, $test_price, $test_quantity);
-        $set_fields = $this->request->getField('article_name');
-        $set_amount = $this->request->getField('article_price');
-        $set_quantity = $this->request->getField('article_quantity');
-        $this->assertEquals($test_name, $set_fields);
-        $this->assertEquals($set_amount, 10000);
-        $this->assertEquals($set_quantity, RequestTransfers24::DEFAULT_ARTICLE_QUANTITY);
-
-        $test_name = 'testowa nazwa';
-        $amount = '12,5';
-        $test_quantity = 21.4;
-        $this->request->setArticle($test_name, $amount, $test_quantity);
-        $set_fields = $this->request->getField('article_name');
-        $set_amount = $this->request->getField('article_price');
-        $set_quantity = $this->request->getField('article_quantity');
-        $this->assertEquals($test_name, $set_fields);
-        $this->assertEquals($set_amount, 1250);
-        $this->assertEquals($set_quantity, (int) $test_quantity);
-    }
-
-    /** @test */
     public function setTransferLabel_validation()
     {
         $test_array = [];
@@ -252,20 +218,6 @@ class Transfers24Test extends UnitTestCase
         $this->request->setTransferLabel($label);
         $set_fields = $this->request->getField('transfer_label');
         $this->assertEquals($label, $set_fields);
-    }
-
-    /** @test */
-    public function validation_set_article_description()
-    {
-        $test_array = [];
-        $this->request->setArticleDescription($test_array);
-        $set_fields = $this->request->getField('article_description');
-        $this->assertNull($set_fields);
-
-        $test_array = 'dsfdf';
-        $this->request->setArticleDescription($test_array);
-        $set_fields = $this->request->getField('article_description');
-        $this->assertEquals($test_array, $set_fields);
     }
 
     /** @test */
@@ -338,20 +290,6 @@ class Transfers24Test extends UnitTestCase
         $this->assertEquals($test_array, $set_fields);
     }
 
-    /** @test */
-    public function validation_set_article_number()
-    {
-        $test_array = [];
-        $this->request->setArticleNumber($test_array);
-        $set_fields = $this->request->getField('article_number');
-        $this->assertNull($set_fields);
-
-        $test_array = 'AXC123';
-        $this->request->setArticleNumber($test_array);
-        $set_fields = $this->request->getField('article_number');
-        $this->assertEquals($test_array, $set_fields);
-    }
-
     /**
      * @Feature Payments
      * @Scenario Register Payment
@@ -396,8 +334,7 @@ class Transfers24Test extends UnitTestCase
             ->once()
             ->andReturn($expected_response);
 
-        $response = $this->request->setEmail('test@test.pl')->setAmount(100)
-            ->setArticle('Article 1')->init();
+        $response = $this->request->setEmail('test@test.pl')->setAmount(100)->init();
 
         $this->assertEquals($expected_response, $response);
 
@@ -581,6 +518,7 @@ class Transfers24Test extends UnitTestCase
             'price' => '111,11',
             'quantity' => 100,
             'number' => 'ACG1122',
+
         ];
 
         $expected_article = [
@@ -589,12 +527,14 @@ class Transfers24Test extends UnitTestCase
             'number' => 'ACG1122',
             'price' => 11111,
             'quantity' => 100,
+            'sellerCategory' => '1',
+            'sellerId' => '1',
         ];
 
-        $this->request->setNextArticle($next_article['name'], $next_article['price'],
+        $this->request->setArticle('1','1',$next_article['name'], $next_article['price'],
             $next_article['quantity'], $next_article['number']);
 
-        $additional_articles = $this->request->getField('additional_articles');
+        $additional_articles = $this->request->getField('cart');
         $first_article = array_pop($additional_articles);
         ksort($first_article);
         $this->assertSame($expected_article, $first_article);

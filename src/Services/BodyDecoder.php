@@ -3,6 +3,7 @@
 namespace Devpark\Transfers24\Services;
 
 use Devpark\Transfers24\ErrorCode;
+use Illuminate\Support\Arr;
 use Psr\Http\Message\StreamInterface;
 
 /**
@@ -21,12 +22,24 @@ class BodyDecoder
      */
     const MESSAGE_LABEL = 'errorMessage';
 
+    const DATA_LABEL = 'data';
+
+    const RESPONSE_CODE = 'responseCode';
+
     public function decode($body):DecodedBody
     {
         $decoded_body = new DecodedBody();
 
         $error_message = [];
-        parse_str($body, $response_table);
+        $response_table = json_decode($body);
+
+        if (Arr::has($response_table, 'data.token')){
+            $token = Arr::get($response_table, 'data.token');
+            $decoded_body->setToken($token);
+        }
+
+        
+
         foreach ($response_table as $label => $segment) {
             switch ($label) {
                 case self::ERROR_LABEL:
@@ -36,9 +49,9 @@ class BodyDecoder
                     }
                     $decoded_body->setStatusCode($segment);
                     break;
-                case self::TOKEN_LABEL:
-                    $decoded_body->setToken($segment);
-                    break;
+//                case self::TOKEN_LABEL:
+//                    $decoded_body->setToken($segment);
+//                    break;
                 case self::MESSAGE_LABEL:
                     $this->segmentToDescription($segment, $error_message);
                     break;
