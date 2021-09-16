@@ -176,7 +176,11 @@ class Transfers24
         $host = $this->getHost();
         $api_path = 'api/v1/';
         $this->client = $this->app->make(Client::class, [
-            'config' => ['base_uri' => $host.$api_path]
+            'config' => ['base_uri' => $host.$api_path],
+            'auth' => [
+                $this->username,
+                $this->password
+            ],
         ]);
     }
 }
