@@ -52,7 +52,21 @@ class Transfers24Test extends UnitTestCase
      */
     public function test_get_test_host()
     {
-        $sandbox_host = 'https://sandbox.przelewy24.pl/api/v1/';
+        $sandbox_host = 'https://sandbox.przelewy24.pl/';
+        $this->makeGateway(true);
+
+        $this->assertSame($this->gateway->getHost(), $sandbox_host);
+    }
+
+    /**
+     * @Feature Payments
+     * @Scenario Execute Payment
+     * @Case Connection to sandbox
+     * @test
+     */
+    public function test_get_test_host_with_path()
+    {
+        $sandbox_host = 'https://sandbox.przelewy24.pl/';
         $this->makeGateway(true);
 
         $this->assertSame($this->gateway->getHost(), $sandbox_host);
@@ -67,7 +81,7 @@ class Transfers24Test extends UnitTestCase
      */
     public function test_get_production_host()
     {
-        $transfers24_host = 'https://secure.przelewy24.pl/api/v1/';
+        $transfers24_host = 'https://secure.przelewy24.pl/';
 
         $this->makeGateway(false);
 

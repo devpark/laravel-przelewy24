@@ -3,6 +3,7 @@
 namespace Tests\Services;
 
 use Devpark\Transfers24\ErrorCode;
+use Devpark\Transfers24\Responses\Http\Response;
 use Devpark\Transfers24\Services\BodyDecoder;
 use Devpark\Transfers24\Services\DecodedBody;
 use Tests\UnitTestCase;
@@ -31,58 +32,68 @@ class BodyDecoderTest extends UnitTestCase
             ],
             BodyDecoder::RESPONSE_CODE => 0,
         ]);
+        $status_code = 200;
 
-        $decoded = $this->body_decoder->decode($body);
+        $response = $this->whenReceivedApiResponse($status_code, $body);
 
+        $decoded = $this->body_decoder->decode($response);
+
+        $this->assertSame($status_code, $decoded->getStatusCode());
         $this->assertSame('token', $decoded->getToken());
     }
 
     /** @test */
     public function decode_error()
     {
-        $body = build_query([BodyDecoder::ERROR_LABEL => 'error_code']);
 
-        $decoded = $this->body_decoder->decode($body);
+        $body = json_encode([
+            BodyDecoder::ERROR_LABEL => 'getting error',
+            BodyDecoder::ERROR_CODE => 400,
+        ]);
+        $status_code = 400;
 
-        $this->assertSame( 'error_code', $decoded->getStatusCode());
+        $response = $this->whenReceivedApiResponse($status_code, $body);
+
+        $decoded = $this->body_decoder->decode($response);
+
+        $this->assertSame( 400, $decoded->getStatusCode());
     }
 
     /** @test */
     public function decode_error_message()
     {
-        $body = build_query([BodyDecoder::ERROR_LABEL => ErrorCode::ERR00]);
+        $body = json_encode([
+            BodyDecoder::ERROR_LABEL => 'getting error',
+            BodyDecoder::ERROR_CODE => 400,
+        ]);
 
-        $decoded = $this->body_decoder->decode($body);
+        $status_code = 400;
 
-        $this->assertSame( ErrorCode::ERR00, $decoded->getStatusCode());
-        $this->assertSame( [ErrorCode::ERR00 => ErrorCode::getDescription(ErrorCode::ERR00)], $decoded->getErrorMessage());
+        $response = $this->whenReceivedApiResponse($status_code, $body);
+
+
+        $decoded = $this->body_decoder->decode($response);
+
+        $this->assertSame( 'getting error', $decoded->getErrorMessage());
+
+//        $this->assertSame( [ErrorCode::ERR00 => ErrorCode::getDescription(ErrorCode::ERR00)], $decoded->getErrorMessage());
     }
 
-    /** @test */
-    public function decode_message_label()
+    /**
+     * @param int $status_code
+     * @param $body
+     * @return \Mockery\MockInterface
+     */
+    private function whenReceivedApiResponse(int $status_code, $body): \Mockery\MockInterface
     {
-        $code = 'code';
-        $message = 'message';
-        $body = build_query([BodyDecoder::MESSAGE_LABEL => $code .':'.$message]);
-
-        $decoded = $this->body_decoder->decode($body);
-
-        $this->assertSame( [
-            $code => $message,
-            0 => $code .':'.$message
-        ], $decoded->getErrorMessage());
-    }
-
-
-    /** @test */
-    public function decode_accurate_error()
-    {
-        $body = build_query([ErrorCode::ERR00 => ErrorCode::ERR00]);
-
-        $decoded = $this->body_decoder->decode($body);
-
-        $this->assertSame( ErrorCode::ERR00, $decoded->getStatusCode());
-        $this->assertSame( [ErrorCode::ERR00 => ErrorCode::getDescription(ErrorCode::ERR00)], $decoded->getErrorMessage());
+        $response = \Mockery::mock(Response::class);
+        $response->shouldReceive('getStatusCode')
+            ->once()
+            ->andReturn($status_code);
+        $response->shouldReceive('getBody')
+            ->once()
+            ->andReturn($body);
+        return $response;
     }
 
 }

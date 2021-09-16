@@ -55,28 +55,28 @@ class ReceiveTranslatorTest extends UnitTestCase
     public function translate()
     {
         //Given
-        $p24_api_version = 'p24_api_version';
-        $p24_sign = 'p24_sign';
-        $p24_session_id = 'p24_session_id';
+        $p24_sign = 'sign';
+        $p24_session_id = 'sessionId';
         $p24_amount = 100;
         $p24_currency = 'pl';
         $p24_order_id = 'order-id';
 
         //When
-        $this->config->shouldReceive('get')
-            ->once()
-            ->with('transfers24.version')
-            ->andReturn('p24_api_version');
-
         $this->crc->shouldReceive('sum')
             ->once()
-            ->andReturn('p24_sign');
+            ->andReturn('sign');
 
         $receive_data = [
-            'p24_amount' => $p24_amount,
-            'p24_currency' => $p24_currency,
-            'p24_session_id' => $p24_session_id,
-            'p24_order_id' => $p24_order_id,
+            'merchantId' => 'merchant-id',
+            'posId' => 'pos-id',
+            'sessionId' => $p24_session_id,
+            'amount' => $p24_amount,
+            'originAmount' => $p24_amount,
+            'currency' => $p24_currency,
+            'orderId' => $p24_order_id,
+            'methodId' => 'method-id',
+            'statement' => 'statement',
+            'sign' => 'sign',
         ];
 
         $this->translator->init($receive_data, $this->credentials);
@@ -87,12 +87,11 @@ class ReceiveTranslatorTest extends UnitTestCase
         $form = $this->translator->translate();
 
         $data = $form->toArray();
-        $this->assertSame($p24_api_version,Arr::get($data, $p24_api_version));
         $this->assertSame($p24_sign,Arr::get($data, $p24_sign));
         $this->assertNotEmpty(Arr::get($data, $p24_session_id));
-        $this->assertSame($p24_amount,Arr::get($data, 'p24_amount'));
-        $this->assertSame($p24_currency,Arr::get($data, 'p24_currency'));
-        $this->assertSame($p24_order_id, Arr::get($data, 'p24_order_id'));
+        $this->assertSame($p24_amount,Arr::get($data, 'amount'));
+        $this->assertSame($p24_currency,Arr::get($data, 'currency'));
+        $this->assertSame($p24_order_id, Arr::get($data, 'orderId'));
         $this->assertSame($receive_data, $form->getReceiveParameters());
     }
 

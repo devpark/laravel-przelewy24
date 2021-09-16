@@ -28,7 +28,7 @@ class ReceiveResponseFactory implements ResponseFactory
 
     public function create(Response $response):IResponse
     {
-        $decoded_body = $this->body_decoder->decode($response->getBody());
+        $decoded_body = $this->body_decoder->decode($response);
 
         return new Verify($response->getForm(), $decoded_body);
     }

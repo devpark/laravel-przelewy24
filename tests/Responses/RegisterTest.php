@@ -65,10 +65,7 @@ class RegisterTest extends UnitTestCase
     /** @test */
     public function check_correct_error_description_passing()
     {
-        $error_description = [
-            'e1' => 'error 1 desc',
-            'e2' => 'error 2 desc',
-        ];
+        $error_description = 'error 1 desc';
 
         $this->decoded_body->shouldReceive('getErrorMessage')->once()->andReturn($error_description);
 

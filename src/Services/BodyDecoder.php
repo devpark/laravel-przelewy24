@@ -3,6 +3,7 @@
 namespace Devpark\Transfers24\Services;
 
 use Devpark\Transfers24\ErrorCode;
+use Devpark\Transfers24\Responses\Http\Response;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\StreamInterface;
 
@@ -26,46 +27,26 @@ class BodyDecoder
 
     const RESPONSE_CODE = 'responseCode';
 
-    public function decode($body):DecodedBody
+    const ERROR_CODE = 'code';
+
+    public function decode(Response $response):DecodedBody
     {
         $decoded_body = new DecodedBody();
 
-        $error_message = [];
-        $response_table = json_decode($body);
+        $decoded_body->setStatusCode($response->getStatusCode());
+
+        $response_table = json_decode($response->getBody(), true);
 
         if (Arr::has($response_table, 'data.token')){
             $token = Arr::get($response_table, 'data.token');
             $decoded_body->setToken($token);
         }
 
-        
-
-        foreach ($response_table as $label => $segment) {
-            switch ($label) {
-                case self::ERROR_LABEL:
-                    $description_error = ErrorCode::getDescription($segment);
-                    if (! is_null($description_error)) {
-                        $error_message[$segment] = $description_error;
-                    }
-                    $decoded_body->setStatusCode($segment);
-                    break;
-//                case self::TOKEN_LABEL:
-//                    $decoded_body->setToken($segment);
-//                    break;
-                case self::MESSAGE_LABEL:
-                    $this->segmentToDescription($segment, $error_message);
-                    break;
-                default:
-                    $error = ErrorCode::findAccurateCode(array_keys($response_table)[0]);
-                    if(! empty($error))
-                    {
-                        $status_code = $error;
-                        $error_message[$status_code] = ErrorCode::getDescription($status_code);
-                        $decoded_body->setStatusCode($status_code);
-                    }
-            }
+        if (Arr::has($response_table, 'error')){
+            $error_message = Arr::get($response_table, 'error');
+            $decoded_body->setErrorMessage($error_message);
         }
-        $decoded_body->setErrorMessage($error_message);
+
         return $decoded_body;
     }
 

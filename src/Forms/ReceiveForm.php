@@ -12,12 +12,12 @@ class ReceiveForm extends AbstractForm implements Form
 
     public function getUri(): string
     {
-        return 'trnVerify';
+        return 'transaction/verify';
     }
 
     public function getMethod(): string
     {
-        return 'POST';
+        return 'PUT';
     }
 
     public function getReceiveParameters():array

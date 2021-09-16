@@ -7,7 +7,7 @@ class DecodedBody
     private $token;
     private $status_code;
     /**
-     * @var array
+     * @var string
      */
     private $error_message;
 
@@ -44,17 +44,17 @@ class DecodedBody
 
 
     /**
-     * @param array $error_message
+     * @param string $error_message
      */
-    public function setErrorMessage(array $error_message): void
+    public function setErrorMessage($error_message): void
     {
         $this->error_message = $error_message;
     }
 
     /**
-     * @return array
+     * @return string
      */
-    public function getErrorMessage(): array
+    public function getErrorMessage()
     {
         return $this->error_message;
     }

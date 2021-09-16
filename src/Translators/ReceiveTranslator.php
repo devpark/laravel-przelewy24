@@ -33,23 +33,21 @@ class ReceiveTranslator extends AbstractTranslator implements Translator
     {
         $this->form = new ReceiveForm();
 
-        $session_id = $this->receive_parameters['p24_session_id'];
-        $this->form->addValue('p24_session_id', $session_id);
+        $session_id = $this->receive_parameters['sessionId'];
+        $this->form->addValue('sessionId', $session_id);
         $this->form->setSessionId($session_id);
 
-        $order_id = $this->receive_parameters['p24_order_id'];
-        $this->form->addValue('p24_order_id', $order_id);
+        $order_id = $this->receive_parameters['orderId'];
+        $this->form->addValue('orderId', $order_id);
         $this->form->setOrderId($order_id);
 
-        $this->form->addValue('p24_amount', $this->receive_parameters['p24_amount']);
-        $this->form->addValue('p24_currency', $this->receive_parameters['p24_currency']);
+        $this->form->addValue('amount', $this->receive_parameters['amount']);
+        $this->form->addValue('currency', $this->receive_parameters['currency']);
 
-        $p24_api_version = $this->config->get('transfers24.version');
-        $this->form->addValue('p24_api_version', $p24_api_version);
-        $this->form->addValue('p24_merchant_id', $this->merchant_id);
-        $this->form->addValue('p24_pos_id', $this->pos_id);
+        $this->form->addValue('merchantId', $this->merchant_id);
+        $this->form->addValue('posId', $this->pos_id);
 
-        $this->form->addValue('p24_sign', $this->calculateSign());
+        $this->form->addValue('sign', $this->calculateSign());
 
         $this->form->setReceivedParameters($this->receive_parameters);
 
@@ -58,6 +56,6 @@ class ReceiveTranslator extends AbstractTranslator implements Translator
 
     protected function getCrcParams(): array
     {
-        return ['p24_session_id', 'p24_order_id', 'p24_amount', 'p24_currency'];
+        return ['sessionId', 'orderId', 'amount', 'currency'];
     }
 }

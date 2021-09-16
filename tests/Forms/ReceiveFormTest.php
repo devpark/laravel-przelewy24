@@ -55,7 +55,7 @@ class ReceiveFormTest extends UnitTestCase
         $method = $this->form->getMethod();
 
         //Then
-        $this->assertSame('POST', $method);
+        $this->assertSame('PUT', $method);
     }
 
     /**
@@ -70,7 +70,7 @@ class ReceiveFormTest extends UnitTestCase
         $method = $this->form->getUri();
 
         //Then
-        $this->assertSame('trnVerify', $method);
+        $this->assertSame('transaction/verify', $method);
     }
 
 }

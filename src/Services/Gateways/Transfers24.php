@@ -23,14 +23,14 @@ class Transfers24
      *
      * @var string
      */
-    protected $hostLive = 'https://secure.przelewy24.pl/api/v1/';
+    protected $hostLive = 'https://secure.przelewy24.pl/';
 
     /**
      * Sandbox system URL address.
      *
      * @var string
      */
-    protected $hostSandbox = 'https://sandbox.przelewy24.pl/api/v1/';
+    protected $hostSandbox = 'https://sandbox.przelewy24.pl/';
 
     /**
      * Use Live (false) or Sandbox (true) environment.
@@ -173,8 +173,10 @@ class Transfers24
 
     protected function init(): void
     {
+        $host = $this->getHost();
+        $api_path = 'api/v1/';
         $this->client = $this->app->make(Client::class, [
-            'config' => ['base_uri' => $this->getHost()]
+            'config' => ['base_uri' => $host.$api_path]
         ]);
     }
 }

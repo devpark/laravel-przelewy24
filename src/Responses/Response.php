@@ -41,7 +41,7 @@ abstract class Response
     /**
      * Get Error description for payment.
      *
-     * @return array
+     * @return string
      */
     public function getErrorDescription()
     {

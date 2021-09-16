@@ -64,13 +64,8 @@ class ResponseFactoryTest extends UnitTestCase
 
         $decoded_body = m::mock(DecodedBody::class);
 
-        $body = 'body';
-        $http_response->shouldReceive('getBody')
-            ->once()
-            ->andReturn($body);
-
         $this->body_decoder->shouldReceive('decode')
-            ->with($body)
+            ->with($http_response)
             ->once()
             ->andReturn($decoded_body);
 
