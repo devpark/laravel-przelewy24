@@ -197,6 +197,9 @@ class RegisterTranslatorTest extends UnitTestCase
                 ]
             ]);
 
+        $this->request->shouldReceive('hasShippingDetails')
+            ->once()
+            ->andReturn(true);
         $this->request->shouldReceive('getShippingDetails')
             ->once()
             ->andReturn([

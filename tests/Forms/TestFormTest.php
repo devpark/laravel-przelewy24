@@ -56,7 +56,7 @@ class TestFormTest extends UnitTestCase
         $method = $this->form->getMethod();
 
         //Then
-        $this->assertSame('POST', $method);
+        $this->assertSame('GET', $method);
     }
 
     /**
@@ -71,7 +71,7 @@ class TestFormTest extends UnitTestCase
         $method = $this->form->getUri();
 
         //Then
-        $this->assertSame('testConnection', $method);
+        $this->assertSame('testAccess', $method);
     }
 
 }

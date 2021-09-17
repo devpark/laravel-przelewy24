@@ -9,11 +9,11 @@ class TestForm extends AbstractForm implements Form
 {
     public function getUri(): string
     {
-        return 'testConnection';
+        return 'testAccess';
     }
 
     public function getMethod(): string
     {
-        return 'POST';
+        return 'GET';
     }
 }

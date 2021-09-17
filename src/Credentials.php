@@ -27,6 +27,11 @@ class Credentials
     protected $test_mode;
 
     /**
+     * @var string
+     */
+    protected $report_key;
+
+    /**
      * @param int $pos_id
      *
      * @return void
@@ -115,9 +120,28 @@ class Credentials
 
     protected function throwEmptyCredentials(): void
     {
-        if (!isset($this->pos_id, $this->merchant_id, $this->crc)) {
+        if (!isset($this->pos_id, $this->merchant_id, $this->crc, $this->report_key)) {
             throw new EmptyCredentialsException("Empty credentials.");
         }
+    }
+
+    /**
+     * @return string
+     * @throws EmptyCredentialsException
+     */
+    public function getReportKey(): string
+    {
+        $this->throwEmptyCredentials();
+
+        return $this->report_key;
+    }
+
+    /**
+     * @param string $report_key
+     */
+    public function setReportKey(string $report_key): void
+    {
+        $this->report_key = $report_key;
     }
 
 }

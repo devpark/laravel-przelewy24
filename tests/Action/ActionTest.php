@@ -67,8 +67,6 @@ class ActionTest extends UnitTestCase
         parent::setUp();
 
         $this->response = m::mock(IResponse::class, RegisterResponse::class);
-        $this->app->bind(Container::class, \Illuminate\Container\Container::class);
-
         $this->credentials = m::mock(Credentials::class);
         $this->translator = m::mock(RegisterTranslator::class);
         $this->translator->shouldReceive('getCredentials')

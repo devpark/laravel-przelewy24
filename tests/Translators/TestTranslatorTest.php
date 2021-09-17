@@ -55,20 +55,10 @@ class TestTranslatorTest extends UnitTestCase
     public function translate()
     {
         //Given
-        $p24_api_version = 'p24_api_version';
-        $p24_sign = 'p24_sign';
         $p24_merchant_id = 'merchant-id';
         $p24_pos_id = 'pos-id';
 
         //When
-        $this->config->shouldReceive('get')
-            ->once()
-            ->with('transfers24.version')
-            ->andReturn('p24_api_version');
-
-        $this->crc->shouldReceive('sum')
-            ->once()
-            ->andReturn('p24_sign');
 
         $this->config->shouldReceive('get')
             ->times(4)
@@ -78,10 +68,7 @@ class TestTranslatorTest extends UnitTestCase
         $form = $this->translator->translate();
 
         $data = $form->toArray();
-        $this->assertSame($p24_api_version,Arr::get($data, $p24_api_version));
-        $this->assertSame($p24_sign,Arr::get($data, $p24_sign));
-        $this->assertSame($p24_merchant_id,Arr::get($data, 'p24_merchant_id'));
-        $this->assertSame($p24_pos_id, Arr::get($data, 'p24_pos_id'));
+        $this->assertEmpty($data);
     }
 
 }

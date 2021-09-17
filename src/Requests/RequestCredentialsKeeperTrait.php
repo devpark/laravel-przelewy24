@@ -55,4 +55,11 @@ trait RequestCredentialsKeeperTrait
 
         return $this;
     }
+
+    public function setReportKey(string $report_key)
+    {
+        $this->credentials_keeper->setReportKey($report_key);
+
+        return $this;
+    }
 }

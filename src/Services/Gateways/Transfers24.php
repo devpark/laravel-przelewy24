@@ -5,11 +5,8 @@ namespace Devpark\Transfers24\Services\Gateways;
 use Devpark\Transfers24\Contracts\Form;
 use Devpark\Transfers24\Credentials;
 use Devpark\Transfers24\Factories\HttpResponseFactory;
-use Devpark\Transfers24\Forms\RegisterForm;
-use Devpark\Transfers24\Services\Crc;
 use GuzzleHttp\Client;
 use Devpark\Transfers24\Responses\Http\Response;
-use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Config\Repository as Config;
 use Illuminate\Contracts\Container\Container;
 
@@ -72,26 +69,27 @@ class Transfers24
     protected $config;
 
     /**
-     * @var Container
+     * @var ClientFactory
      */
-    private $app;
+    private $client_factory;
 
     /**
      * Object constructor. Set initial parameters.
      *
      * @param Config $config
      */
-    public function __construct(Config $config, HttpResponseFactory $http_response_factory, Container $app)
+    public function __construct(Config $config, HttpResponseFactory $http_response_factory, ClientFactory $client_factory)
     {
         $this->config = $config;
         $this->http_response_factory = $http_response_factory;
-        $this->app = $app;
+        $this->client_factory = $client_factory;
 
+        $pos_id = $config->get('transfers24.pos_id');
+        $report_key = $config->get('transfers24.report_key');
         $sandbox = $config->get('transfers24.test_server');
 
-        $this->configure(
-            $sandbox
-        );
+
+        $this->configure($sandbox,$pos_id,$report_key);
     }
 
     /**
@@ -134,9 +132,14 @@ class Transfers24
         $uri = $form->getUri();
         $method = $form->getMethod();
         $form_params = $form->toArray();
-
         $response = $this->client->request($method, $uri,
-            ['form_params' => $form_params]
+            [
+                'form_params' => $form_params,
+                'auth' => [
+                    $this->username,
+                    $this->password
+                ],
+            ]
         );
 
         return $this->http_response_factory->create($form, $response);
@@ -150,7 +153,9 @@ class Transfers24
     {
         if ($this->config->get('transfers24.credentials-scope')) {
             $this->configure(
-                $credentials->isTestMode()
+                $credentials->isTestMode(),
+                $credentials->getPosId(),
+                $credentials->getReportKey()
             );
         }
     }
@@ -158,7 +163,7 @@ class Transfers24
     /**
      * @param Config $config
      */
-    private function configure(bool $sandbox): void
+    private function configure(bool $sandbox, $pos_id, $report_key): void
     {
 
         $this->testMode = $sandbox;
@@ -167,20 +172,16 @@ class Transfers24
             $this->hostLive = $this->hostSandbox;
         }
 
-        $this->init();
+        $this->init($pos_id, $report_key);
 
     }
 
-    protected function init(): void
+    protected function init($username, $password): void
     {
+        $this->username =$username;
+        $this->password = $password;
         $host = $this->getHost();
         $api_path = 'api/v1/';
-        $this->client = $this->app->make(Client::class, [
-            'config' => ['base_uri' => $host.$api_path],
-            'auth' => [
-                $this->username,
-                $this->password
-            ],
-        ]);
+        $this->client = $this->client_factory->create($host.$api_path);
     }
 }

@@ -85,7 +85,7 @@ abstract class Response
      */
     public function isSuccess()
     {
-        return $this->getCode() === '0';
+        return $this->getCode() === 200;
     }
 
     /**

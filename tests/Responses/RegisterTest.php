@@ -46,7 +46,7 @@ class RegisterTest extends UnitTestCase
     /** @test */
     public function check_response_success()
     {
-        $this->decoded_body->shouldReceive('getStatusCode')->once()->andReturn('0');
+        $this->decoded_body->shouldReceive('getStatusCode')->once()->andReturn(200);
 
         $success = $this->response->isSuccess();
         $this->assertTrue($success);

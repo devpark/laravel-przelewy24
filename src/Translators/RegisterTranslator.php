@@ -65,7 +65,9 @@ class RegisterTranslator extends AbstractTranslator implements Translator
 //            $this->form->addValue('price', $article['price']);
 //            $this->form->addValue('number', $article['number']);
 
-        $this->form->addValue('additional', ['shipping'  => $this->request->getShippingDetails()]);
+        if ($this->request->hasShippingDetails()){
+            $this->form->addValue('additional', ['shipping'  => $this->request->getShippingDetails()]);
+        }
         $this->form->addValue('cart', $this->request->getCart());
 
 
@@ -84,6 +86,6 @@ class RegisterTranslator extends AbstractTranslator implements Translator
 
     protected function getCrcParams(): array
     {
-        return ['p24_session_id', 'p24_merchant_id', 'p24_amount', 'p24_currency'];
+        return ['sessionId', 'merchantId', 'amount', 'currency'];
     }
 }

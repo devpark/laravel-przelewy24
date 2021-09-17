@@ -5,6 +5,7 @@ return [
     'merchant_id' => env('PRZELEWY24_MERCHANT_ID'),
     'pos_id' => env('PRZELEWY24_POS_ID'),
     'crc' => env('PRZELEWY24_CRC'),
+    'report_key' => env('PRZELEWY24_REPORT_KEY'),
     'test_server' => env('PRZELEWY24_TEST_SERVER', false),
     'url_return' => env('PRZELEWY24_URL_RETURN', 'transfers24/callback'),
     'url_status' => env('PRZELEWY24_URL_STATUS', 'transfers24/status'),

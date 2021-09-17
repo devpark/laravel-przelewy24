@@ -28,13 +28,6 @@ class TestTranslator extends AbstractTranslator implements Translator
     {
         $this->form = new TestForm();
 
-        $p24_api_version = $this->config->get('transfers24.version');
-        $this->form->addValue('p24_api_version', $p24_api_version);
-        $this->form->addValue('p24_merchant_id', $this->merchant_id);
-        $this->form->addValue('p24_pos_id', $this->pos_id);
-
-        $this->form->addValue('p24_sign', $this->calculateSign());
-
         return $this->form;
     }
 

@@ -823,6 +823,11 @@ class Transfers24
         return $this->shipping_details->toArray();
     }
 
+    public function hasShippingDetails():bool
+    {
+        return !empty($this->shipping_details);
+    }
+
     /**
      * @param mixed $method
      *

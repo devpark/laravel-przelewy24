@@ -43,6 +43,22 @@ class BodyDecoderTest extends UnitTestCase
     }
 
     /** @test */
+    public function decode_test_connection()
+    {
+        $body = json_encode([
+            BodyDecoder::DATA_LABEL => true,
+            BodyDecoder::ERROR_LABEL => 'string',
+        ]);
+        $status_code = 200;
+
+        $response = $this->whenReceivedApiResponse($status_code, $body);
+
+        $decoded = $this->body_decoder->decode($response);
+
+        $this->assertSame($status_code, $decoded->getStatusCode());
+    }
+
+    /** @test */
     public function decode_error()
     {
 
@@ -75,8 +91,6 @@ class BodyDecoderTest extends UnitTestCase
         $decoded = $this->body_decoder->decode($response);
 
         $this->assertSame( 'getting error', $decoded->getErrorMessage());
-
-//        $this->assertSame( [ErrorCode::ERR00 => ErrorCode::getDescription(ErrorCode::ERR00)], $decoded->getErrorMessage());
     }
 
     /**

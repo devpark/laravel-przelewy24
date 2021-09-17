@@ -46,11 +46,8 @@ class ReceiveTranslator extends AbstractTranslator implements Translator
 
         $this->form->addValue('merchantId', $this->merchant_id);
         $this->form->addValue('posId', $this->pos_id);
-
         $this->form->addValue('sign', $this->calculateSign());
-
         $this->form->setReceivedParameters($this->receive_parameters);
-
         return $this->form;
     }
 
