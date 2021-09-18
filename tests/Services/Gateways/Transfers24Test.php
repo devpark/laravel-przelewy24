@@ -4,6 +4,7 @@ namespace Tests\Services\Gateways;
 
 use Devpark\Transfers24\Contracts\Form;
 use Devpark\Transfers24\Factories\HttpResponseFactory;
+use Devpark\Transfers24\Services\Gateways\ClientFactory;
 use Devpark\Transfers24\Services\Gateways\Transfers24 as GatewayTransfers24;
 use Illuminate\Contracts\Container\Container;
 use Psr\Http\Message\ResponseInterface;
@@ -35,6 +36,10 @@ class Transfers24Test extends UnitTestCase
      * @var m\MockInterface
      */
     private $client;
+    /**
+     * @var ClientFactory
+     */
+    private $client_factory;
 
     protected function setUp()
     {
@@ -42,6 +47,7 @@ class Transfers24Test extends UnitTestCase
         $this->config = m::mock(Config::class);
         $this->response = m::mock(HttpResponseFactory::class);
         $this->container = m::mock(Container::class);
+        $this->client_factory = m::mock(ClientFactory::class);
         $this->client = m::mock(Client::class);}
 
     /**
@@ -142,7 +148,7 @@ class Transfers24Test extends UnitTestCase
     protected function makeGateway($test_mode): void
     {
         $this->config->shouldReceive('get')->andReturn($test_mode);
-        $this->container->shouldReceive('make')->once()->andReturn($this->client);
-        $this->gateway = new GatewayTransfers24($this->config, $this->response, $this->container);
+        $this->client_factory->shouldReceive('create')->once()->andReturn($this->client);
+        $this->gateway = new GatewayTransfers24($this->config, $this->response, $this->client_factory);
     }
 }

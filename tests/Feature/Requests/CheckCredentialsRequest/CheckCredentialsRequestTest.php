@@ -10,6 +10,8 @@ use Devpark\Transfers24\Responses\TestConnection;
 use Devpark\Transfers24\Services\Gateways\ClientFactory;
 use Devpark\Transfers24\Translators\TestTranslator;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Exception\RequestException;
 use Illuminate\Config\Repository;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Log\Logger;
@@ -59,24 +61,8 @@ class CheckCredentialsRequestTest extends UnitTestCase
         parent::setUp();
 
         $this->client = m::mock(Client::class);
-        $response = m::mock(ResponseInterface::class);
-        $response->shouldReceive('getStatusCode')
-            ->once()
-            ->andReturn(200);
-        $response->shouldReceive('getBody')
-            ->once()
-            ->andReturn('');
-        $this->client->shouldReceive('request')
-            ->with('GET', 'testAccess',
-                [
-                    'form_params' => [],
-                    'auth' => [
-                        10,
-                        'report_key'
-                    ],
-                ])
-            ->once()
-            ->andReturn($response);
+
+
         $this->client_factory = m::mock(ClientFactory::class);
         $this->client_factory->shouldReceive('create')
             ->once()->andReturn($this->client);
@@ -92,8 +78,8 @@ class CheckCredentialsRequestTest extends UnitTestCase
             'crc' => 'crc',
             'report_key' => 'report_key',
             'test_server' => true,
-            'url_return' => 'url_return',
-            'url_status' => 'url_status',
+            'url_return' => '',
+            'url_status' => '',
             'credentials-scope' => false,
         ]]);
 
@@ -109,11 +95,54 @@ class CheckCredentialsRequestTest extends UnitTestCase
      */
     public function execute_was_call_transfers_provider_test_connection()
     {
+        $response = m::mock(ResponseInterface::class);
 
+        $this->client->shouldReceive('request')
+            ->with('GET', 'testAccess',
+                [
+                    'form_params' => [],
+                    'auth' => [
+                        10,
+                        'report_key'
+                    ],
+                ])
+            ->once()
+            ->andReturn($response);
+        $response->shouldReceive('getStatusCode')
+            ->once()
+            ->andReturn(200);
+        $response->shouldReceive('getBody')
+            ->once()
+            ->andReturn('');
         $response = $this->request->execute();
 
         $this->assertInstanceOf(TestConnection::class, $response);
         $this->assertSame(200, $response->getCode());
+    }
+
+    /**
+     * @Feature Connection with Provider
+     * @Scenario Testing Connection
+     * @Case Connection passed
+     * @test
+     */
+    public function execute_was_failed_and_return_invalid_connection()
+    {
+        $this->client->shouldReceive('request')
+        ->with('GET', 'testAccess',
+            [
+                'form_params' => [],
+                'auth' => [
+                    10,
+                    'report_key'
+                ],
+            ])
+        ->once()
+        ->andThrow(new \Exception('messasge', 401));
+        $response = $this->request->execute();
+
+        $this->assertInstanceOf(InvalidResponse::class, $response);
+        $this->assertSame(401, $response->getErrorCode());
     }
 
 }
