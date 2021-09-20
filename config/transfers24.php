@@ -10,6 +10,11 @@ return [
     'url_return' => env('PRZELEWY24_URL_RETURN', 'transfers24/callback'),
     'url_status' => env('PRZELEWY24_URL_STATUS', 'transfers24/status'),
 
+    /**
+     * Refund Status Url
+     */
+    'url_refund_status' => 'transfers24/refund-status',
+
     /*
      * Enable credentials scope per merchant.
      * The package could be used by Saas and could provide separate payment service for every Merchant
