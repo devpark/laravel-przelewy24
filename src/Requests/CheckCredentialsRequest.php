@@ -5,23 +5,16 @@ namespace Devpark\Transfers24\Requests;
 
 use Devpark\Transfers24\Contracts\IResponse;
 use Devpark\Transfers24\Credentials;
-use Devpark\Transfers24\Exceptions\EmptyCredentialsException;
-use Devpark\Transfers24\Exceptions\NoEnvironmentChosenException;
 use Devpark\Transfers24\Factories\ActionFactory;
 use Devpark\Transfers24\Factories\TestResponseFactory;
 use Devpark\Transfers24\Factories\TestTranslatorFactory;
 use Devpark\Transfers24\Responses\InvalidResponse;
 use Devpark\Transfers24\Responses\TestConnection;
-use Devpark\Transfers24\Services\Handlers\Transfers24 as Handler;
 
 class CheckCredentialsRequest
 {
     use RequestCredentialsKeeperTrait;
 
-    /**
-     * @var Handler
-     */
-    protected $handler;
     /**
      * @var TestTranslatorFactory
      */

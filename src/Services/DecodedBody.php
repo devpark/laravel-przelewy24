@@ -11,6 +11,8 @@ class DecodedBody
      */
     private $error_message;
 
+    private $data;
+
     /**
      * Get Token for registered payment.
      *
@@ -57,5 +59,18 @@ class DecodedBody
     public function getErrorMessage()
     {
         return $this->error_message;
+    }
+
+    public function getData()
+    {
+        return $this->data;
+    }
+
+    /**
+     * @param mixed $data
+     */
+    public function setData($data): void
+    {
+        $this->data = $data;
     }
 }

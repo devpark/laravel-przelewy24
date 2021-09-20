@@ -9,24 +9,34 @@ use Devpark\Transfers24\Contracts\Translator;
 use Devpark\Transfers24\Credentials;
 use Devpark\Transfers24\Exceptions\EmptyCredentialsException;
 use Devpark\Transfers24\Exceptions\NoEnvironmentChosenException;
+use Devpark\Transfers24\Forms\PaymentMethodsForm;
 use Devpark\Transfers24\Forms\ReceiveForm;
 use Devpark\Transfers24\Forms\RegisterForm;
 use Devpark\Transfers24\Forms\TestForm;
+use Devpark\Transfers24\Requests\PaymentMethodsRequest;
 use Devpark\Transfers24\Requests\Transfers24;
 use Devpark\Transfers24\Services\Crc;
 use Illuminate\Config\Repository as Config;
 
-class TestTranslator extends AbstractTranslator implements Translator
+class PaymentMethodsTranslator extends AbstractTranslator implements Translator
 {
-    public function init(Credentials $credentials):TestTranslator{
+    /**
+     * @var string
+     */
+    private $lang;
+
+    public function init(Credentials $credentials, $lang):PaymentMethodsTranslator{
 
         $this->credentials_keeper = $credentials;
+        $this->lang = $lang;
         return $this;
     }
 
     public function translate():Form
     {
-        $this->form = new TestForm();
+        $this->form = new PaymentMethodsForm();
+
+        $this->form->setLanguage($this->lang);
 
         return $this->form;
     }

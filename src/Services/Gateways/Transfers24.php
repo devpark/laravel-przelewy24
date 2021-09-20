@@ -131,16 +131,9 @@ class Transfers24
     {
         $uri = $form->getUri();
         $method = $form->getMethod();
-        $form_params = $form->toArray();
-        $response = $this->client->request($method, $uri,
-            [
-                'form_params' => $form_params,
-                'auth' => [
-                    $this->username,
-                    $this->password
-                ],
-            ]
-        );
+        $options = $this->buildRequestOptions($method, $form);
+
+        $response = $this->client->request($method, $uri, $options);
 
         return $this->http_response_factory->create($form, $response);
     }
@@ -183,5 +176,30 @@ class Transfers24
         $host = $this->getHost();
         $api_path = 'api/v1/';
         $this->client = $this->client_factory->create($host.$api_path);
+    }
+
+    private function isCommand(string $method):bool
+    {
+        return $method !== 'GET';
+    }
+
+    /**
+     * @param string $method
+     * @param Form $form
+     * @return array[]
+     */
+    private function buildRequestOptions(string $method, Form $form): array
+    {
+        $options = [
+            'auth' => [
+                $this->username,
+                $this->password
+            ],
+        ];
+        if ($this->isCommand($method)) {
+            $form_params = $form->toArray();
+            $options['form_params'] = $form_params;
+        }
+        return $options;
     }
 }

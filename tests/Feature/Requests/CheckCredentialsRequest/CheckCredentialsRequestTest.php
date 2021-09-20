@@ -95,27 +95,12 @@ class CheckCredentialsRequestTest extends UnitTestCase
      */
     public function execute_was_call_transfers_provider_test_connection()
     {
-        $response = m::mock(ResponseInterface::class);
 
-        $this->client->shouldReceive('request')
-            ->with('GET', 'testAccess',
-                [
-                    'form_params' => [],
-                    'auth' => [
-                        10,
-                        'report_key'
-                    ],
-                ])
-            ->once()
-            ->andReturn($response);
-        $response->shouldReceive('getStatusCode')
-            ->once()
-            ->andReturn(200);
-        $response->shouldReceive('getBody')
-            ->once()
-            ->andReturn('');
+        //When
+        $response = $this->requestTestAccessSuccessful();
         $response = $this->request->execute();
 
+        //Then
         $this->assertInstanceOf(TestConnection::class, $response);
         $this->assertSame(200, $response->getCode());
     }
@@ -123,26 +108,66 @@ class CheckCredentialsRequestTest extends UnitTestCase
     /**
      * @Feature Connection with Provider
      * @Scenario Testing Connection
-     * @Case Connection passed
+     * @Case Connection failed
      * @test
      */
     public function execute_was_failed_and_return_invalid_connection()
     {
-        $this->client->shouldReceive('request')
-        ->with('GET', 'testAccess',
-            [
-                'form_params' => [],
-                'auth' => [
-                    10,
-                    'report_key'
-                ],
-            ])
-        ->once()
-        ->andThrow(new \Exception('messasge', 401));
+        //When
+        $this->requestTestAccessFailed();
         $response = $this->request->execute();
 
+        //Then
         $this->assertInstanceOf(InvalidResponse::class, $response);
         $this->assertSame(401, $response->getErrorCode());
+    }
+
+    /**
+     * @return MockInterface
+     */
+    private function requestTestAccessSuccessful(): MockInterface
+    {
+        $response = $this->makeResponse();
+        $this->client->shouldReceive('request')
+            ->with('GET', 'testAccess',
+                [
+                    'auth' => [
+                        10,
+                        'report_key'
+                    ],
+                ])
+            ->once()
+            ->andReturn($response);
+        return $response;
+    }
+
+    private function requestTestAccessFailed(): void
+    {
+        $this->client->shouldReceive('request')
+            ->with('GET', 'testAccess',
+                [
+                    'auth' => [
+                        10,
+                        'report_key'
+                    ],
+                ])
+            ->once()
+            ->andThrow(new \Exception('Incorrect authentication', 401));
+    }
+
+    /**
+     * @return MockInterface
+     */
+    private function makeResponse(): MockInterface
+    {
+        $response = m::mock(ResponseInterface::class);
+        $response->shouldReceive('getStatusCode')
+            ->once()
+            ->andReturn(200);
+        $response->shouldReceive('getBody')
+            ->once()
+            ->andReturn('');
+        return $response;
     }
 
 }

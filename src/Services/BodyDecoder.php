@@ -37,6 +37,11 @@ class BodyDecoder
 
         $response_table = json_decode($response->getBody(), true);
 
+        if (Arr::has($response_table, 'data')){
+            $data = Arr::get($response_table, 'data');
+            $decoded_body->setData($data);
+        }
+
         if (Arr::has($response_table, 'data.token')){
             $token = Arr::get($response_table, 'data.token');
             $decoded_body->setToken($token);
