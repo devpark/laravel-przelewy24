@@ -11,9 +11,11 @@ use Devpark\Transfers24\Exceptions\EmptyCredentialsException;
 use Devpark\Transfers24\Exceptions\NoEnvironmentChosenException;
 use Devpark\Transfers24\Forms\PaymentMethodsForm;
 use Devpark\Transfers24\Forms\ReceiveForm;
+use Devpark\Transfers24\Forms\RefundForm;
 use Devpark\Transfers24\Forms\RegisterForm;
 use Devpark\Transfers24\Forms\TestForm;
 use Devpark\Transfers24\Requests\PaymentMethodsRequest;
+use Devpark\Transfers24\Requests\RefundRequest;
 use Devpark\Transfers24\Requests\Transfers24;
 use Devpark\Transfers24\Services\Crc;
 use Illuminate\Config\Repository as Config;
@@ -21,22 +23,31 @@ use Illuminate\Config\Repository as Config;
 class RefundTranslator extends AbstractTranslator implements Translator
 {
     /**
-     * @var string
+     * @var RefundRequest
      */
-    private $lang;
+    private $request;
 
-    public function init(Credentials $credentials, $lang):PaymentMethodsTranslator{
+    public function init(Credentials $credentials, RefundRequest $request):RefundTranslator{
 
         $this->credentials_keeper = $credentials;
-        $this->lang = $lang;
+        $this->request = $request;
         return $this;
     }
 
     public function translate():Form
     {
-        $this->form = new PaymentMethodsForm();
-
-        $this->form->setLanguage($this->lang);
+        $this->form = new RefundForm();
+        $this->form->addValue("requestId", "string");
+        $this->form->addValue("refundsUuid", "string");
+        $this->form->addValue("urlStatus", $this->config->get('transfers24.url_refund_status'));
+        $refund = [
+            "orderId" => 0,
+            "sessionId" => "string",
+            "amount" => 0,
+            "description" => "string"
+        ];
+//        $this->request
+        $this->form->addValue("refunds", [$refund]);
 
         return $this->form;
     }

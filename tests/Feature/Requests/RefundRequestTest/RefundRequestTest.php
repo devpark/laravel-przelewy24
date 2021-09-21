@@ -201,15 +201,28 @@ class RefundRequestTest extends UnitTestCase
 
     private function requestTestAccessFailed(): void
     {
-        $path = 'payment/methods/pl';
+        $path = 'transaction/refund';
 
         $this->client->shouldReceive('request')
-            ->with('GET', $path,
+            ->with('POST', $path,
                 [
                     'auth' => [
                         10,
                         'report_key'
                     ],
+                    'form_params' => [
+                        "requestId" => "string",
+                        "refunds" => [
+                            [
+                                "orderId" => 0,
+                                "sessionId" => "string",
+                                "amount" => 0,
+                                "description" => "string"
+                            ]
+                        ],
+                        "refundsUuid" => "string",
+                        "urlStatus" => "string"
+                    ]
                 ])
             ->once()
             ->andThrow(new \Exception('Incorrect authentication', 401));

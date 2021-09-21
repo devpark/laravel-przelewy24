@@ -12,6 +12,7 @@ use Devpark\Transfers24\Requests\RefundRequest;
 use Devpark\Transfers24\Requests\Transfers24;
 use Devpark\Transfers24\Translators\PaymentMethodsTranslator;
 use Devpark\Transfers24\Translators\ReceiveTranslator;
+use Devpark\Transfers24\Translators\RefundTranslator;
 use Devpark\Transfers24\Translators\RegisterTranslator;
 use Devpark\Transfers24\Translators\TestTranslator;
 use Illuminate\Contracts\Container\Container;
@@ -36,7 +37,7 @@ class RefundTranslatorFactory
      * @throws \Devpark\Transfers24\Exceptions\NoEnvironmentChosenException
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
-    public function create(Credentials $credentials, RefundRequest $request):PaymentMethodsTranslator
+    public function create(Credentials $credentials, RefundRequest $request):RefundTranslator
     {
         /**
          * @var RefundTranslator $translator

@@ -8,6 +8,7 @@ use Devpark\Transfers24\Credentials;
 use Devpark\Transfers24\Factories\ActionFactory;
 use Devpark\Transfers24\Factories\ForResponses\PaymentMethodsResponseFactory;
 use Devpark\Transfers24\Factories\ForTranslators\PaymentMethodsTranslatorFactory;
+use Devpark\Transfers24\Factories\ForTranslators\RefundTranslatorFactory;
 use Devpark\Transfers24\Language;
 use Devpark\Transfers24\Responses\InvalidResponse;
 use Devpark\Transfers24\Responses\PaymentMethods;
@@ -36,7 +37,7 @@ class RefundRequest
     protected $language = Language::POLISH;
 
     public function __construct(
-        FefundTranslatorFactory $translator_factory, Credentials $credentials_keeper,
+        RefundTranslatorFactory $translator_factory, Credentials $credentials_keeper,
         ActionFactory $action_factory, RefundResponseFactory $response_factory
     )
     {
