@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Tests\Feature\Requests\RefundRequestTest;
+namespace Tests\Feature\Requests\TransactionRequestTest;
 
 use Devpark\Transfers24\Contracts\PaymentMethod;
 use Devpark\Transfers24\Contracts\PaymentMethodHours;
@@ -9,7 +9,7 @@ use Devpark\Transfers24\Contracts\Refund;
 use Devpark\Transfers24\Models\RefundQuery;
 use Devpark\Transfers24\Requests\CheckCredentialsRequest;
 use Devpark\Transfers24\Requests\PaymentMethodsRequest;
-use Devpark\Transfers24\Requests\RefundRequest;
+use Devpark\Transfers24\Requests\TransactionRequest;
 use Devpark\Transfers24\Responses\InvalidResponse;
 use Devpark\Transfers24\Responses\PaymentMethods;
 use Devpark\Transfers24\Responses\RefundResponse;
@@ -32,15 +32,15 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\Test\TestLogger;
 use Tests\UnitTestCase;
 
-class RefundRequestTest extends UnitTestCase
+class TransactionRequestTest extends UnitTestCase
 {
     /**
-     * @var RefundRequest
+     * @var TransactionRequest
      */
     private $request;
 
     /**
-     * @var MockInterface|TestConnection
+     * @var MockInterface|TransactionResponse
      */
     private $response;
     /**
@@ -93,17 +93,17 @@ class RefundRequestTest extends UnitTestCase
             "url_refund_status" => "transfers24/refund-status"
         ]]);
 
-        $this->request = $this->app->make(RefundRequest::class);
+        $this->request = $this->app->make(TransactionRequest::class);
 
     }
 
     /**
-     * @Feature Refund
-     * @Scenario init Refund
-     * @Case Refund was started
+     * @Feature Payments
+     * @Scenario Getting Transaction
+     * @Case Getting Transaction by sessionIs
      * @test
      */
-    public function refund_was_started_it_get_success_code()
+    public function getting_transaction_by_session_id_it_get_success_code()
     {
         //Given
         $refund_inquiry = $this->makeRefundQuery();
