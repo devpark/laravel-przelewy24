@@ -28,7 +28,7 @@ class RefundRequest
     const DEFAULT_ARTICLE_DESCRIPTION = '';
 
     /**
-     * @var PaymentMethodsTranslatorFactory
+     * @var RefundTranslatorFactory
      */
     private $translator_factory;
     /**

@@ -13,6 +13,7 @@ use Devpark\Transfers24\Forms\RegisterForm;
 use Devpark\Transfers24\Requests\Transfers24;
 use Devpark\Transfers24\Services\Crc;
 use Illuminate\Config\Repository as Config;
+use Ramsey\Uuid\UuidFactory;
 
 class RegisterTranslator extends AbstractTranslator implements Translator
 {
@@ -20,6 +21,16 @@ class RegisterTranslator extends AbstractTranslator implements Translator
      * @var Transfers24
      */
     private $request;
+    /**
+     * @var UuidFactory
+     */
+    private $uuid_factory;
+
+    public function __construct(UuidFactory $uuid_factory, Crc $crc, Config $config)
+    {
+        parent::__construct($crc, $config);
+        $this->uuid_factory = $uuid_factory;
+    }
 
     public function init(Transfers24 $request, Credentials $credentials):RegisterTranslator{
 
@@ -32,7 +43,7 @@ class RegisterTranslator extends AbstractTranslator implements Translator
    {
         $this->form = new RegisterForm();
 
-        $session_id = uniqid();
+        $session_id = $this->uuid_factory->uuid4()->toString();
         $this->form->addValue('sessionId', $session_id);
         $this->form->setSessionId($session_id);
         $this->form->addValue('amount', $this->request->getAmount());
