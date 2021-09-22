@@ -7,16 +7,24 @@ use Devpark\Transfers24\Contracts\IResponse;
 use Devpark\Transfers24\Credentials;
 use Devpark\Transfers24\Factories\ActionFactory;
 use Devpark\Transfers24\Factories\ForResponses\PaymentMethodsResponseFactory;
+use Devpark\Transfers24\Factories\ForResponses\RefundResponseFactory;
 use Devpark\Transfers24\Factories\ForTranslators\PaymentMethodsTranslatorFactory;
 use Devpark\Transfers24\Factories\ForTranslators\RefundTranslatorFactory;
 use Devpark\Transfers24\Language;
+use Devpark\Transfers24\Models\RefundQuery;
 use Devpark\Transfers24\Responses\InvalidResponse;
 use Devpark\Transfers24\Responses\PaymentMethods;
 use Devpark\Transfers24\Responses\TestConnection;
+use Devpark\Transfers24\Services\Amount;
 
 class RefundRequest
 {
     use RequestCredentialsKeeperTrait;
+
+    /**
+     * default empty description.
+     */
+    const DEFAULT_ARTICLE_DESCRIPTION = '';
 
     /**
      * @var PaymentMethodsTranslatorFactory
@@ -35,6 +43,10 @@ class RefundRequest
      * @var string
      */
     protected $language = Language::POLISH;
+    /**
+     * @var RefundQuery[]
+     */
+    private $refund_inquiries = [];
 
     public function __construct(
         RefundTranslatorFactory $translator_factory, Credentials $credentials_keeper,
@@ -58,25 +70,24 @@ class RefundRequest
     }
 
     /**
-     * @return string
-     */
-    public function getLanguage(): string
-    {
-        return $this->language;
-    }
-
-    /**
-     * Set language interface.
-     *
-     * @param $language
+     * Add Refund Inquiry
      *
      * @return $this
      */
-    public function setLanguage($language)
-    {
-        $this->language = Language::get($language);
+    public function addRefundInquiry(int $order_id, string $session_id, float $amount, string $description = self::DEFAULT_ARTICLE_DESCRIPTION) {
+
+        $this->refund_inquiries[] = (new RefundQuery($order_id, $session_id, Amount::get($amount), $description))->toArray();
 
         return $this;
     }
+
+    /**
+     * @return RefundQuery[]
+     */
+    public function getRefundInquiries(): array
+    {
+        return $this->refund_inquiries;
+    }
+
 
 }

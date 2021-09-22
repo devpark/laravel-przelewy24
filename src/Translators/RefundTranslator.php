@@ -37,17 +37,12 @@ class RefundTranslator extends AbstractTranslator implements Translator
     public function translate():Form
     {
         $this->form = new RefundForm();
-        $this->form->addValue("requestId", "string");
-        $this->form->addValue("refundsUuid", "string");
-        $this->form->addValue("urlStatus", $this->config->get('transfers24.url_refund_status'));
-        $refund = [
-            "orderId" => 0,
-            "sessionId" => "string",
-            "amount" => 0,
-            "description" => "string"
-        ];
-//        $this->request
-        $this->form->addValue("refunds", [$refund]);
+        $this->form->addValue("requestId", "request-id");
+        $this->form->addValue("refundsUuid", "refund-uuid");
+        $url_status = $this->config->get('transfers24.url_refund_status');
+        $this->form->addValue("urlStatus", $url_status);
+        $inquiries = $this->request->getRefundInquiries();
+        $this->form->addValue("refunds", $inquiries);
 
         return $this->form;
     }

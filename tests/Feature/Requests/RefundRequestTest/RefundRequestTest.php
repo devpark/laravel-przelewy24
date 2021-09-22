@@ -5,14 +5,17 @@ namespace Tests\Feature\Requests\RefundRequestTest;
 
 use Devpark\Transfers24\Contracts\PaymentMethod;
 use Devpark\Transfers24\Contracts\PaymentMethodHours;
+use Devpark\Transfers24\Contracts\Refund;
 use Devpark\Transfers24\Models\RefundQuery;
 use Devpark\Transfers24\Requests\CheckCredentialsRequest;
 use Devpark\Transfers24\Requests\PaymentMethodsRequest;
 use Devpark\Transfers24\Requests\RefundRequest;
 use Devpark\Transfers24\Responses\InvalidResponse;
 use Devpark\Transfers24\Responses\PaymentMethods;
+use Devpark\Transfers24\Responses\RefundResponse;
 use Devpark\Transfers24\Responses\Response;
 use Devpark\Transfers24\Responses\TestConnection;
+use Devpark\Transfers24\Services\Amount;
 use Devpark\Transfers24\Services\Gateways\ClientFactory;
 use Devpark\Transfers24\Translators\TestTranslator;
 use GuzzleHttp\Client;
@@ -87,6 +90,7 @@ class RefundRequestTest extends UnitTestCase
             'url_return' => '',
             'url_status' => '',
             'credentials-scope' => false,
+            "url_refund_status" => "transfers24/refund-status"
         ]]);
 
         $this->request = $this->app->make(RefundRequest::class);
@@ -99,36 +103,42 @@ class RefundRequestTest extends UnitTestCase
      * @Case Refund was started
      * @test
      */
-    public function refund_was_started()
+    public function refund_was_started_it_get_success_code()
     {
         $response = $this->makeResponse();
-        $refund = $this->makeRefundQuery();
+        $refund_inquiry = $this->makeRefundQuery();
+        $refund_query_raw = $refund_inquiry->toArray();
 
 
-        $this->requestRefundSuccessful($response, $refund);
-        $response = $this->request->execute();
+        $this->requestRefundSuccessful($response, $refund_inquiry);
+        $response = $this->request
+            ->addRefundInquiry($refund_query_raw['orderId'], $refund_query_raw['sessionId'], $refund_query_raw['amount'], $refund_query_raw['description'])
+            ->execute();
 
-        $this->assertInstanceOf(Refund::class, $response);
-        $this->assertSame(200, $response->getCode());
+        $this->assertInstanceOf(RefundResponse::class, $response);
+        $this->assertSame(201, $response->getCode());
     }
 
     /**
-     * @Feature Payment Methods
-     * @Scenario Getting Payment Methods
-     * @Case It gets payment methods for set language
+     * @Feature Refund
+     * @Scenario init Refund
+     * @Case Refund was started
      * @test
      */
-    public function it_gets_payment_methods_for_set_language()
+    public function refund_was_started_it_get_()
     {
 
         $response = $this->makeResponse();
+        $refund_query = $this->makeRefundQuery();
+        $refund_query_raw = $refund_query->toArray();
 
-        $this->requestRefundSuccessful($response, 'en');
-        $this->request->setLanguage('en');
-        $response = $this->request->execute();
+        $this->requestRefundSuccessful($response, $refund_query);
+        $response = $this->request
+            ->addRefundInquiry($refund_query_raw['orderId'], $refund_query_raw['sessionId'], Amount::get($refund_query_raw['amount']), $refund_query_raw['description'])
+            ->execute();
 
-        $this->assertInstanceOf(PaymentMethods::class, $response);
-        $this->assertSame(200, $response->getCode());
+        $this->assertInstanceOf(RefundResponse::class, $response);
+        $this->assertSame(201, $response->getCode());
     }
 
     /**
@@ -142,7 +152,7 @@ class RefundRequestTest extends UnitTestCase
 
         $response = $this->makeResponse();
 
-        $payment_method = $this->makePaymentMethod();
+        $payment_method = $this->makeRefund();
 
         $this->requestRefundSuccessful($response, 'en');
         $this->request->setLanguage('en');
@@ -169,61 +179,28 @@ class RefundRequestTest extends UnitTestCase
     public function execute_was_failed_and_return_invalid_response()
     {
 
-        $this->requestTestAccessFailed();
+        $this->requestRefundFailed();
         $response = $this->request->execute();
 
         $this->assertInstanceOf(InvalidResponse::class, $response);
         $this->assertSame(401, $response->getErrorCode());
     }
 
-    protected function makePaymentMethod():PaymentMethod
+    protected function makeRefund():Refund
     {
-        $payment_method_hours = new class implements PaymentMethodHours{
-            public $mondayToFriday = "00-24";
-            public $saturday = "unavailable";
-            public $sunday = "00-24";
-        };
-
-        return new class($payment_method_hours) implements PaymentMethod{
-            public $name = 'name';
-            public $id = 1;
-            public $status = true;
-            public $imgUrl = 'img-url';
-            public $mobileImgUrl = 'mobile-img-url';
-            public $mobile = true;
-            public $availabilityHours;
-            public function __construct(PaymentMethodHours $availabilityHours)
-            {
-                $this->availabilityHours = $availabilityHours;
-            }
+        return new class implements Refund{
+            public $orderId =  0;
+            public $sessionId =  "string";
+            public $amount =  0;
+            public $description =  "string";
+            public $status =  true;
+            public $message =  "success";
         };
     }
 
-    private function requestTestAccessFailed(): void
+    private function requestRefundFailed(): void
     {
-        $path = 'transaction/refund';
-
         $this->client->shouldReceive('request')
-            ->with('POST', $path,
-                [
-                    'auth' => [
-                        10,
-                        'report_key'
-                    ],
-                    'form_params' => [
-                        "requestId" => "string",
-                        "refunds" => [
-                            [
-                                "orderId" => 0,
-                                "sessionId" => "string",
-                                "amount" => 0,
-                                "description" => "string"
-                            ]
-                        ],
-                        "refundsUuid" => "string",
-                        "urlStatus" => "string"
-                    ]
-                ])
             ->once()
             ->andThrow(new \Exception('Incorrect authentication', 401));
     }
@@ -236,20 +213,21 @@ class RefundRequestTest extends UnitTestCase
         $response = m::mock(ResponseInterface::class);
         $response->shouldReceive('getStatusCode')
             ->once()
-            ->andReturn(200);
+            ->andReturn(201);
         $response->shouldReceive('getBody')
             ->once()
-            ->andReturn(json_encode(['data' => [$this->makePaymentMethod()], 'error' => '']));
+            ->andReturn(json_encode(['data' => [$this->makeRefund()], 'error' => '']));
         return $response;
     }
 
     /**
      * @param MockInterface $response
      */
-    private function requestRefundSuccessful(MockInterface $response, RefundQuery $refund): void
+    private function requestRefundSuccessful(MockInterface $response, RefundQuery $refund_query): void
     {
         $path = 'transaction/refund';
         $method = 'POST';
+        $refund_query_raw = $refund_query->toArray();
         $request_options = [
             'auth' => [
                 10,
@@ -257,9 +235,16 @@ class RefundRequestTest extends UnitTestCase
             ],
             'form_params' => [
                 "requestId" => "request-id",
-                "refunds" => [ $refund->toArray()],
+                "refunds" => [
+                    [
+                        'orderId' => $refund_query_raw['orderId'],
+                        'sessionId' => $refund_query_raw['sessionId'],
+                        'amount' => Amount::get($refund_query_raw['amount']),
+                        'description' => $refund_query_raw['description'],
+                    ]
+                ],
                 "refundsUuid" => "refund-uuid",
-                "urlStatus" => "url-status"
+                "urlStatus" => "transfers24/refund-status",
             ]
         ];
         $this->client->shouldReceive('request')
