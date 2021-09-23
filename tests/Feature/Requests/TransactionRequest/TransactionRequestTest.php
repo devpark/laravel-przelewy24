@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Tests\Feature\Requests\PaymentMethodsRequest;
+namespace Tests\Feature\Requests\TransactionRequest;
 
 use Devpark\Transfers24\Contracts\PaymentMethod;
 use Devpark\Transfers24\Contracts\PaymentMethodHours;
@@ -27,9 +27,9 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\Test\TestLogger;
 use Tests\UnitTestCase;
 
-class PaymentMethodsTest extends UnitTestCase
+class TransactionRequestTest extends UnitTestCase
 {
-    use PaymentMethodsRequestTrait;
+    use TransactionRequestTrait;
     /**
      * @var PaymentMethodsRequest
      */
@@ -50,39 +50,39 @@ class PaymentMethodsTest extends UnitTestCase
 
         $this->setConfiguration();
 
-        $this->request = $this->app->make(PaymentMethodsRequest::class);
+        $this->request = $this->app->make(TransactionRequest::class);
 
     }
 
     /**
-     * @Feature Payment Methods
-     * @Scenario Getting Payment Methods
-     * @Case It gets payment methods for default language
+     * @Feature Payments
+     * @Scenario Getting Transaction
+     * @Case It gets transaction by session-id
      * @test
      */
-    public function it_gets_payment_methods_for_default_language()
+    public function it_gets_successful_status()
     {
         $response = $this->makeResponse();
 
-        $this->requestTestAccessSuccessful($response, 'pl');
+        $this->requestGettingTransactionSuccessful($response, 'session-id');
         $response = $this->request->execute();
 
-        $this->assertInstanceOf(PaymentMethods::class, $response);
+        $this->assertInstanceOf(TransactionResponse::class, $response);
         $this->assertSame(200, $response->getCode());
     }
 
     /**
-     * @Feature Payment Methods
-     * @Scenario Getting Payment Methods
-     * @Case It gets payment methods for set language
+     * @Feature Payments
+     * @Scenario Getting Transaction
+     * @Case It return empty data when not found transaction
      * @test
      */
-    public function it_gets_payment_methods_for_set_language()
+    public function it_gets_empty_transaction()
     {
 
         $response = $this->makeResponse();
 
-        $this->requestTestAccessSuccessful($response, 'en');
+        $this->requestGettingTransactionSuccessful($response, 'en');
         $this->request->setLanguage('en');
         $response = $this->request->execute();
 
@@ -90,20 +90,21 @@ class PaymentMethodsTest extends UnitTestCase
         $this->assertSame(200, $response->getCode());
     }
 
+
     /**
-     * @Feature Payment Methods
-     * @Scenario Getting Payment Methods
-     * @Case It gets payment methods collection
+     * @Feature Payments
+     * @Scenario Getting Transaction
+     * @Case It gets transaction by session-id
      * @test
      */
-    public function it_gets_payment_methods_collection()
+    public function it_gets_transaction_details()
     {
 
         $response = $this->makeResponse();
 
-        $payment_method = $this->makePaymentMethod();
+        $payment_method = $this->makeTransaction();
 
-        $this->requestTestAccessSuccessful($response, 'en');
+        $this->requestGettingTransactionSuccessful($response, 'en');
         $this->request->setLanguage('en');
         $response = $this->request->execute();
 
@@ -120,9 +121,9 @@ class PaymentMethodsTest extends UnitTestCase
     }
 
     /**
-     * @Feature Payment Methods
-     * @Scenario Getting Payment Methods
-     * @Case It gets payment methods for set language
+     * @Feature Payments
+     * @Scenario Getting Transaction
+     * @Case It return invalid data when authentication failed
      * @test
      */
     public function execute_was_failed_and_return_invalid_response()

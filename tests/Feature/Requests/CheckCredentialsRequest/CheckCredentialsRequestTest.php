@@ -25,63 +25,26 @@ use Tests\UnitTestCase;
 
 class CheckCredentialsRequestTest extends UnitTestCase
 {
+    use CheckCredentialsRequestTrait;
     /**
      * @var CheckCredentialsRequest
      */
     private $request;
 
     /**
-     * @var MockInterface|TestConnection
-     */
-    private $response;
-    /**
-     * @var MockInterface|InvalidResponse
-     */
-    private $invalid_response;
-    /**use Illuminate\Contracts\Config\Repository;
-
-     * @var MockInterface
-     */
-    private $test_response_factory;
-    /**
-     * @var MockInterface
-     */
-    private $translator;
-    /**
      * @var MockInterface
      */
     private $client;
-    /**
-     * @var Repository
-     */
-    private $config;
 
     protected function setUp()
     {
         parent::setUp();
 
-        $this->client = m::mock(Client::class);
+        $this->skipLogs();
+        $this->bindAppContainer();
+        $this->mockApi();
 
-
-        $this->client_factory = m::mock(ClientFactory::class);
-        $this->client_factory->shouldReceive('create')
-            ->once()->andReturn($this->client);
-        $this->app->instance(ClientFactory::class, $this->client_factory);
-        $this->app->instance(Container::class, $this->app);
-        $this->app->instance(\Illuminate\Container\Container::class, $this->app);
-        $this->app->bind(LoggerInterface::class, TestLogger::class);
-        $this->config = $this->app->make(Repository::class);
-        $this->app->instance(Repository::class, $this->config);
-        $this->config->set(['transfers24' => [
-            'merchant_id' => 10,
-            'pos_id' => 10,
-            'crc' => 'crc',
-            'report_key' => 'report_key',
-            'test_server' => true,
-            'url_return' => '',
-            'url_status' => '',
-            'credentials-scope' => false,
-        ]]);
+        $this->setConfiguration();
 
         $this->request = $this->app->make(CheckCredentialsRequest::class);
 
@@ -97,7 +60,8 @@ class CheckCredentialsRequestTest extends UnitTestCase
     {
 
         //When
-        $response = $this->requestTestAccessSuccessful();
+        $response = $this->makeResponse();
+        $this->requestTestAccessSuccessful($response);
         $response = $this->request->execute();
 
         //Then
@@ -120,54 +84,6 @@ class CheckCredentialsRequestTest extends UnitTestCase
         //Then
         $this->assertInstanceOf(InvalidResponse::class, $response);
         $this->assertSame(401, $response->getErrorCode());
-    }
-
-    /**
-     * @return MockInterface
-     */
-    private function requestTestAccessSuccessful(): MockInterface
-    {
-        $response = $this->makeResponse();
-        $this->client->shouldReceive('request')
-            ->with('GET', 'testAccess',
-                [
-                    'auth' => [
-                        10,
-                        'report_key'
-                    ],
-                ])
-            ->once()
-            ->andReturn($response);
-        return $response;
-    }
-
-    private function requestTestAccessFailed(): void
-    {
-        $this->client->shouldReceive('request')
-            ->with('GET', 'testAccess',
-                [
-                    'auth' => [
-                        10,
-                        'report_key'
-                    ],
-                ])
-            ->once()
-            ->andThrow(new \Exception('Incorrect authentication', 401));
-    }
-
-    /**
-     * @return MockInterface
-     */
-    private function makeResponse(): MockInterface
-    {
-        $response = m::mock(ResponseInterface::class);
-        $response->shouldReceive('getStatusCode')
-            ->once()
-            ->andReturn(200);
-        $response->shouldReceive('getBody')
-            ->once()
-            ->andReturn('');
-        return $response;
     }
 
 }
