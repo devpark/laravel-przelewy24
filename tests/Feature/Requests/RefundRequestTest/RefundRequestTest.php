@@ -99,6 +99,8 @@ class RefundRequestTest extends UnitTestCase
         $this->assertSame($refund_query_raw['sessionId'], $response->getRefunds()[0]['sessionId']);
         $this->assertSame($refund_query_raw['amount'], $response->getRefunds()[0]['amount']);
         $this->assertSame($refund_query_raw['description'], $response->getRefunds()[0]['description']);
+
+
     }
 
     /**
