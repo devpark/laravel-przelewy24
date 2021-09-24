@@ -6,6 +6,7 @@ namespace Tests\Feature\Requests\TransactionRequest;
 use Devpark\Transfers24\Contracts\PaymentMethod;
 use Devpark\Transfers24\Contracts\PaymentMethodHours;
 use Devpark\Transfers24\Contracts\Refund;
+use Devpark\Transfers24\Contracts\Transaction;
 use Devpark\Transfers24\Models\RefundQuery;
 use Devpark\Transfers24\Services\Amount;
 use Devpark\Transfers24\Services\Gateways\ClientFactory;
@@ -19,6 +20,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\Test\TestLogger;
 use Ramsey\Uuid\UuidFactory;
+use Symfony\Component\Translation\Exception\NotFoundResourceException;
 
 trait TransactionRequestTrait
 {
@@ -42,12 +44,6 @@ trait TransactionRequestTrait
     ]);
     }
 
-    protected function bindAppContainer(): void
-    {
-        $this->app->instance(Container::class, $this->app);
-        $this->app->instance(\Illuminate\Container\Container::class, $this->app);
-    }
-
     protected function mockApi(): void
     {
         $this->client = m::mock(Client::class);
@@ -58,17 +54,12 @@ trait TransactionRequestTrait
 
     }
 
-    protected function skipLogs(): void
-    {
-        $this->app->bind(LoggerInterface::class, TestLogger::class);
-    }
-
     /**
      * @param MockInterface $response
      */
-    protected function requestGettingTransactionSuccessful(MockInterface $response, $lang): void
+    protected function requestGettingTransactionSuccessful(MockInterface $response, $session_id): void
     {
-        $path = 'payment/methods/' . $lang;
+        $path = 'transaction/by/sessionId/' . $session_id;
         $method = 'GET';
         $request_options = [
             'auth' => [
@@ -83,6 +74,25 @@ trait TransactionRequestTrait
     }
 
     /**
+     * @param MockInterface $response
+     */
+    protected function requestGettingTransactionNotFound($session_id): void
+    {
+        $path = 'transaction/by/sessionId/' . $session_id;
+        $method = 'GET';
+        $request_options = [
+            'auth' => [
+                10,
+                'report_key'
+            ],
+        ];
+        $this->client->shouldReceive('request')
+            ->with($method, $path, $request_options)
+            ->once()
+            ->andThrow(NotFoundResourceException::class);
+    }
+
+    /**
      * @return MockInterface
      */
     protected function makeResponse(): MockInterface
@@ -93,14 +103,14 @@ trait TransactionRequestTrait
             ->andReturn(200);
         $response->shouldReceive('getBody')
             ->once()
-            ->andReturn(json_encode(['data' => [$this->makeTransaction()], 'error' => '']));
+            ->andReturn(json_encode(['data' => $this->makeTransaction(), 'error' => '']));
 
         return $response;
     }
 
     protected function requestTestAccessFailed(): void
     {
-        $path = 'payment/methods/pl';
+        $path = 'transaction/by/sessionId/session-id';
 
         $this->client->shouldReceive('request')
             ->with('GET', $path,
@@ -114,27 +124,27 @@ trait TransactionRequestTrait
             ->andThrow(new \Exception('Incorrect authentication', 401));
     }
 
-    protected function makeTransaction(): PaymentMethod
+    protected function makeTransaction(): Transaction
     {
-        $payment_method_hours = new class implements PaymentMethodHours {
-            public $mondayToFriday = "00-24";
-            public $saturday = "unavailable";
-            public $sunday = "00-24";
-        };
+        return new class implements Transaction {
 
-        return new class($payment_method_hours) implements PaymentMethod {
-            public $name = 'name';
-            public $id = 1;
-            public $status = true;
-            public $imgUrl = 'img-url';
-            public $mobileImgUrl = 'mobile-img-url';
-            public $mobile = true;
-            public $availabilityHours;
-
-            public function __construct(PaymentMethodHours $availabilityHours)
-            {
-                $this->availabilityHours = $availabilityHours;
-            }
+            public $orderId =  0;
+            public $sessionId =  "string";
+            public $status =  0;
+            public $amount =  0;
+            public $currency =  "PLN";
+            public $date =  "string";
+            public $dateOfTransaction =  "string";
+            public $clientEmail =  "string";
+            public $accountMD5 =  "string";
+            public $paymentMethod =  0;
+            public $description =  "string";
+            public $clientName =  "string";
+            public $clientAddress =  "string";
+            public $clientCity =  "string";
+            public $clientPostcode =  "string";
+            public $batchId =  0;
+            public $fee =  "string";
         };
     }
 }

@@ -10,6 +10,8 @@ use Devpark\Transfers24\Services\Gateways\ClientFactory;
 use GuzzleHttp\Client;
 use Illuminate\Config\Repository;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Routing\RouteCollection;
+use Illuminate\Routing\RouteCollectionInterface;
 use Illuminate\Routing\UrlGenerator;
 use Mockery as m;
 use Mockery\MockInterface;
@@ -102,12 +104,6 @@ trait RefundRequestTrait
     ]);
     }
 
-    protected function bindAppContainer(): void
-    {
-        $this->app->instance(Container::class, $this->app);
-        $this->app->instance(\Illuminate\Container\Container::class, $this->app);
-    }
-
     protected function mockApi(): void
     {
         $this->client = m::mock(Client::class);
@@ -152,10 +148,5 @@ trait RefundRequestTrait
             ->with($method, $path, $request_options)
             ->once()
             ->andReturn($response);
-    }
-
-    protected function skipLogs(): void
-    {
-        $this->app->bind(LoggerInterface::class, TestLogger::class);
     }
 }

@@ -20,7 +20,7 @@ class ClientFactory
 
     public function create($base_uri):Client
     {
-        $this->client = $this->app->make(Client::class, [
+        return $this->app->make(Client::class, [
             'config' => ['base_uri' => $base_uri],
 
         ]);

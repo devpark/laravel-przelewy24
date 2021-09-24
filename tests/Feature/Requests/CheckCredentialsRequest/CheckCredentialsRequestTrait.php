@@ -42,12 +42,6 @@ trait CheckCredentialsRequestTrait
     ]);
     }
 
-    protected function bindAppContainer(): void
-    {
-        $this->app->instance(Container::class, $this->app);
-        $this->app->instance(\Illuminate\Container\Container::class, $this->app);
-    }
-
     protected function mockApi(): void
     {
         $this->client = m::mock(Client::class);
@@ -57,12 +51,6 @@ trait CheckCredentialsRequestTrait
         $this->app->instance(ClientFactory::class, $client_factory);
 
     }
-
-    protected function skipLogs(): void
-    {
-        $this->app->bind(LoggerInterface::class, TestLogger::class);
-    }
-
     /**
      * @param MockInterface $response
      */

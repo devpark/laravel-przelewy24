@@ -44,8 +44,6 @@ class PaymentMethodsTest extends UnitTestCase
     {
         parent::setUp();
 
-        $this->skipLogs();
-        $this->bindAppContainer();
         $this->mockApi();
 
         $this->setConfiguration();
