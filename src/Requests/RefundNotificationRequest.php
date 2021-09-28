@@ -9,6 +9,7 @@ use Devpark\Transfers24\Factories\ActionFactory;
 use Devpark\Transfers24\Factories\ForResponses\PaymentMethodsResponseFactory;
 use Devpark\Transfers24\Factories\ForResponses\RefundResponseFactory;
 use Devpark\Transfers24\Factories\ForTranslators\PaymentMethodsTranslatorFactory;
+use Devpark\Transfers24\Factories\ForTranslators\RefundNotificationTranslatorFactory;
 use Devpark\Transfers24\Factories\ForTranslators\RefundTranslatorFactory;
 use Devpark\Transfers24\Language;
 use Devpark\Transfers24\Models\RefundQuery;
@@ -18,17 +19,12 @@ use Devpark\Transfers24\Responses\RefundResponse;
 use Devpark\Transfers24\Responses\TestConnection;
 use Devpark\Transfers24\Services\Amount;
 
-class RefundRequest
+class RefundNotificationRequest
 {
     use RequestCredentialsKeeperTrait;
 
     /**
-     * default empty description.
-     */
-    const DEFAULT_ARTICLE_DESCRIPTION = '';
-
-    /**
-     * @var RefundTranslatorFactory
+     * @var RefundNotificationTranslatorFactory
      */
     private $translator_factory;
     /**
@@ -36,22 +32,14 @@ class RefundRequest
      */
     private $action_factory;
     /**
-     * @var PaymentMethodsResponseFactory
+     * @var NotificationResponseFactory
      */
     private $response_factory;
-
-    /**
-     * @var string
-     */
-    protected $language = Language::POLISH;
-    /**
-     * @var RefundQuery[]
-     */
-    private $refund_inquiries = [];
+    private $notification_data = [];
 
     public function __construct(
-        RefundTranslatorFactory $translator_factory, Credentials $credentials_keeper,
-        ActionFactory $action_factory, RefundResponseFactory $response_factory
+        RefundNotificationTranslatorFactory $translator_factory, Credentials $credentials_keeper,
+        ActionFactory $action_factory, NotificationResponseFactory $response_factory
     )
     {
         $this->credentials_keeper = $credentials_keeper;
@@ -65,30 +53,17 @@ class RefundRequest
      */
     public function execute():IResponse
     {
-        $translator = $this->translator_factory->create($this->credentials_keeper, $this);
+        $translator = $this->translator_factory->create($this->credentials_keeper, $this->notification_data);
         $action = $this->action_factory->create($this->response_factory, $translator);
-        return $this->response_factory->create();
+        return $action->execute();
     }
 
     /**
-     * Add Refund Inquiry
-     *
-     * @return $this
+     * @param array $notification_data
      */
-    public function addRefundInquiry(int $order_id, string $session_id, float $amount, string $description = self::DEFAULT_ARTICLE_DESCRIPTION) {
-
-        $this->refund_inquiries[] = (new RefundQuery($order_id, $session_id, Amount::get($amount), $description))->toArray();
-
-        return $this;
-    }
-
-    /**
-     * @return RefundQuery[]
-     */
-    public function getRefundInquiries(): array
+    public function setNotificationData(array $notification_data): void
     {
-        return $this->refund_inquiries;
+        $this->notification_data = $notification_data;
     }
-
 
 }
