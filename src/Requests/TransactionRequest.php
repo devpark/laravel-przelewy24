@@ -75,13 +75,13 @@ class TransactionRequest
     /**
      * Set session_id interface.
      *
-     * @param $order_id
+     * @param $session_id
      *
      * @return $this
      */
-    public function setOrderId($order_id)
+    public function setSessionId($session_id)
     {
-        $this->session_id = $order_id;
+        $this->session_id = $session_id;
 
         return $this;
     }

@@ -7,6 +7,7 @@ use Devpark\Transfers24\Contracts\Refund;
 use Devpark\Transfers24\Models\RefundQuery;
 use Devpark\Transfers24\Requests\RefundNotificationRequest;
 use Devpark\Transfers24\Responses\InvalidResponse;
+use Devpark\Transfers24\Responses\NotificationResponse;
 use Devpark\Transfers24\Responses\RefundResponse;
 use Devpark\Transfers24\Services\Amount;
 use Devpark\Transfers24\Services\Gateways\ClientFactory;
@@ -39,86 +40,36 @@ class RefundNotificationRequestTest extends UnitTestCase
     {
         parent::setUp();
 
-        $this->mockApi();
-
-        $this->setConfiguration();
-
         $this->request = $this->app->make(RefundNotificationRequest::class);
-
     }
 
     /**
      * @Feature Refund
-     * @Scenario init Refund
+     * @Scenario notify Refund
      * @Case Refund was started
      * @test
      */
-    public function refund_was_started_it_get_success_code()
+    public function refund_notification_was_received()
     {
         //Given
-        $refund_inquiry = $this->makeRefundQuery();
-        $refund_query_raw = $refund_inquiry->toArray();
-
-        //Then
-        $this->thenRequestRefundSuccessful($refund_inquiry);
+        $notification = $this->makeRefundNotification();
+        $refund_notification_raw = $notification->toArray();
 
         //When
-        $response = $this->request
-            ->addRefundInquiry($refund_query_raw['orderId'], $refund_query_raw['sessionId'], $refund_query_raw['amount'], $refund_query_raw['description'])
-            ->execute();
+        $response = $this->request->execute($refund_notification_raw);
 
         //Then
-        $this->assertInstanceOf(RefundResponse::class, $response);
-        $this->assertSame(201, $response->getCode());
-    }
-
-    /**
-     * @Feature Refund
-     * @Scenario init Refund
-     * @Case It gets Refunds Collection
-     * @test
-     */
-    public function it_gets_refunds_collection()
-    {
-        //Given
-        $refund_inquiry = $this->makeRefundQuery();
-        $refund_query_raw = $refund_inquiry->toArray();
-
-
-        //Then
-        $this->thenRequestRefundSuccessful($refund_inquiry);
-
-        //When
-        $response = $this->request
-            ->addRefundInquiry($refund_query_raw['orderId'], $refund_query_raw['sessionId'], $refund_query_raw['amount'], $refund_query_raw['description'])
-            ->execute();
-
-        //Then
-        $this->assertSame($refund_query_raw['orderId'], $response->getRefunds()[0]['orderId']);
-        $this->assertSame($refund_query_raw['sessionId'], $response->getRefunds()[0]['sessionId']);
-        $this->assertSame($refund_query_raw['amount'], $response->getRefunds()[0]['amount']);
-        $this->assertSame($refund_query_raw['description'], $response->getRefunds()[0]['description']);
-
+        $this->assertSame($notification->orderId, $response->getNotification()['orderId']);
+        $this->assertSame($notification->sessionId, $response->getNotification()['sessionId']);
+        $this->assertSame($notification->merchantId, $response->getNotification()['merchantId']);
+        $this->assertSame($notification->requestId, $response->getNotification()['requestId']);
+        $this->assertSame($notification->refundsUuid, $response->getNotification()['refundsUuid']);
+        $this->assertSame($notification->amount, $response->getNotification()['amount']);
+        $this->assertSame($notification->currency, $response->getNotification()['currency']);
+        $this->assertSame($notification->timestamp, $response->getNotification()['timestamp']);
+        $this->assertSame($notification->status, $response->getNotification()['status']);
+        $this->assertSame($notification->sign, $response->getNotification()['sign']);
+        $this->assertSame('ok', $response->getResponse());
 
     }
-
-    /**
-     * @Feature Refund
-     * @Scenario init Refund
-     * @Case It rejected because authorization failed
-     * @test
-     */
-    public function execute_was_failed_and_return_invalid_response()
-    {
-        //Given
-        $this->requestRefundFailed();
-
-        //When
-        $response = $this->request->execute();
-
-        //Then
-        $this->assertInstanceOf(InvalidResponse::class, $response);
-        $this->assertSame(401, $response->getErrorCode());
-    }
-
 }

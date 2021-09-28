@@ -67,7 +67,7 @@ class RefundRequest
     {
         $translator = $this->translator_factory->create($this->credentials_keeper, $this);
         $action = $this->action_factory->create($this->response_factory, $translator);
-        return $this->response_factory->create();
+        return $action->execute();
     }
 
     /**

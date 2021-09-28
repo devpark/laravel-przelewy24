@@ -24,7 +24,7 @@ use Ramsey\Uuid\UuidFactory;
 trait RefundRequestTrait
 {
 
-    protected function makeRefundDetailsResponse(RefundQuery $refund_query): RefundInfoData
+    protected function makeRefund(RefundQuery $refund_query): Refund
     {
         return new class($refund_query) implements Refund {
             public $orderId = 0;
@@ -81,7 +81,7 @@ trait RefundRequestTrait
             ->andReturn(201);
         $response->shouldReceive('getBody')
             ->once()
-            ->andReturn(json_encode(['data' => [$this->makeRefundDetailsResponse($refund_query)], 'error' => '']));
+            ->andReturn(json_encode(['data' => [$this->makeRefund($refund_query)], 'error' => '']));
 
         return $response;
     }

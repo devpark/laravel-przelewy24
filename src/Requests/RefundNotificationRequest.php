@@ -15,55 +15,16 @@ use Devpark\Transfers24\Language;
 use Devpark\Transfers24\Models\RefundQuery;
 use Devpark\Transfers24\Responses\InvalidResponse;
 use Devpark\Transfers24\Responses\PaymentMethods;
+use Devpark\Transfers24\Responses\NotificationResponse;
 use Devpark\Transfers24\Responses\RefundResponse;
 use Devpark\Transfers24\Responses\TestConnection;
 use Devpark\Transfers24\Services\Amount;
 
 class RefundNotificationRequest
 {
-    use RequestCredentialsKeeperTrait;
-
-    /**
-     * @var RefundNotificationTranslatorFactory
-     */
-    private $translator_factory;
-    /**
-     * @var ActionFactory
-     */
-    private $action_factory;
-    /**
-     * @var NotificationResponseFactory
-     */
-    private $response_factory;
-    private $notification_data = [];
-
-    public function __construct(
-        RefundNotificationTranslatorFactory $translator_factory, Credentials $credentials_keeper,
-        ActionFactory $action_factory, NotificationResponseFactory $response_factory
-    )
+    public function execute(array $notification):NotificationResponse
     {
-        $this->credentials_keeper = $credentials_keeper;
-        $this->translator_factory = $translator_factory;
-        $this->action_factory = $action_factory;
-        $this->response_factory = $response_factory;
-    }
-
-    /**
-     * @return RefundResponse|InvalidResponse
-     */
-    public function execute():IResponse
-    {
-        $translator = $this->translator_factory->create($this->credentials_keeper, $this->notification_data);
-        $action = $this->action_factory->create($this->response_factory, $translator);
-        return $action->execute();
-    }
-
-    /**
-     * @param array $notification_data
-     */
-    public function setNotificationData(array $notification_data): void
-    {
-        $this->notification_data = $notification_data;
+        return new NotificationResponse($notification);
     }
 
 }
