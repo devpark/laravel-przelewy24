@@ -8,8 +8,10 @@ use Devpark\Transfers24\Credentials;
 use Devpark\Transfers24\Exceptions\RequestException;
 use Devpark\Transfers24\Factories\ActionFactory;
 use Devpark\Transfers24\Factories\ForResponses\PaymentMethodsResponseFactory;
+use Devpark\Transfers24\Factories\ForResponses\RefundInfoResponseFactory;
 use Devpark\Transfers24\Factories\ForResponses\TransactionResponseFactory;
 use Devpark\Transfers24\Factories\ForTranslators\PaymentMethodsTranslatorFactory;
+use Devpark\Transfers24\Factories\ForTranslators\RefundInfoTranslatorFactory;
 use Devpark\Transfers24\Factories\ForTranslators\TransactionTranslatorFactory;
 use Devpark\Transfers24\Language;
 use Devpark\Transfers24\Responses\InvalidResponse;
@@ -17,12 +19,12 @@ use Devpark\Transfers24\Responses\PaymentMethods;
 use Devpark\Transfers24\Responses\TestConnection;
 use Devpark\Transfers24\Responses\TransactionResponse;
 
-class TransactionRequest
+class RefundInfoRequest
 {
     use RequestCredentialsKeeperTrait;
 
     /**
-     * @var TransactionTranslatorFactory
+     * @var RefundInfoTranslatorFactory
      */
     private $translator_factory;
     /**
@@ -30,18 +32,18 @@ class TransactionRequest
      */
     private $action_factory;
     /**
-     * @var TransactionResponseFactory
+     * @var RefundInfoResponseFactory
      */
     private $response_factory;
 
     /**
      * @var string
      */
-    protected $session_id;
+    protected $order_id;
 
     public function __construct(
-        TransactionTranslatorFactory $translator_factory, Credentials $credentials_keeper,
-        ActionFactory $action_factory, TransactionResponseFactory $response_factory
+        RefundInfoTranslatorFactory $translator_factory, Credentials $credentials_keeper,
+        ActionFactory $action_factory, RefundInfoResponseFactory $response_factory
     )
     {
         $this->credentials_keeper = $credentials_keeper;
@@ -51,15 +53,15 @@ class TransactionRequest
     }
 
     /**
-     * @return TransactionResponse|InvalidResponse
+     * @return RefungInfoResponse|InvalidResponse
      */
     public function execute():IResponse
     {
-        if (empty($this->session_id)){
-            throw new RequestException('Empty session-Id');
+        if (empty($this->order_id)){
+            throw new RequestException('Empty Order Id');
         }
 
-        $translator = $this->translator_factory->create($this->credentials_keeper, $this->getSessionId());
+        $translator = $this->translator_factory->create($this->credentials_keeper, $this->order_id);
         $action = $this->action_factory->create($this->response_factory, $translator);
         return $action->execute();
     }
@@ -67,9 +69,9 @@ class TransactionRequest
     /**
      * @return string
      */
-    public function getSessionId(): string
+    public function getOrderId(): string
     {
-        return $this->session_id;
+        return $this->order_id;
     }
 
     /**
@@ -81,7 +83,7 @@ class TransactionRequest
      */
     public function setOrderId($order_id)
     {
-        $this->session_id = $order_id;
+        $this->order_id = $order_id;
 
         return $this;
     }

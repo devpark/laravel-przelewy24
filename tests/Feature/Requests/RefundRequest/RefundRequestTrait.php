@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Tests\Feature\Requests\RefundRequest;
 
 use Devpark\Transfers24\Contracts\Refund;
+use Devpark\Transfers24\Contracts\RefundInfoData;
 use Devpark\Transfers24\Models\RefundQuery;
 use Devpark\Transfers24\Services\Amount;
 use Devpark\Transfers24\Services\Gateways\ClientFactory;
@@ -23,7 +24,7 @@ use Ramsey\Uuid\UuidFactory;
 trait RefundRequestTrait
 {
 
-    protected function makeRefund(RefundQuery $refund_query): Refund
+    protected function makeRefundDetailsResponse(RefundQuery $refund_query): RefundInfoData
     {
         return new class($refund_query) implements Refund {
             public $orderId = 0;
@@ -80,7 +81,7 @@ trait RefundRequestTrait
             ->andReturn(201);
         $response->shouldReceive('getBody')
             ->once()
-            ->andReturn(json_encode(['data' => [$this->makeRefund($refund_query)], 'error' => '']));
+            ->andReturn(json_encode(['data' => [$this->makeRefundDetailsResponse($refund_query)], 'error' => '']));
 
         return $response;
     }
