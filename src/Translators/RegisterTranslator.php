@@ -1,14 +1,12 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Devpark\Transfers24\Translators;
 
 use Devpark\Transfers24\Contracts\Form;
-use Devpark\Transfers24\Contracts\IResponse;
 use Devpark\Transfers24\Contracts\Translator;
 use Devpark\Transfers24\Credentials;
-use Devpark\Transfers24\Exceptions\EmptyCredentialsException;
-use Devpark\Transfers24\Exceptions\NoEnvironmentChosenException;
 use Devpark\Transfers24\Forms\RegisterForm;
 use Devpark\Transfers24\Requests\Transfers24;
 use Devpark\Transfers24\Services\Crc;
@@ -21,6 +19,7 @@ class RegisterTranslator extends AbstractTranslator implements Translator
      * @var Transfers24
      */
     private $request;
+
     /**
      * @var UuidFactory
      */
@@ -32,15 +31,16 @@ class RegisterTranslator extends AbstractTranslator implements Translator
         $this->uuid_factory = $uuid_factory;
     }
 
-    public function init(Transfers24 $request, Credentials $credentials):RegisterTranslator{
-
+    public function init(Transfers24 $request, Credentials $credentials):RegisterTranslator
+    {
         $this->request = $request;
         $this->credentials_keeper = $credentials;
+
         return $this;
     }
 
     public function translate():Form
-   {
+    {
         $this->form = new RegisterForm();
 
         $session_id = $this->uuid_factory->uuid4()->toString();
@@ -62,10 +62,9 @@ class RegisterTranslator extends AbstractTranslator implements Translator
         $this->form->addValue('urlStatus', $this->request->getUrlStatus());
         $this->form->addValue('channel', $this->request->getChannel());
 
-
         $this->form->addValue('shipping', $this->request->getShippingCost());
         $this->form->addValue('method', $this->request->getMethod());
-       $this->form->addValue('transferLabel', $this->request->getTransferLabel());
+        $this->form->addValue('transferLabel', $this->request->getTransferLabel());
         $this->form->addValue('methodRefId', $this->request->getMethodRefId());
 
 //            $this->form->addValue('sellerId', $article['sellerId']);
@@ -76,11 +75,10 @@ class RegisterTranslator extends AbstractTranslator implements Translator
 //            $this->form->addValue('price', $article['price']);
 //            $this->form->addValue('number', $article['number']);
 
-        if ($this->request->hasShippingDetails()){
+        if ($this->request->hasShippingDetails()) {
             $this->form->addValue('additional', ['shipping'  => $this->request->getShippingDetails()]);
         }
         $this->form->addValue('cart', $this->request->getCart());
-
 
         $this->form->addValue('timeLimit', $this->config->get('transfers24.time-limit'));
         $this->form->addValue('waitForResult', $this->config->get('transfers24.wait-for-result'));

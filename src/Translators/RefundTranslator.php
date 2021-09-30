@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Devpark\Transfers24\Translators;
@@ -20,6 +21,7 @@ class RefundTranslator extends AbstractTranslator implements Translator
      * @var UuidFactory
      */
     private $uuid;
+
     /**
      * @var Url
      */
@@ -37,24 +39,23 @@ class RefundTranslator extends AbstractTranslator implements Translator
      */
     private $request;
 
-    public function init(Credentials $credentials, RefundRequest $request):RefundTranslator{
-
+    public function init(Credentials $credentials, RefundRequest $request):RefundTranslator
+    {
         $this->credentials_keeper = $credentials;
         $this->request = $request;
+
         return $this;
     }
 
     public function translate():Form
     {
-        ;
-
         $this->form = new RefundForm();
-        $this->form->addValue("requestId", $this->uuid->uuid4()->toString());
-        $this->form->addValue("refundsUuid", $this->uuid->uuid4()->toString());
+        $this->form->addValue('requestId', $this->uuid->uuid4()->toString());
+        $this->form->addValue('refundsUuid', $this->uuid->uuid4()->toString());
         $url_status = $this->getUrl($this->config->get('transfers24.url_refund_status'));
-        $this->form->addValue("urlStatus", $url_status);
+        $this->form->addValue('urlStatus', $url_status);
         $inquiries = $this->request->getRefundInquiries();
-        $this->form->addValue("refunds", $inquiries);
+        $this->form->addValue('refunds', $inquiries);
 
         return $this->form;
     }
@@ -63,7 +64,6 @@ class RefundTranslator extends AbstractTranslator implements Translator
     {
         return [];
     }
-
 
     /**
      * Get url.

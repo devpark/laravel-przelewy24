@@ -1,33 +1,20 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Tests\Feature\Requests\PaymentNotificationRequest;
 
-use Devpark\Transfers24\Contracts\Refund;
-use Devpark\Transfers24\Models\RefundQuery;
 use Devpark\Transfers24\Requests\PaymentNotificationRequest;
-use Devpark\Transfers24\Responses\InvalidResponse;
-use Devpark\Transfers24\Responses\NotificationResponse;
-use Devpark\Transfers24\Responses\RefundResponse;
-use Devpark\Transfers24\Services\Amount;
-use Devpark\Transfers24\Services\Gateways\ClientFactory;
-use GuzzleHttp\Client;
-use Illuminate\Config\Repository;
-use Illuminate\Contracts\Container\Container;
 use Illuminate\Http\Request;
-use Illuminate\Routing\UrlGenerator;
 use Mockery as m;
 use Mockery\ExpectationInterface;
 use Mockery\MockInterface;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Log\LoggerInterface;
-use Psr\Log\Test\TestLogger;
-use Ramsey\Uuid\UuidFactory;
 use Tests\UnitTestCase;
 
 class PaymentNotificationRequestTest extends UnitTestCase
 {
     use PaymentNotificationRequestTrait;
+
     /**
      * @var PaymentNotificationRequest
      */
@@ -37,6 +24,7 @@ class PaymentNotificationRequestTest extends UnitTestCase
      * @var MockInterface
      */
     private $client;
+
     /**
      * @var MockInterface
      */
@@ -80,13 +68,12 @@ class PaymentNotificationRequestTest extends UnitTestCase
         $this->assertSame($notification->sign, $response->getNotification()->sign);
 
         $received->once();
-
-
     }
 
     private function whenReceiveNotification($notification): ExpectationInterface
     {
         $notification_raw = $notification->toArray();
+
         return $this->entry->shouldReceive('all')->andReturn($notification_raw);
     }
 }

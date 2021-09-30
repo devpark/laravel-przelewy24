@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Devpark\Transfers24\Responses;
@@ -6,8 +7,6 @@ namespace Devpark\Transfers24\Responses;
 use Devpark\Transfers24\Contracts\IResponse;
 use Devpark\Transfers24\Contracts\RefundInfo;
 use Devpark\Transfers24\Contracts\RefundInfoData;
-use Devpark\Transfers24\Contracts\Transaction;
-use Devpark\Transfers24\Exceptions\TestConnectionException;
 use Illuminate\Support\Arr;
 
 class RefundInfoResponse extends Response implements IResponse
@@ -30,11 +29,14 @@ class RefundInfoResponse extends Response implements IResponse
                 $this->data = $data;
             }
 
-            public function __get(string $name){
-                if ($name == 'refunds'){
+            public function __get(string $name)
+            {
+                if ($name == 'refunds') {
                     $refunds = Arr::get($this->data, $name, []);
+
                     return array_map([$this, 'convertRefund'], $refunds);
                 }
+
                 return Arr::get($this->data, $name);
             }
 
@@ -51,7 +53,8 @@ class RefundInfoResponse extends Response implements IResponse
                         $this->data = $data;
                     }
 
-                    public function __get(string $name){
+                    public function __get(string $name)
+                    {
                         return Arr::get($this->data, $name);
                     }
                 };

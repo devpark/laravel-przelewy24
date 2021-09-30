@@ -4,27 +4,17 @@ namespace Tests\Requests\Transfers24\Init;
 
 use Devpark\Transfers24\Actions\Action;
 use Devpark\Transfers24\Contracts\IResponse;
-use Devpark\Transfers24\Country;
 use Devpark\Transfers24\Credentials;
-use Devpark\Transfers24\Currency;
-use Devpark\Transfers24\Exceptions\RequestExecutionException;
 use Devpark\Transfers24\Factories\ActionFactory;
 use Devpark\Transfers24\Factories\RegisterResponseFactory;
 use Devpark\Transfers24\Factories\RegisterTranslatorFactory;
 use Devpark\Transfers24\Requests\Transfers24 as RequestTransfers24;
+use Devpark\Transfers24\Responses\Register as RegisterResponse;
 use Devpark\Transfers24\Services\Gateways\Transfers24;
 use Devpark\Transfers24\Translators\RegisterTranslator;
 use Illuminate\Contracts\Container\Container;
-use Illuminate\Contracts\Routing\ResponseFactory;
-use stdClass;
-use Tests\UnitTestCase;
 use Mockery as m;
-use Illuminate\Foundation\Application;
-use Devpark\Transfers24\Responses\Register as RegisterResponse;
-use Devpark\Transfers24\Services\Handlers\Transfers24 as HandlersTransfers24;
-use Devpark\Transfers24\Exceptions\RequestException;
-use Illuminate\Http\Request;
-use Illuminate\Config\Repository as Config;
+use Tests\UnitTestCase;
 
 class Transfers24Test extends UnitTestCase
 {
@@ -32,42 +22,52 @@ class Transfers24Test extends UnitTestCase
      * @var m\Mock
      */
     private $credentials;
+
     /**
      * @var m\MockInterface
      */
     private $response;
+
     /**
      * @var RequestTransfers24
      */
     private $request;
+
     /**
      * @var m\MockInterface
      */
     private $translator_factory;
+
     /**
      * @var m\MockInterface
      */
     private $translator;
+
     /**
      * @var m\MockInterface
      */
     private $handle_factory;
+
     /**
      * @var m\MockInterface
      */
     private $handler;
+
     /**
      * @var m\MockInterface
      */
     private $gateway;
+
     /**
      * @var m\MockInterface
      */
     private $response_factory;
+
     /**
      * @var m\MockInterface
      */
     private $register_transaction;
+
     /**
      * @var m\MockInterface
      */
@@ -76,7 +76,6 @@ class Transfers24Test extends UnitTestCase
     protected function setUp()
     {
         parent::setUp();
-
 
         $this->response = m::mock(IResponse::class, RegisterResponse::class);
         $this->app->bind(Container::class, \Illuminate\Container\Container::class);
@@ -98,10 +97,9 @@ class Transfers24Test extends UnitTestCase
             'credentials_keeper' => $this->credentials,
             'translator_factory' => $this->translator_factory,
             'register_transaction' => $this->register_transaction,
-            'action_factory' => $this->action_factory
+            'action_factory' => $this->action_factory,
         ]);
     }
-
 
     /** @test */
     public function init()

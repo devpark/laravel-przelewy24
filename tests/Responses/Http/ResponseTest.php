@@ -3,8 +3,8 @@
 namespace Tests\Responses\Http;
 
 use Devpark\Transfers24\Forms\RegisterForm;
-use Tests\UnitTestCase;
 use Devpark\Transfers24\Responses\Http\Response;
+use Tests\UnitTestCase;
 
 class ResponseTest extends UnitTestCase
 {

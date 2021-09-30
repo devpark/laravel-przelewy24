@@ -3,10 +3,10 @@
 namespace Tests\Responses;
 
 use Devpark\Transfers24\Contracts\Form;
-use Devpark\Transfers24\Services\DecodedBody;
-use Tests\UnitTestCase;
 use Devpark\Transfers24\Responses\Register as ResponseRegister;
+use Devpark\Transfers24\Services\DecodedBody;
 use Mockery as m;
+use Tests\UnitTestCase;
 
 class RegisterTest extends UnitTestCase
 {
@@ -14,10 +14,12 @@ class RegisterTest extends UnitTestCase
      * @var m\MockInterface
      */
     private $decoded_body;
+
     /**
      * @var m\MockInterface
      */
     private $form;
+
     /**
      * @var ResponseRegister
      */

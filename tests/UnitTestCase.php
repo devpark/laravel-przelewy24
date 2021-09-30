@@ -23,7 +23,6 @@ abstract class UnitTestCase extends PHPUnit_Framework_TestCase
         $this->app = app();
         $this->bindAppContainer();
         $this->skipLogs();
-
     }
 
     public function tearDown()
@@ -39,10 +38,8 @@ abstract class UnitTestCase extends PHPUnit_Framework_TestCase
         $this->app->bind(RouteCollectionInterface::class, RouteCollection::class);
     }
 
-
     protected function skipLogs(): void
     {
         $this->app->bind(LoggerInterface::class, TestLogger::class);
     }
-
 }

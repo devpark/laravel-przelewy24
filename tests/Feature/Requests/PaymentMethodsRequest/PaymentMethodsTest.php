@@ -1,35 +1,19 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Tests\Feature\Requests\PaymentMethodsRequest;
 
-use Devpark\Transfers24\Contracts\PaymentMethod;
-use Devpark\Transfers24\Contracts\PaymentMethodHours;
-use Devpark\Transfers24\Requests\CheckCredentialsRequest;
 use Devpark\Transfers24\Requests\PaymentMethodsRequest;
 use Devpark\Transfers24\Responses\InvalidResponse;
 use Devpark\Transfers24\Responses\PaymentMethodsResponse;
-use Devpark\Transfers24\Responses\Response;
-use Devpark\Transfers24\Responses\TestConnection;
-use Devpark\Transfers24\Services\Gateways\ClientFactory;
-use Devpark\Transfers24\Translators\TestTranslator;
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\GuzzleException;
-use GuzzleHttp\Exception\RequestException;
-use Illuminate\Config\Repository;
-use Illuminate\Contracts\Container\Container;
-use Illuminate\Log\Logger;
-use Illuminate\Log\LogManager;
-use Mockery as m;
 use Mockery\MockInterface;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Log\LoggerInterface;
-use Psr\Log\Test\TestLogger;
 use Tests\UnitTestCase;
 
 class PaymentMethodsTest extends UnitTestCase
 {
     use PaymentMethodsRequestTrait;
+
     /**
      * @var PaymentMethodsRequest
      */
@@ -49,7 +33,6 @@ class PaymentMethodsTest extends UnitTestCase
         $this->setConfiguration();
 
         $this->request = $this->app->make(PaymentMethodsRequest::class);
-
     }
 
     /**
@@ -77,7 +60,6 @@ class PaymentMethodsTest extends UnitTestCase
      */
     public function it_gets_payment_methods_for_set_language()
     {
-
         $response = $this->makeResponse();
 
         $this->requestTestAccessSuccessful($response, 'en');
@@ -96,7 +78,6 @@ class PaymentMethodsTest extends UnitTestCase
      */
     public function it_gets_payment_methods_collection()
     {
-
         $response = $this->makeResponse();
 
         $payment_method = $this->makePaymentMethod();
@@ -125,12 +106,10 @@ class PaymentMethodsTest extends UnitTestCase
      */
     public function execute_was_failed_and_return_invalid_response()
     {
-
         $this->requestTestAccessFailed();
         $response = $this->request->execute();
 
         $this->assertInstanceOf(InvalidResponse::class, $response);
         $this->assertSame(401, $response->getErrorCode());
     }
-
 }

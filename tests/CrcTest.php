@@ -4,19 +4,19 @@ namespace Tests;
 
 use Devpark\Transfers24\Services\Crc;
 use Devpark\Transfers24\Services\HashWrapper;
-use phpDocumentor\Reflection\DocBlock\Tags\Return_;
 
 class CrcTest extends UnitTestCase
 {
-
     /**
      * @var Crc
      */
     private $crc;
+
     /**
      * @var string
      */
     private $salt;
+
     /**
      * @var \Mockery\MockInterface|HashWrapper
      */
@@ -31,7 +31,6 @@ class CrcTest extends UnitTestCase
         $this->crc = new Crc($this->hash);
         $this->crc->setSalt($this->salt);
     }
-
 
     /**
      * @Feature Payments
@@ -94,7 +93,6 @@ class CrcTest extends UnitTestCase
         $crc = $this->crc->sum($keys, $values);
     }
 
-
     /**
      * @Feature Payments
      * @Scenario Payment Form
@@ -125,11 +123,10 @@ class CrcTest extends UnitTestCase
     private function expectedCrc(array $keys, array $values): array
     {
         $crc_array = array_combine($keys, $values);
-        if (!empty($this->salt)){
+        if (! empty($this->salt)) {
             $crc_array += ['crc' => $this->salt];
         }
+
         return $crc_array;
     }
-
-
 }

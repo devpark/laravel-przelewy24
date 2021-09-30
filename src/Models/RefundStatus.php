@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Devpark\Transfers24\Models;
@@ -12,8 +13,11 @@ namespace Devpark\Transfers24\Models;
  */
 class RefundStatus
 {
-    const DONE = 1;
-    const WAITING = 2;
-    const WAITING_FOR_ACCEPTANCE = 3;
-    const REJECTED = 4;
+    public const DONE = 1;
+
+    public const WAITING = 2;
+
+    public const WAITING_FOR_ACCEPTANCE = 3;
+
+    public const REJECTED = 4;
 }

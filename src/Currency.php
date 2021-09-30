@@ -9,11 +9,15 @@ use Devpark\Transfers24\Exceptions\CurrencyException;
  */
 class Currency
 {
-    const PLN = 'PLN';
-    const EUR = 'EUR';
-    const GBP = 'GBP';
-    const CZK = 'CZK';
-    const DKK = 'DKK';
+    public const PLN = 'PLN';
+
+    public const EUR = 'EUR';
+
+    public const GBP = 'GBP';
+
+    public const CZK = 'CZK';
+
+    public const DKK = 'DKK';
 
     /**
      * Get helper array of available currencies.

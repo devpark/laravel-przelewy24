@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Devpark\Transfers24\Contracts;
@@ -22,7 +23,6 @@ namespace Devpark\Transfers24\Contracts;
  * @property-read  string $description
  * @property-read  int $status
  * @property-read  int $amount
- *
  */
 interface RefundInfo
 {

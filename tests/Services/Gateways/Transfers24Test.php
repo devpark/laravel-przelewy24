@@ -4,15 +4,15 @@ namespace Tests\Services\Gateways;
 
 use Devpark\Transfers24\Contracts\Form;
 use Devpark\Transfers24\Factories\HttpResponseFactory;
+use Devpark\Transfers24\Responses\Http\Response;
 use Devpark\Transfers24\Services\Gateways\ClientFactory;
 use Devpark\Transfers24\Services\Gateways\Transfers24 as GatewayTransfers24;
+use GuzzleHttp\Client;
+use Illuminate\Config\Repository as Config;
 use Illuminate\Contracts\Container\Container;
+use Mockery as m;
 use Psr\Http\Message\ResponseInterface;
 use Tests\UnitTestCase;
-use Mockery as m;
-use Devpark\Transfers24\Responses\Http\Response;
-use Illuminate\Config\Repository as Config;
-use GuzzleHttp\Client;
 
 class Transfers24Test extends UnitTestCase
 {
@@ -20,22 +20,27 @@ class Transfers24Test extends UnitTestCase
      * @var GatewayTransfers24
      */
     private $gateway;
+
     /**
      * @var m\Mock|Config
      */
     private $config;
+
     /**
      * @var m\Mock|Response
      */
     private $response;
+
     /**
      * @var m\MockInterface
      */
     private $container;
+
     /**
      * @var m\MockInterface
      */
     private $client;
+
     /**
      * @var ClientFactory
      */
@@ -48,7 +53,8 @@ class Transfers24Test extends UnitTestCase
         $this->response = m::mock(HttpResponseFactory::class);
         $this->container = m::mock(Container::class);
         $this->client_factory = m::mock(ClientFactory::class);
-        $this->client = m::mock(Client::class);}
+        $this->client = m::mock(Client::class);
+    }
 
     /**
      * @Feature Payments
@@ -78,7 +84,6 @@ class Transfers24Test extends UnitTestCase
         $this->assertSame($this->gateway->getHost(), $sandbox_host);
     }
 
-
     /**
      * @Feature Payments
      * @Scenario Execute Payment
@@ -94,8 +99,6 @@ class Transfers24Test extends UnitTestCase
         $this->assertSame($this->gateway->getHost(), $transfers24_host);
     }
 
-
-
     /**
      * @Feature Payments
      * @Scenario Execute Payment
@@ -109,7 +112,7 @@ class Transfers24Test extends UnitTestCase
         $form = m::mock(Form::class);
         $this->makeGateway(true);
 
-        $form->shouldReceive('getUri','getMethod')
+        $form->shouldReceive('getUri', 'getMethod')
             ->once()
             ->andReturn('form-data');
         $form->shouldReceive('toArray')
@@ -141,7 +144,7 @@ class Transfers24Test extends UnitTestCase
 
         $token = '00000000';
         $response = $this->gateway->trnRequest($token, false);
-        $url_payment = $this->gateway->getHost() . 'trnRequest/' . $token;
+        $url_payment = $this->gateway->getHost().'trnRequest/'.$token;
         $this->assertSame($response, $url_payment);
     }
 

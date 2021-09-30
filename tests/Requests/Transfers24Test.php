@@ -5,30 +5,25 @@ namespace Tests\Requests;
 use Devpark\Transfers24\Actions\Action;
 use Devpark\Transfers24\Actions\Runner;
 use Devpark\Transfers24\Contracts\IResponse;
-use Devpark\Transfers24\Contracts\Translator;
 use Devpark\Transfers24\Credentials;
 use Devpark\Transfers24\Currency;
+use Devpark\Transfers24\Exceptions\RequestException;
 use Devpark\Transfers24\Exceptions\RequestExecutionException;
 use Devpark\Transfers24\Factories\ActionFactory;
 use Devpark\Transfers24\Factories\ReceiveResponseFactory;
 use Devpark\Transfers24\Factories\ReceiveTranslatorFactory;
-use Devpark\Transfers24\Factories\RegisterTranslatorFactory;
 use Devpark\Transfers24\Factories\RegisterResponseFactory;
+use Devpark\Transfers24\Factories\RegisterTranslatorFactory;
 use Devpark\Transfers24\Factories\RunnerFactory;
 use Devpark\Transfers24\Requests\Transfers24 as RequestTransfers24;
 use Devpark\Transfers24\Translators\ReceiveTranslator;
 use Devpark\Transfers24\Translators\RegisterTranslator;
-use Illuminate\Contracts\Container\Container;
-use Illuminate\Routing\UrlGenerator as Url;
-use stdClass;
-use Tests\UnitTestCase;
-use Mockery as m;
-use Illuminate\Foundation\Application;
-use Devpark\Transfers24\Responses\Register as RegisterResponse;
-use Devpark\Transfers24\Services\Handlers\Transfers24 as HandlersTransfers24;
-use Devpark\Transfers24\Exceptions\RequestException;
-use Illuminate\Http\Request;
 use Illuminate\Config\Repository as Config;
+use Illuminate\Contracts\Container\Container;
+use Illuminate\Http\Request;
+use Illuminate\Routing\UrlGenerator as Url;
+use Mockery as m;
+use Tests\UnitTestCase;
 
 class Transfers24Test extends UnitTestCase
 {
@@ -41,26 +36,32 @@ class Transfers24Test extends UnitTestCase
      * @var RequestTransfers24
      */
     private $request;
+
     /**
      * @var m\MockInterface
      */
     private $action_factory;
+
     /**
      * @var m\MockInterface
      */
     private $translator_factory;
+
     /**
      * @var m\MockInterface
      */
     private $response_factory;
+
     /**
      * @var m\MockInterface
      */
     private $runner_factory;
+
     /**
      * @var m\MockInterface
      */
     private $receive_translator_factory;
+
     /**
      * @var m\MockInterface
      */
@@ -321,7 +322,6 @@ class Transfers24Test extends UnitTestCase
         $action = m::mock(Action::class);
         $expected_response = m::mock(IResponse::class);
 
-
         $this->translator_factory->shouldReceive('create')->once()
             ->with($this->request, m::any())
             ->andReturn($translator);
@@ -337,9 +337,7 @@ class Transfers24Test extends UnitTestCase
         $response = $this->request->setEmail('test@test.pl')->setAmount(100)->init();
 
         $this->assertEquals($expected_response, $response);
-
     }
-
 
     /**
      * @Feature Payments
@@ -365,7 +363,6 @@ class Transfers24Test extends UnitTestCase
      */
     public function validate_set_Default_urls()
     {
-
         $this->request->setDefaultUrls();
 
         $url_status = $this->request->getField('url_status');
@@ -374,7 +371,6 @@ class Transfers24Test extends UnitTestCase
         $this->assertEquals($url_status, 'http://:');
         $this->assertEquals($url_return, 'http://:');
     }
-
 
     /**
      * @Feature Payments
@@ -464,7 +460,6 @@ class Transfers24Test extends UnitTestCase
         $action = m::mock(Action::class);
         $expected_response = m::mock(IResponse::class);
 
-
         $request = m::mock(Request::class);
         $request->shouldReceive('all')
             ->once()
@@ -484,7 +479,6 @@ class Transfers24Test extends UnitTestCase
         $response = $this->request->receive($request);
 
         $this->assertEquals($expected_response, $response);
-
     }
 
     public function createConcreteRequest(array $dependent = [])
@@ -497,7 +491,6 @@ class Transfers24Test extends UnitTestCase
         $this->receive_response_factory = m::mock(ReceiveResponseFactory::class);
 
         $this->runner_factory = m::mock(RunnerFactory::class);
-
 
         return $this->app->make(RequestTransfers24::class, [
             'credentials_keeper', $this->credentials,
@@ -531,8 +524,14 @@ class Transfers24Test extends UnitTestCase
             'sellerId' => '1',
         ];
 
-        $this->request->setArticle('1','1',$next_article['name'], $next_article['price'],
-            $next_article['quantity'], $next_article['number']);
+        $this->request->setArticle(
+            '1',
+            '1',
+            $next_article['name'],
+            $next_article['price'],
+            $next_article['quantity'],
+            $next_article['number']
+        );
 
         $additional_articles = $this->request->getField('cart');
         $first_article = array_pop($additional_articles);

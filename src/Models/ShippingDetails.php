@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Devpark\Transfers24\Models;
@@ -9,9 +10,13 @@ use Illuminate\Support\Arr;
 class ShippingDetails implements Arrayable
 {
     protected $type;
+
     protected $address;
+
     protected $zip;
+
     protected $city;
+
     protected $country;
 
     public function __construct(int $type, string $address, string $zip, string $city, string $country)

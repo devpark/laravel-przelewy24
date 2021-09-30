@@ -2,41 +2,21 @@
 
 namespace Tests\Factories;
 
-use Devpark\Transfers24\Actions\Action;
 use Devpark\Transfers24\Contracts\Form;
-use Devpark\Transfers24\Contracts\IResponse;
-use Devpark\Transfers24\Credentials;
-use Devpark\Transfers24\Currency;
-use Devpark\Transfers24\Exceptions\RequestExecutionException;
-use Devpark\Transfers24\Factories\HandlerFactory;
-use Devpark\Transfers24\Factories\RegisterTranslatorFactory;
 use Devpark\Transfers24\Factories\RegisterResponseFactory;
-use Devpark\Transfers24\Forms\RegisterForm;
-use Devpark\Transfers24\Requests\Transfers24 as RequestTransfers24;
 use Devpark\Transfers24\Responses\Http\Response;
 use Devpark\Transfers24\Services\BodyDecoder;
 use Devpark\Transfers24\Services\DecodedBody;
-use Devpark\Transfers24\Services\Gateways\Transfers24;
-use Devpark\Transfers24\Translators\RegisterTranslator;
-use Illuminate\Contracts\Container\Container;
-use stdClass;
-use Tests\UnitTestCase;
 use Mockery as m;
-use Illuminate\Foundation\Application;
-use Devpark\Transfers24\Responses\Register as RegisterResponse;
-use Devpark\Transfers24\Services\Handlers\Transfers24 as HandlersTransfers24;
-use Devpark\Transfers24\Exceptions\RequestException;
-use Illuminate\Http\Request;
-use Illuminate\Config\Repository as Config;
-use function GuzzleHttp\Psr7\build_query;
+use Tests\UnitTestCase;
 
 class ResponseFactoryTest extends UnitTestCase
 {
-
     /**
      * @var RegisterResponseFactory
      */
     private $factory;
+
     /**
      * @var m\MockInterface
      */
@@ -48,7 +28,7 @@ class ResponseFactoryTest extends UnitTestCase
 
         $this->body_decoder = m::mock(BodyDecoder::class);
         $this->factory = $this->app->make(RegisterResponseFactory::class, [
-            'body_decoder' => $this->body_decoder
+            'body_decoder' => $this->body_decoder,
         ]);
     }
 
@@ -71,7 +51,5 @@ class ResponseFactoryTest extends UnitTestCase
 
         //When
         $response = $this->factory->create($http_response);
-
     }
-
 }

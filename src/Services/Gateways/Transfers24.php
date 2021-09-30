@@ -5,10 +5,9 @@ namespace Devpark\Transfers24\Services\Gateways;
 use Devpark\Transfers24\Contracts\Form;
 use Devpark\Transfers24\Credentials;
 use Devpark\Transfers24\Factories\HttpResponseFactory;
-use GuzzleHttp\Client;
 use Devpark\Transfers24\Responses\Http\Response;
+use GuzzleHttp\Client;
 use Illuminate\Config\Repository as Config;
-use Illuminate\Contracts\Container\Container;
 
 /**
  * Class Transfers24.
@@ -42,7 +41,6 @@ class Transfers24
      * @var int
      */
     protected $posId;
-
 
     /**
      * Salt to create a control sum (from P24 panel).
@@ -88,8 +86,7 @@ class Transfers24
         $report_key = $config->get('transfers24.report_key');
         $sandbox = $config->get('transfers24.test_server');
 
-
-        $this->configure($sandbox,$pos_id,$report_key);
+        $this->configure($sandbox, $pos_id, $report_key);
     }
 
     /**
@@ -114,10 +111,10 @@ class Transfers24
     public function trnRequest($token, $redirect = true)
     {
         if ($redirect) {
-            header('Location:' . $this->hostLive . 'trnRequest/' . $token);
+            header('Location:'.$this->hostLive.'trnRequest/'.$token);
             exit();
         } else {
-            return $this->hostLive . 'trnRequest/' . $token;
+            return $this->hostLive.'trnRequest/'.$token;
         }
     }
 
@@ -138,7 +135,6 @@ class Transfers24
         return $this->http_response_factory->create($form, $response);
     }
 
-
     /**
      * @throws NoEnvironmentChosenException
      */
@@ -158,7 +154,6 @@ class Transfers24
      */
     private function configure(bool $sandbox, $pos_id, $report_key): void
     {
-
         $this->testMode = $sandbox;
 
         if ($this->testMode) {
@@ -166,12 +161,11 @@ class Transfers24
         }
 
         $this->init($pos_id, $report_key);
-
     }
 
     protected function init($username, $password): void
     {
-        $this->username =$username;
+        $this->username = $username;
         $this->password = $password;
         $host = $this->getHost();
         $api_path = 'api/v1/';
@@ -193,13 +187,14 @@ class Transfers24
         $options = [
             'auth' => [
                 $this->username,
-                $this->password
+                $this->password,
             ],
         ];
         if ($this->isCommand($method)) {
             $form_params = $form->toArray();
             $options['form_params'] = $form_params;
         }
+
         return $options;
     }
 }

@@ -5,7 +5,9 @@ namespace Devpark\Transfers24\Services;
 class DecodedBody
 {
     private $token;
+
     private $status_code;
+
     /**
      * @var string
      */
@@ -43,7 +45,6 @@ class DecodedBody
     {
         return $this->status_code;
     }
-
 
     /**
      * @param string $error_message

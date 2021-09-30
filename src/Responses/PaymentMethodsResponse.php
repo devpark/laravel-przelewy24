@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Devpark\Transfers24\Responses;
@@ -43,11 +44,14 @@ class PaymentMethodsResponse extends Response implements IResponse
                 $this->data = $data;
             }
 
-            public function __get(string $name){
-                if ($name == 'availabilityHours'){
+            public function __get(string $name)
+            {
+                if ($name == 'availabilityHours') {
                     $payment_method_hours = Arr::get($this->data, $name, []);
+
                     return $this->convertAvailabilityHours($payment_method_hours);
                 }
+
                 return Arr::get($this->data, $name);
             }
 
@@ -64,12 +68,12 @@ class PaymentMethodsResponse extends Response implements IResponse
                         $this->data = $data;
                     }
 
-                    public function __get(string $name){
+                    public function __get(string $name)
+                    {
                         return Arr::get($this->data, $name);
                     }
                 };
             }
         };
     }
-
 }

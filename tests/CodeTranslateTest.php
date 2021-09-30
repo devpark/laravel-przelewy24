@@ -2,8 +2,8 @@
 
 namespace Tests\Services;
 
-use Tests\UnitTestCase;
 use Devpark\Transfers24\CodeTranslate;
+use Tests\UnitTestCase;
 
 class CodeTranslateTest extends UnitTestCase
 {

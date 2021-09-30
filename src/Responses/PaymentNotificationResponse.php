@@ -1,14 +1,10 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Devpark\Transfers24\Responses;
 
-use Devpark\Transfers24\Contracts\IResponse;
 use Devpark\Transfers24\Contracts\PaymentNotification;
-use Devpark\Transfers24\Contracts\Refund;
-use Devpark\Transfers24\Contracts\RefundNotification;
-use Devpark\Transfers24\Contracts\Transaction;
-use Devpark\Transfers24\Exceptions\TestConnectionException;
 use Illuminate\Support\Arr;
 
 class PaymentNotificationResponse
@@ -44,7 +40,8 @@ class PaymentNotificationResponse
                 $this->data = $data;
             }
 
-            public function __get(string $name){
+            public function __get(string $name)
+            {
                 return Arr::get($this->data, $name);
             }
         };

@@ -7,15 +7,23 @@ namespace Devpark\Transfers24;
  */
 class Channel extends CodeTranslate
 {
-    const CC = '1';
-    const BANK_TRANSFERS = '2';
-    const MANUAL_TRANSFER = '4';
-    const N_A = '8';
-    const ALL_METHOD = '16';
-    const PREPAYMENT = '32';
-    const PAY_BY_LINK = '64';
-    const INSTALMENT_PAYMENT = '128';
-    const WALLET = '256';
+    public const CC = '1';
+
+    public const BANK_TRANSFERS = '2';
+
+    public const MANUAL_TRANSFER = '4';
+
+    public const N_A = '8';
+
+    public const ALL_METHOD = '16';
+
+    public const PREPAYMENT = '32';
+
+    public const PAY_BY_LINK = '64';
+
+    public const INSTALMENT_PAYMENT = '128';
+
+    public const WALLET = '256';
 
     /**
      * Get Code channel.

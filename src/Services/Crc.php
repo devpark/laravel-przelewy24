@@ -32,9 +32,10 @@ class Crc
             }
             $form_params[$param] = $array_values[$param];
         }
-        if (!empty($this->salt)){
+        if (! empty($this->salt)) {
             $form_params += ['crc' => $this->salt];
         }
+
         return $this->hash_wrapper->hash($form_params);
     }
 

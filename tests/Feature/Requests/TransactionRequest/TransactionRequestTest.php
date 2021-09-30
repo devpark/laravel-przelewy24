@@ -1,37 +1,19 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Tests\Feature\Requests\TransactionRequest;
 
-use Devpark\Transfers24\Contracts\PaymentMethod;
-use Devpark\Transfers24\Contracts\PaymentMethodHours;
-use Devpark\Transfers24\Requests\CheckCredentialsRequest;
-use Devpark\Transfers24\Requests\PaymentMethodsRequest;
 use Devpark\Transfers24\Requests\TransactionRequest;
 use Devpark\Transfers24\Responses\InvalidResponse;
-use Devpark\Transfers24\Responses\PaymentMethodsResponse;
-use Devpark\Transfers24\Responses\Response;
-use Devpark\Transfers24\Responses\TestConnection;
 use Devpark\Transfers24\Responses\TransactionResponse;
-use Devpark\Transfers24\Services\Gateways\ClientFactory;
-use Devpark\Transfers24\Translators\TestTranslator;
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\GuzzleException;
-use GuzzleHttp\Exception\RequestException;
-use Illuminate\Config\Repository;
-use Illuminate\Contracts\Container\Container;
-use Illuminate\Log\Logger;
-use Illuminate\Log\LogManager;
-use Mockery as m;
 use Mockery\MockInterface;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Log\LoggerInterface;
-use Psr\Log\Test\TestLogger;
 use Tests\UnitTestCase;
 
 class TransactionRequestTest extends UnitTestCase
 {
     use TransactionRequestTrait;
+
     /**
      * @var TransactionRequest
      */
@@ -51,7 +33,6 @@ class TransactionRequestTest extends UnitTestCase
         $this->setConfiguration();
 
         $this->request = $this->app->make(TransactionRequest::class);
-
     }
 
     /**
@@ -90,7 +71,6 @@ class TransactionRequestTest extends UnitTestCase
 //        $this->assertSame(404, $response->getErrorCode());
     }
 
-
     /**
      * @Feature Payments
      * @Scenario Getting Transaction
@@ -99,7 +79,6 @@ class TransactionRequestTest extends UnitTestCase
      */
     public function it_gets_transaction_details()
     {
-
         $response = $this->makeResponse();
 
         $transaction = $this->makeTransaction();
@@ -127,7 +106,6 @@ class TransactionRequestTest extends UnitTestCase
         $this->assertSame($transaction->clientPostcode, $response->getTransaction()->clientPostcode);
         $this->assertSame($transaction->batchId, $response->getTransaction()->batchId);
         $this->assertSame($transaction->fee, $response->getTransaction()->fee);
-
     }
 
     /**
@@ -138,12 +116,10 @@ class TransactionRequestTest extends UnitTestCase
      */
     public function execute_was_failed_and_return_invalid_response()
     {
-
         $this->requestTestAccessFailed();
         $response = $this->request->setSessionId('session-id')->execute();
 
         $this->assertInstanceOf(InvalidResponse::class, $response);
         $this->assertSame(401, $response->getErrorCode());
     }
-
 }

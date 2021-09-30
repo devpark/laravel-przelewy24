@@ -1,31 +1,19 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Tests\Feature\Requests\CheckCredentialsRequest;
 
 use Devpark\Transfers24\Requests\CheckCredentialsRequest;
 use Devpark\Transfers24\Responses\InvalidResponse;
-use Devpark\Transfers24\Responses\Response;
 use Devpark\Transfers24\Responses\TestConnection;
-use Devpark\Transfers24\Services\Gateways\ClientFactory;
-use Devpark\Transfers24\Translators\TestTranslator;
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\GuzzleException;
-use GuzzleHttp\Exception\RequestException;
-use Illuminate\Config\Repository;
-use Illuminate\Contracts\Container\Container;
-use Illuminate\Log\Logger;
-use Illuminate\Log\LogManager;
-use Mockery as m;
 use Mockery\MockInterface;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Log\LoggerInterface;
-use Psr\Log\Test\TestLogger;
 use Tests\UnitTestCase;
 
 class CheckCredentialsRequestTest extends UnitTestCase
 {
     use CheckCredentialsRequestTrait;
+
     /**
      * @var CheckCredentialsRequest
      */
@@ -45,7 +33,6 @@ class CheckCredentialsRequestTest extends UnitTestCase
         $this->setConfiguration();
 
         $this->request = $this->app->make(CheckCredentialsRequest::class);
-
     }
 
     /**
@@ -83,5 +70,4 @@ class CheckCredentialsRequestTest extends UnitTestCase
         $this->assertInstanceOf(InvalidResponse::class, $response);
         $this->assertSame(401, $response->getErrorCode());
     }
-
 }

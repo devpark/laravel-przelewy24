@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Devpark\Transfers24\Contracts;
@@ -39,5 +40,4 @@ interface IResponse
      * @return string
      */
     public function getSessionId();
-
 }

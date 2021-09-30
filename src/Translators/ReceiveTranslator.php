@@ -1,19 +1,13 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Devpark\Transfers24\Translators;
 
 use Devpark\Transfers24\Contracts\Form;
-use Devpark\Transfers24\Contracts\IResponse;
 use Devpark\Transfers24\Contracts\Translator;
 use Devpark\Transfers24\Credentials;
-use Devpark\Transfers24\Exceptions\EmptyCredentialsException;
-use Devpark\Transfers24\Exceptions\NoEnvironmentChosenException;
 use Devpark\Transfers24\Forms\ReceiveForm;
-use Devpark\Transfers24\Forms\RegisterForm;
-use Devpark\Transfers24\Requests\Transfers24;
-use Devpark\Transfers24\Services\Crc;
-use Illuminate\Config\Repository as Config;
 
 class ReceiveTranslator extends AbstractTranslator implements Translator
 {
@@ -22,10 +16,11 @@ class ReceiveTranslator extends AbstractTranslator implements Translator
      */
     private $receive_parameters;
 
-    public function init(array $receive_data, Credentials $credentials):ReceiveTranslator{
-
+    public function init(array $receive_data, Credentials $credentials):ReceiveTranslator
+    {
         $this->receive_parameters = $receive_data;
         $this->credentials_keeper = $credentials;
+
         return $this;
     }
 
@@ -48,6 +43,7 @@ class ReceiveTranslator extends AbstractTranslator implements Translator
         $this->form->addValue('posId', $this->pos_id);
         $this->form->addValue('sign', $this->calculateSign());
         $this->form->setReceivedParameters($this->receive_parameters);
+
         return $this->form;
     }
 

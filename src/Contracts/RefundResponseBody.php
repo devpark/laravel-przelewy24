@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Devpark\Transfers24\Contracts;
@@ -21,7 +22,6 @@ namespace Devpark\Transfers24\Contracts;
     }
  * @property-read Refund[] $data
  * @property-read string $responseCode
- *
  */
 interface RefundResponseBody
 {

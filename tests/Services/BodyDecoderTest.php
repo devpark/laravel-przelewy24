@@ -2,12 +2,9 @@
 
 namespace Tests\Services;
 
-use Devpark\Transfers24\ErrorCode;
 use Devpark\Transfers24\Responses\Http\Response;
 use Devpark\Transfers24\Services\BodyDecoder;
-use Devpark\Transfers24\Services\DecodedBody;
 use Tests\UnitTestCase;
-use function GuzzleHttp\Psr7\build_query;
 
 class BodyDecoderTest extends UnitTestCase
 {
@@ -28,7 +25,7 @@ class BodyDecoderTest extends UnitTestCase
     {
         $body = json_encode([
             BodyDecoder::DATA_LABEL => [
-                BodyDecoder::TOKEN_LABEL => 'token'
+                BodyDecoder::TOKEN_LABEL => 'token',
             ],
             BodyDecoder::RESPONSE_CODE => 0,
         ]);
@@ -61,7 +58,6 @@ class BodyDecoderTest extends UnitTestCase
     /** @test */
     public function decode_error()
     {
-
         $body = json_encode([
             BodyDecoder::ERROR_LABEL => 'getting error',
             BodyDecoder::ERROR_CODE => 400,
@@ -72,7 +68,7 @@ class BodyDecoderTest extends UnitTestCase
 
         $decoded = $this->body_decoder->decode($response);
 
-        $this->assertSame( 400, $decoded->getStatusCode());
+        $this->assertSame(400, $decoded->getStatusCode());
     }
 
     /** @test */
@@ -87,10 +83,9 @@ class BodyDecoderTest extends UnitTestCase
 
         $response = $this->whenReceivedApiResponse($status_code, $body);
 
-
         $decoded = $this->body_decoder->decode($response);
 
-        $this->assertSame( 'getting error', $decoded->getErrorMessage());
+        $this->assertSame('getting error', $decoded->getErrorMessage());
     }
 
     /**
@@ -107,7 +102,7 @@ class BodyDecoderTest extends UnitTestCase
         $response->shouldReceive('getBody')
             ->once()
             ->andReturn($body);
+
         return $response;
     }
-
 }

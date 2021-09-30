@@ -1,37 +1,19 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Tests\Feature\Requests\RefundInfoRequest;
 
-use Devpark\Transfers24\Contracts\PaymentMethod;
-use Devpark\Transfers24\Contracts\PaymentMethodHours;
-use Devpark\Transfers24\Requests\CheckCredentialsRequest;
-use Devpark\Transfers24\Requests\PaymentMethodsRequest;
 use Devpark\Transfers24\Requests\RefundInfoRequest;
 use Devpark\Transfers24\Responses\InvalidResponse;
-use Devpark\Transfers24\Responses\PaymentMethodsResponse;
-use Devpark\Transfers24\Responses\Response;
-use Devpark\Transfers24\Responses\TestConnection;
 use Devpark\Transfers24\Responses\RefundInfoResponse;
-use Devpark\Transfers24\Services\Gateways\ClientFactory;
-use Devpark\Transfers24\Translators\TestTranslator;
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\GuzzleException;
-use GuzzleHttp\Exception\RequestException;
-use Illuminate\Config\Repository;
-use Illuminate\Contracts\Container\Container;
-use Illuminate\Log\Logger;
-use Illuminate\Log\LogManager;
-use Mockery as m;
 use Mockery\MockInterface;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Log\LoggerInterface;
-use Psr\Log\Test\TestLogger;
 use Tests\UnitTestCase;
 
 class RefundInfoRequestTest extends UnitTestCase
 {
     use RefundInfoRequestTrait;
+
     /**
      * @var RefundInfoRequest
      */
@@ -51,7 +33,6 @@ class RefundInfoRequestTest extends UnitTestCase
         $this->setConfiguration();
 
         $this->request = $this->app->make(RefundInfoRequest::class);
-
     }
 
     /**
@@ -80,7 +61,6 @@ class RefundInfoRequestTest extends UnitTestCase
      */
     public function it_gets_empty_transaction()
     {
-
         $order_id = 'known-order-id';
         $this->requestGettingRefundInfoNotFound($order_id);
         $this->request->setOrderId($order_id);
@@ -88,7 +68,6 @@ class RefundInfoRequestTest extends UnitTestCase
         $this->assertInstanceOf(InvalidResponse::class, $response);
 //        $this->assertSame(404, $response->getErrorCode());
     }
-
 
     /**
      * @Feature Refunds
@@ -98,7 +77,6 @@ class RefundInfoRequestTest extends UnitTestCase
      */
     public function it_gets_transaction_details()
     {
-
         $response = $this->makeResponse();
 
         $refund_info = $this->makeRefundInfoData();
@@ -121,7 +99,6 @@ class RefundInfoRequestTest extends UnitTestCase
         $this->assertSame($refund_info->refunds[0]->description, $response->getRefundInfo()->refunds[0]->description);
         $this->assertSame($refund_info->refunds[0]->status, $response->getRefundInfo()->refunds[0]->status);
         $this->assertSame($refund_info->refunds[0]->amount, $response->getRefundInfo()->refunds[0]->amount);
-
     }
 
     /**
@@ -132,12 +109,10 @@ class RefundInfoRequestTest extends UnitTestCase
      */
     public function execute_was_failed_and_return_invalid_response()
     {
-
         $this->requestRefundInfoFailed();
         $response = $this->request->setOrderId('order-id')->execute();
 
         $this->assertInstanceOf(InvalidResponse::class, $response);
         $this->assertSame(401, $response->getErrorCode());
     }
-
 }

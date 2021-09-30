@@ -1,30 +1,20 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Tests\Feature\Requests\RefundRequest;
 
 use Devpark\Transfers24\Contracts\Refund;
-use Devpark\Transfers24\Models\RefundQuery;
 use Devpark\Transfers24\Requests\RefundRequest;
 use Devpark\Transfers24\Responses\InvalidResponse;
 use Devpark\Transfers24\Responses\RefundResponse;
-use Devpark\Transfers24\Services\Amount;
-use Devpark\Transfers24\Services\Gateways\ClientFactory;
-use GuzzleHttp\Client;
-use Illuminate\Config\Repository;
-use Illuminate\Contracts\Container\Container;
-use Illuminate\Routing\UrlGenerator;
-use Mockery as m;
 use Mockery\MockInterface;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Log\LoggerInterface;
-use Psr\Log\Test\TestLogger;
-use Ramsey\Uuid\UuidFactory;
 use Tests\UnitTestCase;
 
 class RefundRequestTest extends UnitTestCase
 {
     use RefundRequestTrait;
+
     /**
      * @var RefundRequest
      */
@@ -44,7 +34,6 @@ class RefundRequestTest extends UnitTestCase
         $this->setConfiguration();
 
         $this->request = $this->app->make(RefundRequest::class);
-
     }
 
     /**
@@ -84,7 +73,6 @@ class RefundRequestTest extends UnitTestCase
         $refund_inquiry = $this->makeRefundQuery();
         $refund_query_raw = $refund_inquiry->toArray();
 
-
         //Then
         $this->thenRequestRefundSuccessful($refund_inquiry);
 
@@ -98,8 +86,6 @@ class RefundRequestTest extends UnitTestCase
         $this->assertSame($refund_query_raw['sessionId'], $response->getRefunds()[0]->sessionId);
         $this->assertSame($refund_query_raw['amount'], $response->getRefunds()[0]->amount);
         $this->assertSame($refund_query_raw['description'], $response->getRefunds()[0]->description);
-
-
     }
 
     /**
@@ -120,5 +106,4 @@ class RefundRequestTest extends UnitTestCase
         $this->assertInstanceOf(InvalidResponse::class, $response);
         $this->assertSame(401, $response->getErrorCode());
     }
-
 }

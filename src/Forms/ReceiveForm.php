@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Devpark\Transfers24\Forms;
@@ -7,7 +8,6 @@ use Devpark\Transfers24\Contracts\Form;
 
 class ReceiveForm extends AbstractForm implements Form
 {
-
     private $received_parameters;
 
     public function getUri(): string
@@ -32,5 +32,4 @@ class ReceiveForm extends AbstractForm implements Form
     {
         $this->received_parameters = $received_parameters;
     }
-
 }

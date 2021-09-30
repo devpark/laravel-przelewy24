@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Devpark\Transfers24\Actions;
@@ -19,14 +20,17 @@ class Action
      * @var RegisterResponseFactory
      */
     protected $response_factory;
+
     /**
      * @var Translator
      */
     protected $translator;
+
     /**
      * @var Transfers24
      */
     protected $gateway;
+
     /**
      * @var LoggerInterface
      */
@@ -42,12 +46,13 @@ class Action
     {
         $this->response_factory = $response_factory;
         $this->translator = $translator;
+
         return $this;
     }
 
     public function execute():IResponse
     {
-        try{
+        try {
             $this->translator->configure();
             $form = $this->translator->translate();
 
@@ -55,19 +60,15 @@ class Action
             $gateway_response = $this->gateway->callTransfers24($form);
 
             return $this->response_factory->create($gateway_response);
-
-        } catch (EmptyCredentialsException $exception)
-        {
+        } catch (EmptyCredentialsException $exception) {
             $this->logger->error($exception->getMessage());
-            return new InvalidResponse($exception);
 
-        }catch (NoEnvironmentChosenException $exception)
-        {
-            $this->logger->error($exception->getMessage());
             return new InvalidResponse($exception);
-        }
-        catch (\Throwable $exception)
-        {
+        } catch (NoEnvironmentChosenException $exception) {
+            $this->logger->error($exception->getMessage());
+
+            return new InvalidResponse($exception);
+        } catch (\Throwable $exception) {
             return new InvalidResponse($exception);
         }
     }

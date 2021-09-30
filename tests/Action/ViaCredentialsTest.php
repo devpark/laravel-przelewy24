@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Tests\Action;
@@ -12,15 +13,9 @@ use Devpark\Transfers24\Factories\RegisterResponseFactory;
 use Devpark\Transfers24\Responses\Http\Response;
 use Devpark\Transfers24\Responses\InvalidResponse;
 use Devpark\Transfers24\Responses\Register as RegisterResponse;
-use Devpark\Transfers24\Responses\TestConnection;
-use Devpark\Transfers24\Services\Gateways\Transfers24 as GatewayTransfers24;
-use Devpark\Transfers24\Services\Handlers\Transfers24;
 use Devpark\Transfers24\Translators\RegisterTranslator;
 use Illuminate\Config\Repository;
-use Illuminate\Contracts\Container\Container;
-use Illuminate\Foundation\Application;
 use Mockery as m;
-use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 use Tests\UnitTestCase;
 
@@ -30,14 +25,17 @@ class ViaCredentialsTest extends UnitTestCase
      * @var Response
      */
     private $http_response;
+
     /**
      * @var m\MockInterface|Credentials
      */
     private $credentials;
+
     /**
      * @var Repository
      */
     private $config;
+
     /**
      * @var LoggerInterface
      */
@@ -47,27 +45,31 @@ class ViaCredentialsTest extends UnitTestCase
      * @var m\MockInterface
      */
     private $response;
+
     /**
      * @var Action
      */
     private $action;
+
     /**
      * @var m\MockInterface
      */
     private $translator_factory;
+
     /**
      * @var m\MockInterface
      */
     private $translator;
+
     /**
      * @var m\MockInterface
      */
     private $gateway;
+
     /**
      * @var m\MockInterface
      */
     private $response_factory;
-
 
     protected function setUp()
     {
@@ -77,13 +79,11 @@ class ViaCredentialsTest extends UnitTestCase
 
         $this->translator = m::mock(RegisterTranslator::class);
 
-
         $this->logger = m::mock(LoggerInterface::class);
 
         $this->gateway = m::mock(\Devpark\Transfers24\Services\Gateways\Transfers24::class);
 
         $this->credentials = m::mock(Credentials::class);
-
 
         $this->response_factory = m::mock(RegisterResponseFactory::class);
 
@@ -92,9 +92,7 @@ class ViaCredentialsTest extends UnitTestCase
             'logger' => $this->logger,
         ]);
         $this->action->init($this->response_factory, $this->translator);
-
     }
-
 
     /**
      * @Feature Connection with Provider
@@ -114,9 +112,7 @@ class ViaCredentialsTest extends UnitTestCase
         $response = $this->action->execute();
 
         $this->assertInstanceOf(InvalidResponse::class, $response);
-
     }
-
 
     /**
      * @Feature Connection with Provider
@@ -141,11 +137,9 @@ class ViaCredentialsTest extends UnitTestCase
         $this->translator->shouldReceive('translate')
             ->once();
 
-
         $response = $this->action->execute();
 
         $this->assertInstanceOf(InvalidResponse::class, $response);
-
     }
 
     protected function gettingCredentials(): void
@@ -155,7 +149,6 @@ class ViaCredentialsTest extends UnitTestCase
         $this->credentials->shouldReceive('getCrc')->once()->andReturn('crc');
         $this->credentials->shouldReceive('isTestMode')->once()->andReturn(false);
     }
-
 
     protected function gettingCredentialsWithoutEnvironmentSetting(): void
     {
@@ -182,5 +175,4 @@ class ViaCredentialsTest extends UnitTestCase
     {
         $this->config->set('transfers24.credentials-scope', false);
     }
-
 }

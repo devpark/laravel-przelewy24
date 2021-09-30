@@ -7,7 +7,7 @@ namespace Devpark\Transfers24;
  */
 abstract class CodeTranslate
 {
-    const CODE = '-1';
+    public const CODE = '-1';
 
     /**
      * Get helper array of available codes.

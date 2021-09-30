@@ -3,11 +3,10 @@
 namespace Tests\Responses;
 
 use Devpark\Transfers24\Contracts\Form;
-use Devpark\Transfers24\Services\DecodedBody;
-use Tests\UnitTestCase;
 use Devpark\Transfers24\Responses\Verify as ResponseVerify;
-use Devpark\Transfers24\Services\Handlers\Transfers24 as HandlerTransfers24;
+use Devpark\Transfers24\Services\DecodedBody;
 use Mockery as m;
+use Tests\UnitTestCase;
 
 class VerifyTest extends UnitTestCase
 {
@@ -15,10 +14,12 @@ class VerifyTest extends UnitTestCase
      * @var ResponseVerify
      */
     private $response;
+
     /**
      * @var m\MockInterface
      */
     private $decoded_body;
+
     /**
      * @var m\MockInterface
      */

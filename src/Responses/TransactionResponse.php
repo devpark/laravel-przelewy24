@@ -1,11 +1,11 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Devpark\Transfers24\Responses;
 
 use Devpark\Transfers24\Contracts\IResponse;
 use Devpark\Transfers24\Contracts\Transaction;
-use Devpark\Transfers24\Exceptions\TestConnectionException;
 use Illuminate\Support\Arr;
 
 class TransactionResponse extends Response implements IResponse
@@ -28,7 +28,8 @@ class TransactionResponse extends Response implements IResponse
                 $this->data = $data;
             }
 
-            public function __get(string $name){
+            public function __get(string $name)
+            {
                 return Arr::get($this->data, $name);
             }
         };

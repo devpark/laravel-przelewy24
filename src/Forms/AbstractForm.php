@@ -1,25 +1,25 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Devpark\Transfers24\Forms;
 
-use Devpark\Transfers24\Contracts\Form;
-
 abstract class AbstractForm
 {
-
     protected $postData = [];
 
     /**
      * @var string
      */
     protected $session_id;
+
     /**
      * @var string
      */
     protected $order_id;
 
-    public function toArray():array{
+    public function toArray():array
+    {
         return $this->postData;
     }
 

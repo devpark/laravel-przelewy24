@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Devpark\Transfers24\Contracts;
@@ -16,6 +17,6 @@ interface Translator
      * @throws NoEnvironmentChosenException
      */
     public function configure(): Translator;
-    public function getCredentials():Credentials;
 
+    public function getCredentials():Credentials;
 }

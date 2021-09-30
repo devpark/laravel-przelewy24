@@ -1,33 +1,20 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Tests\Feature\Requests\RegisterOfflineRequest;
 
-use Devpark\Transfers24\Contracts\PaymentMethod;
-use Devpark\Transfers24\Contracts\PaymentMethodHours;
-use Devpark\Transfers24\Contracts\Refund;
 use Devpark\Transfers24\Contracts\RegisterOffline;
-use Devpark\Transfers24\Contracts\RegisterOfflineData;
-use Devpark\Transfers24\Currency;
-use Devpark\Transfers24\Models\RefundQuery;
-use Devpark\Transfers24\Models\RefundStatus;
-use Devpark\Transfers24\Services\Amount;
 use Devpark\Transfers24\Services\Gateways\ClientFactory;
 use GuzzleHttp\Client;
 use Illuminate\Config\Repository;
-use Illuminate\Contracts\Container\Container;
-use Illuminate\Routing\UrlGenerator;
 use Mockery as m;
 use Mockery\MockInterface;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Log\LoggerInterface;
-use Psr\Log\Test\TestLogger;
-use Ramsey\Uuid\UuidFactory;
 use Symfony\Component\Translation\Exception\NotFoundResourceException;
 
 trait RegisterOfflineRequestTrait
 {
-
     protected function setConfiguration(): void
     {
         $this->config = $this->app->make(Repository::class);
@@ -42,8 +29,8 @@ trait RegisterOfflineRequestTrait
             'url_return' => '',
             'url_status' => '',
             'credentials-scope' => false,
-            "url_refund_status" => "transfers24/refund-status"
-        ]
+            'url_refund_status' => 'transfers24/refund-status',
+        ],
     ]);
     }
 
@@ -54,7 +41,6 @@ trait RegisterOfflineRequestTrait
         $client_factory->shouldReceive('create')
             ->once()->andReturn($this->client);
         $this->app->instance(ClientFactory::class, $client_factory);
-
     }
 
     /**
@@ -67,11 +53,11 @@ trait RegisterOfflineRequestTrait
         $request_options = [
             'auth' => [
                 10,
-                'report_key'
+                'report_key',
             ],
             'form_params' => [
-                "token" => $token,
-            ]
+                'token' => $token,
+            ],
         ];
         $this->client->shouldReceive('request')
             ->with($method, $path, $request_options)
@@ -89,11 +75,11 @@ trait RegisterOfflineRequestTrait
         $request_options = [
             'auth' => [
                 10,
-                'report_key'
+                'report_key',
             ],
             'form_params' => [
-                "token" => $token,
-            ]
+                'token' => $token,
+            ],
         ];
         $this->client->shouldReceive('request')
             ->with($method, $path, $request_options)
@@ -119,20 +105,22 @@ trait RegisterOfflineRequestTrait
 
     protected function requestRegisterOfflineFailed($token): void
     {
-
         $path = 'transaction/registerOffline';
 
         $this->client->shouldReceive('request')
-            ->with('POST', $path,
+            ->with(
+                'POST',
+                $path,
                 [
                     'auth' => [
                         10,
-                        'report_key'
+                        'report_key',
                     ],
                     'form_params' => [
-                        "token" => $token,
-                    ]
-                ])
+                        'token' => $token,
+                    ],
+                ]
+            )
             ->once()
             ->andThrow(new \Exception('Incorrect authentication', 401));
     }
@@ -140,13 +128,18 @@ trait RegisterOfflineRequestTrait
     protected function makeRegisterOffline(): RegisterOffline
     {
         return new class implements RegisterOffline {
-
             public $orderId = 0;
+
             public $sessionId = 'sessionId';
+
             public $amount = 0;
+
             public $statement = 'statement';
+
             public $iban = 'iban';
+
             public $ibanOwner = 'ibanOwner';
+
             public $ibanOwnerAddress = 'ibanOwnerAddress';
         };
     }

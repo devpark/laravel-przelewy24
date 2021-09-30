@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Devpark\Transfers24\Contracts;
@@ -9,24 +10,24 @@ use Devpark\Transfers24\Models\TransactionStatus;
  * @example:
  * {
  * "statement": "string",
-        * "orderId": 0,
-        * "sessionId": "string",
-        * "status": 0,
-        * "amount": 0,
-        * "currency": "PLN",
-        * "date": "string",
-        * "dateOfTransaction": "string",
-        * "clientEmail": "string",
-        * "accountMD5": "string",
-        * "paymentMethod": 0,
-        * "description": "string",
-        * "clientName": "string",
-        * "clientAddress": "string",
-        * "clientCity": "string",
-        * "clientPostcode": "string",
-        * "batchId": 0,
-        * "fee": "string"
-    * }
+ * "orderId": 0,
+ * "sessionId": "string",
+ * "status": 0,
+ * "amount": 0,
+ * "currency": "PLN",
+ * "date": "string",
+ * "dateOfTransaction": "string",
+ * "clientEmail": "string",
+ * "accountMD5": "string",
+ * "paymentMethod": 0,
+ * "description": "string",
+ * "clientName": "string",
+ * "clientAddress": "string",
+ * "clientCity": "string",
+ * "clientPostcode": "string",
+ * "batchId": 0,
+ * "fee": "string"
+ * }
  *
  * @property-read string $statement
  * @property-read int $orderId

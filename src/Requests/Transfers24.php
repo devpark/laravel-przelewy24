@@ -3,34 +3,31 @@
 namespace Devpark\Transfers24\Requests;
 
 use Devpark\Transfers24\Actions\Action;
+use Devpark\Transfers24\Channel;
 use Devpark\Transfers24\Contracts\IResponse;
+use Devpark\Transfers24\Country;
 use Devpark\Transfers24\Credentials;
-use Devpark\Transfers24\Exceptions\NoEnvironmentChosenException;
+use Devpark\Transfers24\Currency;
+use Devpark\Transfers24\Exceptions\RequestException;
 use Devpark\Transfers24\Exceptions\RequestExecutionException;
 use Devpark\Transfers24\Factories\ActionFactory;
-use Devpark\Transfers24\Factories\HandlerFactory;
 use Devpark\Transfers24\Factories\ReceiveResponseFactory;
 use Devpark\Transfers24\Factories\ReceiveTranslatorFactory;
-use Devpark\Transfers24\Factories\RegisterTranslatorFactory;
 use Devpark\Transfers24\Factories\RegisterResponseFactory;
+use Devpark\Transfers24\Factories\RegisterTranslatorFactory;
 use Devpark\Transfers24\Factories\RunnerFactory;
+use Devpark\Transfers24\Language;
 use Devpark\Transfers24\Models\ShippingDetails;
+use Devpark\Transfers24\Responses\Register as RegisterResponse;
 use Devpark\Transfers24\Responses\Verify;
+use Devpark\Transfers24\Services\Amount;
+use Devpark\Transfers24\Services\Handlers\Transfers24 as HandlersTransfers24;
 use Illuminate\Config\Repository as Config;
 use Illuminate\Contracts\Container\Container;
-use Illuminate\Routing\UrlGenerator as Url;
 use Illuminate\Foundation\Application;
-use Devpark\Transfers24\Language;
-use Devpark\Transfers24\Country;
-use Devpark\Transfers24\Currency;
-use Devpark\Transfers24\Channel;
-use Devpark\Transfers24\Services\Amount;
-use Devpark\Transfers24\Responses\Register as RegisterResponse;
-use Devpark\Transfers24\Services\Handlers\Transfers24 as HandlersTransfers24;
-use Devpark\Transfers24\Exceptions\RequestException;
 use Illuminate\Http\Request;
+use Illuminate\Routing\UrlGenerator as Url;
 use Illuminate\Support\Str;
-use Psr\Log\LoggerInterface;
 
 /**
  * Class Transfers24.
@@ -38,25 +35,26 @@ use Psr\Log\LoggerInterface;
 class Transfers24
 {
     use RequestCredentialsKeeperTrait;
+
     /**
      * default quantity.
      */
-    const DEFAULT_ARTICLE_QUANTITY = 1;
+    public const DEFAULT_ARTICLE_QUANTITY = 1;
 
     /**
      * default empty description.
      */
-    const DEFAULT_ARTICLE_DESCRIPTION = '';
+    public const DEFAULT_ARTICLE_DESCRIPTION = '';
 
     /**
      * default empty article number.
      */
-    const NO_ARTICLE_NUMBER = '';
+    public const NO_ARTICLE_NUMBER = '';
 
     /**
      * default empty article price.
      */
-    const NO_PRICE_VALUE = '';
+    public const NO_PRICE_VALUE = '';
 
     /**
      * @var Container
@@ -197,29 +195,36 @@ class Transfers24
      * @var ActionFactory
      */
     protected $action_factory;
+
     /**
      * @var RegisterTranslatorFactory
      */
     protected $translator_factory;
+
     /**
      * @var RegisterResponseFactory
      */
     protected $response_factory;
+
     /**
      * @var RunnerFactory
      */
     private $runner_factory;
+
     /**
      * @var ReceiveTranslatorFactory
      */
     private $receive_translator_factory;
+
     /**
      * @var ReceiveResponseFactory
      */
     private $receive_response_factory;
 
     private $method;
+
     private $method_ref_id;
+
     /**
      * @var ShippingDetails
      */
@@ -238,15 +243,15 @@ class Transfers24
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
     public function __construct(
-        Config                    $config,
-        Url                       $url,
-        Credentials               $credentials_keeper,
-        ActionFactory             $action_factory,
-        RunnerFactory             $runner_factory,
+        Config $config,
+        Url $url,
+        Credentials $credentials_keeper,
+        ActionFactory $action_factory,
+        RunnerFactory $runner_factory,
         RegisterTranslatorFactory $translator_factory,
-        RegisterResponseFactory   $response_factory,
-        ReceiveTranslatorFactory  $receive_translator_factory,
-        ReceiveResponseFactory    $receive_response_factory
+        RegisterResponseFactory $response_factory,
+        ReceiveTranslatorFactory $receive_translator_factory,
+        ReceiveResponseFactory $receive_response_factory
     ) {
         $this->credentials_keeper = $credentials_keeper;
         $this->config = $config;
@@ -270,7 +275,7 @@ class Transfers24
      */
     public function filterString($string)
     {
-        return (! empty($string) && is_string($string));
+        return ! empty($string) && is_string($string);
     }
 
     /**
@@ -282,7 +287,7 @@ class Transfers24
      */
     public function filterNumber($number)
     {
-        return (! empty($number) && is_numeric($number));
+        return ! empty($number) && is_numeric($number);
     }
 
     /**
@@ -521,7 +526,6 @@ class Transfers24
         return $this;
     }
 
-
     /**
      * Set Shipping price.
      *
@@ -592,8 +596,6 @@ class Transfers24
         return $this;
     }
 
-
-
     /**
      * Register payment in payment system.
      *
@@ -610,6 +612,7 @@ class Transfers24
 
         $translator = $this->translator_factory->create($this, $this->credentials_keeper);
         $action = $this->action_factory->create($this->response_factory, $translator);
+
         return $action->execute();
     }
 
@@ -656,6 +659,7 @@ class Transfers24
         }
 
         $runner = $this->runner_factory->create($this->credentials_keeper);
+
         return $runner->execute($token, $redirect);
     }
 
@@ -668,9 +672,9 @@ class Transfers24
      */
     public function receive(Request $request)
     {
-
         $translator = $this->receive_translator_factory->create($request->all(), $this->credentials_keeper);
         $action = $this->action_factory->create($this->receive_response_factory, $translator);
+
         return $action->execute();
     }
 
@@ -786,7 +790,6 @@ class Transfers24
         return $this->channel;
     }
 
-
     /**
      * @return int|null
      */
@@ -825,7 +828,7 @@ class Transfers24
 
     public function hasShippingDetails():bool
     {
-        return !empty($this->shipping_details);
+        return ! empty($this->shipping_details);
     }
 
     /**
@@ -838,8 +841,9 @@ class Transfers24
         if ($this->filterNumber($method)) {
             $this->method = $method;
         }
+
         return $this;
-}
+    }
 
     /**
      * @param mixed $method_ref_id
@@ -851,6 +855,7 @@ class Transfers24
         if ($this->filterString($method_ref_id)) {
             $this->method_ref_id = $method_ref_id;
         }
+
         return $this;
-}
+    }
 }

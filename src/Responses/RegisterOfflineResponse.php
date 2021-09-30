@@ -1,10 +1,10 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Devpark\Transfers24\Responses;
 
 use Devpark\Transfers24\Contracts\IResponse;
-use Devpark\Transfers24\Contracts\Refund;
 use Devpark\Transfers24\Contracts\RegisterOffline;
 use Devpark\Transfers24\Exceptions\TestConnectionException;
 use Illuminate\Support\Arr;
@@ -43,7 +43,8 @@ class RegisterOfflineResponse extends Response implements IResponse
                 $this->data = $data;
             }
 
-            public function __get(string $name){
+            public function __get(string $name)
+            {
                 return Arr::get($this->data, $name);
             }
         };

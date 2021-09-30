@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Devpark\Transfers24\Requests;
@@ -19,20 +20,23 @@ class CheckCredentialsRequest
      * @var TestTranslatorFactory
      */
     private $test_translator_factory;
+
     /**
      * @var ActionFactory
      */
     private $action_factory;
+
     /**
      * @var TestResponseFactory
      */
     private $test_response_factory;
 
     public function __construct(
-        TestTranslatorFactory $test_translator_factory, Credentials $credentials_keeper,
-        ActionFactory $action_factory, TestResponseFactory $test_response_factory
-    )
-    {
+        TestTranslatorFactory $test_translator_factory,
+        Credentials $credentials_keeper,
+        ActionFactory $action_factory,
+        TestResponseFactory $test_response_factory
+    ) {
         $this->credentials_keeper = $credentials_keeper;
         $this->test_translator_factory = $test_translator_factory;
         $this->action_factory = $action_factory;
@@ -46,7 +50,7 @@ class CheckCredentialsRequest
     {
         $translator = $this->test_translator_factory->create($this->credentials_keeper);
         $action = $this->action_factory->create($this->test_response_factory, $translator);
+
         return $action->execute();
     }
-
 }

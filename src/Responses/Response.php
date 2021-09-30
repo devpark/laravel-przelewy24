@@ -3,9 +3,7 @@
 namespace Devpark\Transfers24\Responses;
 
 use Devpark\Transfers24\Contracts\Form;
-use Devpark\Transfers24\Forms\RegisterForm;
 use Devpark\Transfers24\Services\DecodedBody;
-use Devpark\Transfers24\Services\Handlers\Transfers24 as HandlerTransfers24;
 
 /**
  * Class Response.
@@ -97,5 +95,4 @@ abstract class Response
     {
         return $this->getCode();
     }
-
 }

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Devpark\Transfers24\Forms;
@@ -19,7 +20,8 @@ class PaymentMethodsForm extends AbstractForm implements Form
         return 'GET';
     }
 
-    public function setLanguage($lang):void{
+    public function setLanguage($lang):void
+    {
         $this->lang = $lang;
     }
 }

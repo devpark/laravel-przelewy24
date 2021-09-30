@@ -7,34 +7,61 @@ namespace Devpark\Transfers24;
  */
 class ErrorCode extends CodeTranslate
 {
-    const ERR00 = 'err00';
-    const ERR01 = 'err01';
-    const ERR02 = 'err02';
-    const ERR03 = 'err03';
-    const ERR04 = 'err04';
-    const ERR05 = 'err05';
-    const ERR06 = 'err06';
-    const ERR07 = 'err07';
-    const ERR08 = 'err08';
-    const ERR09 = 'err09';
-    const ERR10 = 'err10';
-    const ERR49 = 'err49';
-    const ERR51 = 'err51';
-    const ERR52 = 'err52';
-    const ERR53 = 'err53';
-    const ERR54 = 'err54';
-    const ERR55 = 'err55';
-    const ERR56 = 'err56';
-    const ERR57 = 'err57';
-    const ERR58 = 'err58';
-    const ERR101 = 'err101';
-    const ERR102 = 'err102';
-    const ERR103 = 'err103';
-    const ERR104 = 'err104';
-    const ERR105 = 'err105';
-    const ERR106 = 'err106';
-    const ERR161 = 'err161';
-    const ERR162 = 'err162';
+    public const ERR00 = 'err00';
+
+    public const ERR01 = 'err01';
+
+    public const ERR02 = 'err02';
+
+    public const ERR03 = 'err03';
+
+    public const ERR04 = 'err04';
+
+    public const ERR05 = 'err05';
+
+    public const ERR06 = 'err06';
+
+    public const ERR07 = 'err07';
+
+    public const ERR08 = 'err08';
+
+    public const ERR09 = 'err09';
+
+    public const ERR10 = 'err10';
+
+    public const ERR49 = 'err49';
+
+    public const ERR51 = 'err51';
+
+    public const ERR52 = 'err52';
+
+    public const ERR53 = 'err53';
+
+    public const ERR54 = 'err54';
+
+    public const ERR55 = 'err55';
+
+    public const ERR56 = 'err56';
+
+    public const ERR57 = 'err57';
+
+    public const ERR58 = 'err58';
+
+    public const ERR101 = 'err101';
+
+    public const ERR102 = 'err102';
+
+    public const ERR103 = 'err103';
+
+    public const ERR104 = 'err104';
+
+    public const ERR105 = 'err105';
+
+    public const ERR106 = 'err106';
+
+    public const ERR161 = 'err161';
+
+    public const ERR162 = 'err162';
 
     /**
      * List of error description.
@@ -87,11 +114,10 @@ class ErrorCode extends CodeTranslate
             return self::$error_description[$name];
         }
 
-        return;
     }
 
     /**
-     * Find error code by name
+     * Find error code by name.
      *
      * @param $name
      *
@@ -99,7 +125,7 @@ class ErrorCode extends CodeTranslate
      */
     public static function findAccurateCode($name)
     {
-        return collect(static::getCodes())->filter(function($code) use ($name){
+        return collect(static::getCodes())->filter(function ($code) use ($name) {
             return strstr($name, $code);
         })->first();
     }

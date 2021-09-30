@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Devpark\Transfers24\Requests;
@@ -6,20 +7,10 @@ namespace Devpark\Transfers24\Requests;
 use Devpark\Transfers24\Contracts\IResponse;
 use Devpark\Transfers24\Credentials;
 use Devpark\Transfers24\Factories\ActionFactory;
-use Devpark\Transfers24\Factories\ForResponses\PaymentMethodsResponseFactory;
-use Devpark\Transfers24\Factories\ForResponses\RefundResponseFactory;
 use Devpark\Transfers24\Factories\ForResponses\RegisterOfflineResponseFactory;
-use Devpark\Transfers24\Factories\ForTranslators\PaymentMethodsTranslatorFactory;
-use Devpark\Transfers24\Factories\ForTranslators\RefundTranslatorFactory;
 use Devpark\Transfers24\Factories\ForTranslators\RegisterOfflineTranslatorFactory;
-use Devpark\Transfers24\Language;
-use Devpark\Transfers24\Models\RefundQuery;
 use Devpark\Transfers24\Responses\InvalidResponse;
-use Devpark\Transfers24\Responses\PaymentMethodsResponse;
-use Devpark\Transfers24\Responses\RefundResponse;
 use Devpark\Transfers24\Responses\RegisterOfflineResponse;
-use Devpark\Transfers24\Responses\TestConnection;
-use Devpark\Transfers24\Services\Amount;
 
 class RegisterOfflineRequest
 {
@@ -29,10 +20,12 @@ class RegisterOfflineRequest
      * @var RegisterOfflineTranslatorFactory
      */
     private $translator_factory;
+
     /**
      * @var ActionFactory
      */
     private $action_factory;
+
     /**
      * @var RegisterOfflineResponseFactory
      */
@@ -43,12 +36,12 @@ class RegisterOfflineRequest
      */
     protected $token;
 
-
     public function __construct(
-        RegisterOfflineTranslatorFactory $translator_factory, Credentials $credentials_keeper,
-        ActionFactory $action_factory, RegisterOfflineResponseFactory $response_factory
-    )
-    {
+        RegisterOfflineTranslatorFactory $translator_factory,
+        Credentials $credentials_keeper,
+        ActionFactory $action_factory,
+        RegisterOfflineResponseFactory $response_factory
+    ) {
         $this->credentials_keeper = $credentials_keeper;
         $this->translator_factory = $translator_factory;
         $this->action_factory = $action_factory;
@@ -62,6 +55,7 @@ class RegisterOfflineRequest
     {
         $translator = $this->translator_factory->create($this->credentials_keeper, $this->token);
         $action = $this->action_factory->create($this->response_factory, $translator);
+
         return $action->execute();
     }
 
@@ -78,5 +72,4 @@ class RegisterOfflineRequest
 
         return $this;
     }
-
 }

@@ -36,10 +36,9 @@ class CurrencyTest extends UnitTestCase
         $this->assertEquals($pass_currency, $currency);
 
         $currency = 'AED';
-        try{
+        try {
             Currency::get($currency);
-        }catch (\Exception $e)
-        {
+        } catch (\Exception $e) {
             $this->assertInstanceOf(CurrencyException::class, $e);
         }
     }

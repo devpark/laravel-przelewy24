@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Devpark\Transfers24\Services;
@@ -11,22 +12,23 @@ use Illuminate\Support\Arr;
  */
 class BodyDecoder
 {
-    const ERROR_LABEL = 'error';
+    public const ERROR_LABEL = 'error';
+
     /**
      * Token key in transfers24 response.
      */
-    const TOKEN_LABEL = 'token';
+    public const TOKEN_LABEL = 'token';
 
     /**
      * Error description key in transfers24 response.
      */
-    const MESSAGE_LABEL = 'errorMessage';
+    public const MESSAGE_LABEL = 'errorMessage';
 
-    const DATA_LABEL = 'data';
+    public const DATA_LABEL = 'data';
 
-    const RESPONSE_CODE = 'responseCode';
+    public const RESPONSE_CODE = 'responseCode';
 
-    const ERROR_CODE = 'code';
+    public const ERROR_CODE = 'code';
 
     public function decode(Response $response):DecodedBody
     {
@@ -36,24 +38,23 @@ class BodyDecoder
 
         $response_table = json_decode($response->getBody(), true);
 
-        if (Arr::has($response_table, 'data')){
+        if (Arr::has($response_table, 'data')) {
             $data = Arr::get($response_table, 'data');
             $decoded_body->setData($data);
         }
 
-        if (Arr::has($response_table, 'data.token')){
+        if (Arr::has($response_table, 'data.token')) {
             $token = Arr::get($response_table, 'data.token');
             $decoded_body->setToken($token);
         }
 
-        if (Arr::has($response_table, 'error')){
+        if (Arr::has($response_table, 'error')) {
             $error_message = Arr::get($response_table, 'error');
             $decoded_body->setErrorMessage($error_message);
         }
 
         return $decoded_body;
     }
-
 
     /**
      * Get error pair key and value from string and store in error_message.
@@ -65,8 +66,7 @@ class BodyDecoder
     protected function segmentToDescription($segment, array &$error_message)
     {
         $transform_error_segment = explode(':', $segment);
-        if(count($transform_error_segment) > 1)
-        {
+        if (count($transform_error_segment) > 1) {
             $error_message[$transform_error_segment[0]] = $transform_error_segment[1];
         }
         $error_message[] = $segment;

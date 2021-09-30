@@ -2,8 +2,8 @@
 
 namespace Tests\Services;
 
-use Tests\UnitTestCase;
 use Devpark\Transfers24\Services\Amount;
+use Tests\UnitTestCase;
 
 class CountryTest extends UnitTestCase
 {

@@ -6,11 +6,10 @@ use Devpark\Transfers24\Credentials;
 use Devpark\Transfers24\Forms\ReceiveForm;
 use Devpark\Transfers24\Services\Crc;
 use Devpark\Transfers24\Translators\ReceiveTranslator;
-use Devpark\Transfers24\Translators\RegisterTranslator;
-use Illuminate\Support\Arr;
-use Tests\UnitTestCase;
-use Mockery as m;
 use Illuminate\Config\Repository as Config;
+use Illuminate\Support\Arr;
+use Mockery as m;
+use Tests\UnitTestCase;
 
 class ReceiveTranslatorTest extends UnitTestCase
 {
@@ -18,14 +17,17 @@ class ReceiveTranslatorTest extends UnitTestCase
      * @var m\Mock
      */
     private $credentials;
+
     /**
      * @var ReceiveTranslator
      */
     private $translator;
+
     /**
      * @var m\MockInterface
      */
     private $crc;
+
     /**
      * @var m\MockInterface
      */
@@ -87,12 +89,11 @@ class ReceiveTranslatorTest extends UnitTestCase
         $form = $this->translator->translate();
 
         $data = $form->toArray();
-        $this->assertSame($p24_sign,Arr::get($data, $p24_sign));
+        $this->assertSame($p24_sign, Arr::get($data, $p24_sign));
         $this->assertNotEmpty(Arr::get($data, $p24_session_id));
-        $this->assertSame($p24_amount,Arr::get($data, 'amount'));
-        $this->assertSame($p24_currency,Arr::get($data, 'currency'));
+        $this->assertSame($p24_amount, Arr::get($data, 'amount'));
+        $this->assertSame($p24_currency, Arr::get($data, 'currency'));
         $this->assertSame($p24_order_id, Arr::get($data, 'orderId'));
         $this->assertSame($receive_data, $form->getReceiveParameters());
     }
-
 }

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Devpark\Transfers24\Contracts;
@@ -13,7 +14,6 @@ namespace Devpark\Transfers24\Contracts;
  * @property-read string $mondayToFriday
  * @property-read string $saturday
  * @property-read string $sunday
- *
  */
 interface PaymentMethodHours
 {

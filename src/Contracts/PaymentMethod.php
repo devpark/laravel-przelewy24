@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Devpark\Transfers24\Contracts;
@@ -27,7 +28,6 @@ namespace Devpark\Transfers24\Contracts;
  * @property-read string $mobileImgUrl
  * @property-read bool $mobile
  * @property-read PaymentMethodHours $availabilityHours
- *
  */
 interface PaymentMethod
 {
