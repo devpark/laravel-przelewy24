@@ -16,8 +16,7 @@ class HttpResponseFactory
         $http_response = new Response();
         $http_response->addFormParams($form);
         $http_response->addStatusCode($response->getStatusCode());
-        $http_response->addBody($response->getBody());
-
+        $http_response->addBody($response->getBody()->getContents());
         return $http_response;
     }
 }

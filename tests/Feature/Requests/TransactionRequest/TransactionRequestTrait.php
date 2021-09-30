@@ -90,7 +90,8 @@ trait TransactionRequestTrait
         $response->shouldReceive('getStatusCode')
             ->once()
             ->andReturn(200);
-        $response->shouldReceive('getBody')
+        $response->shouldReceive('getBody')->once()->andReturnSelf();
+        $response->shouldReceive('getContents')
             ->once()
             ->andReturn(json_encode(['data' => $this->makeTransaction(), 'error' => '']));
 

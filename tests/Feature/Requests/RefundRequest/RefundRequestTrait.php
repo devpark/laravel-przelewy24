@@ -77,7 +77,8 @@ trait RefundRequestTrait
         $response->shouldReceive('getStatusCode')
             ->once()
             ->andReturn(201);
-        $response->shouldReceive('getBody')
+        $response->shouldReceive('getBody')->once()->andReturnSelf();
+        $response->shouldReceive('getContents')
             ->once()
             ->andReturn(json_encode(['data' => [$this->makeRefund($refund_query)], 'error' => '']));
 
