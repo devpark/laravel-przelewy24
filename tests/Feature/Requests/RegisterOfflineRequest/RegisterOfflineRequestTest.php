@@ -9,7 +9,7 @@ use Devpark\Transfers24\Requests\CheckCredentialsRequest;
 use Devpark\Transfers24\Requests\PaymentMethodsRequest;
 use Devpark\Transfers24\Requests\RegisterOfflineRequest;
 use Devpark\Transfers24\Responses\InvalidResponse;
-use Devpark\Transfers24\Responses\PaymentMethods;
+use Devpark\Transfers24\Responses\PaymentMethodsResponse;
 use Devpark\Transfers24\Responses\Response;
 use Devpark\Transfers24\Responses\TestConnection;
 use Devpark\Transfers24\Responses\RegisterOfflineResponse;
@@ -110,13 +110,13 @@ class RegisterOfflineRequestTest extends UnitTestCase
 
         $this->assertInstanceOf(RegisterOfflineResponse::class, $response);
 
-        $this->assertSame($refund_info->orderId, $response->getOffline()['orderId']);
-        $this->assertSame($refund_info->sessionId, $response->getOffline()['sessionId']);
-        $this->assertSame($refund_info->amount, $response->getOffline()['amount']);
-        $this->assertSame($refund_info->statement, $response->getOffline()['statement']);
-        $this->assertSame($refund_info->iban, $response->getOffline()['iban']);
-        $this->assertSame($refund_info->ibanOwner, $response->getOffline()['ibanOwner']);
-        $this->assertSame($refund_info->ibanOwnerAddress, $response->getOffline()['ibanOwnerAddress']);
+        $this->assertSame($refund_info->orderId, $response->getOffline()->orderId);
+        $this->assertSame($refund_info->sessionId, $response->getOffline()->sessionId);
+        $this->assertSame($refund_info->amount, $response->getOffline()->amount);
+        $this->assertSame($refund_info->statement, $response->getOffline()->statement);
+        $this->assertSame($refund_info->iban, $response->getOffline()->iban);
+        $this->assertSame($refund_info->ibanOwner, $response->getOffline()->ibanOwner);
+        $this->assertSame($refund_info->ibanOwnerAddress, $response->getOffline()->ibanOwnerAddress);
 
     }
 

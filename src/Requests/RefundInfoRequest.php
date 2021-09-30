@@ -15,7 +15,7 @@ use Devpark\Transfers24\Factories\ForTranslators\RefundInfoTranslatorFactory;
 use Devpark\Transfers24\Factories\ForTranslators\TransactionTranslatorFactory;
 use Devpark\Transfers24\Language;
 use Devpark\Transfers24\Responses\InvalidResponse;
-use Devpark\Transfers24\Responses\PaymentMethods;
+use Devpark\Transfers24\Responses\PaymentMethodsResponse;
 use Devpark\Transfers24\Responses\TestConnection;
 use Devpark\Transfers24\Responses\TransactionResponse;
 

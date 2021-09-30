@@ -8,7 +8,7 @@ use Devpark\Transfers24\Contracts\PaymentMethodHours;
 use Devpark\Transfers24\Requests\CheckCredentialsRequest;
 use Devpark\Transfers24\Requests\PaymentMethodsRequest;
 use Devpark\Transfers24\Responses\InvalidResponse;
-use Devpark\Transfers24\Responses\PaymentMethods;
+use Devpark\Transfers24\Responses\PaymentMethodsResponse;
 use Devpark\Transfers24\Responses\Response;
 use Devpark\Transfers24\Responses\TestConnection;
 use Devpark\Transfers24\Services\Gateways\ClientFactory;
@@ -65,7 +65,7 @@ class PaymentMethodsTest extends UnitTestCase
         $this->requestTestAccessSuccessful($response, 'pl');
         $response = $this->request->execute();
 
-        $this->assertInstanceOf(PaymentMethods::class, $response);
+        $this->assertInstanceOf(PaymentMethodsResponse::class, $response);
         $this->assertSame(200, $response->getCode());
     }
 
@@ -84,7 +84,7 @@ class PaymentMethodsTest extends UnitTestCase
         $this->request->setLanguage('en');
         $response = $this->request->execute();
 
-        $this->assertInstanceOf(PaymentMethods::class, $response);
+        $this->assertInstanceOf(PaymentMethodsResponse::class, $response);
         $this->assertSame(200, $response->getCode());
     }
 
@@ -105,16 +105,16 @@ class PaymentMethodsTest extends UnitTestCase
         $this->request->setLanguage('en');
         $response = $this->request->execute();
 
-        $this->assertInstanceOf(PaymentMethods::class, $response);
-        $this->assertSame($payment_method->name, $response->getPaymentMethods()[0]['name']);
-        $this->assertSame($payment_method->id, $response->getPaymentMethods()[0]['id']);
-        $this->assertSame($payment_method->status, $response->getPaymentMethods()[0]['status']);
-        $this->assertSame($payment_method->imgUrl, $response->getPaymentMethods()[0]['imgUrl']);
-        $this->assertSame($payment_method->mobileImgUrl, $response->getPaymentMethods()[0]['mobileImgUrl']);
-        $this->assertSame($payment_method->mobile, $response->getPaymentMethods()[0]['mobile']);
-        $this->assertSame($payment_method->availabilityHours->mondayToFriday, $response->getPaymentMethods()[0]['availabilityHours']['mondayToFriday']);
-        $this->assertSame($payment_method->availabilityHours->saturday, $response->getPaymentMethods()[0]['availabilityHours']['saturday']);
-        $this->assertSame($payment_method->availabilityHours->sunday, $response->getPaymentMethods()[0]['availabilityHours']['sunday']);
+        $this->assertInstanceOf(PaymentMethodsResponse::class, $response);
+        $this->assertSame($payment_method->name, $response->getPaymentMethods()[0]->name);
+        $this->assertSame($payment_method->id, $response->getPaymentMethods()[0]->id);
+        $this->assertSame($payment_method->status, $response->getPaymentMethods()[0]->status);
+        $this->assertSame($payment_method->imgUrl, $response->getPaymentMethods()[0]->imgUrl);
+        $this->assertSame($payment_method->mobileImgUrl, $response->getPaymentMethods()[0]->mobileImgUrl);
+        $this->assertSame($payment_method->mobile, $response->getPaymentMethods()[0]->mobile);
+        $this->assertSame($payment_method->availabilityHours->mondayToFriday, $response->getPaymentMethods()[0]->availabilityHours->mondayToFriday);
+        $this->assertSame($payment_method->availabilityHours->saturday, $response->getPaymentMethods()[0]->availabilityHours->saturday);
+        $this->assertSame($payment_method->availabilityHours->sunday, $response->getPaymentMethods()[0]->availabilityHours->sunday);
     }
 
     /**

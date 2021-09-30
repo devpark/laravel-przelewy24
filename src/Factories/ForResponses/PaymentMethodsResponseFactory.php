@@ -8,7 +8,7 @@ use Devpark\Transfers24\Contracts\IResponse;
 use Devpark\Transfers24\Contracts\ResponseFactory;
 use Devpark\Transfers24\ErrorCode;
 use Devpark\Transfers24\Responses\Http\Response;
-use Devpark\Transfers24\Responses\PaymentMethods;
+use Devpark\Transfers24\Responses\PaymentMethodsResponse;
 use Devpark\Transfers24\Responses\Register;
 use Devpark\Transfers24\Responses\Register as ResponseRegister;
 use Devpark\Transfers24\Responses\TestConnection;
@@ -32,6 +32,6 @@ class PaymentMethodsResponseFactory implements ResponseFactory
     {
         $decoded_body = $this->body_decoder->decode($response);
 
-        return new PaymentMethods($response->getForm(), $decoded_body);
+        return new PaymentMethodsResponse($response->getForm(), $decoded_body);
     }
 }

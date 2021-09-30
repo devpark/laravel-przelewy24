@@ -4,22 +4,35 @@ declare(strict_types=1);
 namespace Devpark\Transfers24\Responses;
 
 use Devpark\Transfers24\Contracts\IResponse;
-use Devpark\Transfers24\Contracts\RefundInfo;
-use Devpark\Transfers24\Contracts\RefundInfoData;
-use Devpark\Transfers24\Contracts\Transaction;
+use Devpark\Transfers24\Contracts\PaymentMethod;
+use Devpark\Transfers24\Contracts\PaymentMethodHours;
 use Devpark\Transfers24\Exceptions\TestConnectionException;
 use Illuminate\Support\Arr;
 
-class RefundInfoResponse extends Response implements IResponse
+class PaymentMethodsResponse extends Response implements IResponse
 {
-    public function getRefundInfo():RefundInfoData
+    /**
+     * Get Session number of payment.
+     *
+     * @return string
+     * @throws TestConnectionException
+     */
+    public function getSessionId()
     {
-        return $this->convert($this->decoded_body->getData());
+        throw new TestConnectionException();
     }
 
-    private function convert(array $data):RefundInfoData
+    /**
+     * @return PaymentMethod[]
+     */
+    public function getPaymentMethods():array
     {
-        return new class($data) implements RefundInfoData {
+        return array_map([$this, 'convert'], $this->decoded_body->getData());
+    }
+
+    private function convert(array $data):PaymentMethod
+    {
+        return new class($data) implements PaymentMethod {
             /**
              * @var array
              */
@@ -31,16 +44,16 @@ class RefundInfoResponse extends Response implements IResponse
             }
 
             public function __get(string $name){
-                if ($name == 'refunds'){
-                    $refunds = Arr::get($this->data, $name, []);
-                    return array_map([$this, 'convertRefund'], $refunds);
+                if ($name == 'availabilityHours'){
+                    $payment_method_hours = Arr::get($this->data, $name, []);
+                    return $this->convertAvailabilityHours($payment_method_hours);
                 }
                 return Arr::get($this->data, $name);
             }
 
-            private function convertRefund(array $data):RefundInfo
+            private function convertAvailabilityHours(array $data):PaymentMethodHours
             {
-                return new class($data) implements RefundInfo {
+                return new class($data) implements PaymentMethodHours {
                     /**
                      * @var array
                      */
@@ -58,4 +71,5 @@ class RefundInfoResponse extends Response implements IResponse
             }
         };
     }
+
 }

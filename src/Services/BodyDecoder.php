@@ -1,11 +1,10 @@
 <?php
+declare(strict_types=1);
 
 namespace Devpark\Transfers24\Services;
 
-use Devpark\Transfers24\ErrorCode;
 use Devpark\Transfers24\Responses\Http\Response;
 use Illuminate\Support\Arr;
-use Psr\Http\Message\StreamInterface;
 
 /**
  * Class Amount.

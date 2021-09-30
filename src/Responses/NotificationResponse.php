@@ -5,7 +5,10 @@ namespace Devpark\Transfers24\Responses;
 
 use Devpark\Transfers24\Contracts\IResponse;
 use Devpark\Transfers24\Contracts\Refund;
+use Devpark\Transfers24\Contracts\RefundNotification;
+use Devpark\Transfers24\Contracts\Transaction;
 use Devpark\Transfers24\Exceptions\TestConnectionException;
+use Illuminate\Support\Arr;
 
 class NotificationResponse
 {
@@ -20,11 +23,30 @@ class NotificationResponse
     }
 
     /**
-     * @return Refund[]
+     * @return RefundNotification
      */
-    public function getNotification():array
+    public function getNotification():RefundNotification
     {
-        return $this->notification;
+        return $this->convert($this->notification);
+    }
+
+    private function convert(array $data):RefundNotification
+    {
+        return new class($data) implements RefundNotification {
+            /**
+             * @var array
+             */
+            protected $data;
+
+            public function __construct(array $data)
+            {
+                $this->data = $data;
+            }
+
+            public function __get(string $name){
+                return Arr::get($this->data, $name);
+            }
+        };
     }
 
     public function getResponse():string

@@ -9,7 +9,7 @@ use Devpark\Transfers24\Requests\CheckCredentialsRequest;
 use Devpark\Transfers24\Requests\PaymentMethodsRequest;
 use Devpark\Transfers24\Requests\TransactionRequest;
 use Devpark\Transfers24\Responses\InvalidResponse;
-use Devpark\Transfers24\Responses\PaymentMethods;
+use Devpark\Transfers24\Responses\PaymentMethodsResponse;
 use Devpark\Transfers24\Responses\Response;
 use Devpark\Transfers24\Responses\TestConnection;
 use Devpark\Transfers24\Responses\TransactionResponse;
@@ -110,23 +110,23 @@ class TransactionRequestTest extends UnitTestCase
 
         $this->assertInstanceOf(TransactionResponse::class, $response);
 
-        $this->assertSame($transaction->orderId, $response->getTransaction()['orderId']);
-        $this->assertSame($transaction->sessionId, $response->getTransaction()['sessionId']);
-        $this->assertSame($transaction->status, $response->getTransaction()['status']);
-        $this->assertSame($transaction->amount, $response->getTransaction()['amount']);
-        $this->assertSame($transaction->currency, $response->getTransaction()['currency']);
-        $this->assertSame($transaction->date, $response->getTransaction()['date']);
-        $this->assertSame($transaction->dateOfTransaction, $response->getTransaction()['dateOfTransaction']);
-        $this->assertSame($transaction->clientEmail, $response->getTransaction()['clientEmail']);
-        $this->assertSame($transaction->accountMD5, $response->getTransaction()['accountMD5']);
-        $this->assertSame($transaction->paymentMethod, $response->getTransaction()['paymentMethod']);
-        $this->assertSame($transaction->description, $response->getTransaction()['description']);
-        $this->assertSame($transaction->clientName, $response->getTransaction()['clientName']);
-        $this->assertSame($transaction->clientAddress, $response->getTransaction()['clientAddress']);
-        $this->assertSame($transaction->clientCity, $response->getTransaction()['clientCity']);
-        $this->assertSame($transaction->clientPostcode, $response->getTransaction()['clientPostcode']);
-        $this->assertSame($transaction->batchId, $response->getTransaction()['batchId']);
-        $this->assertSame($transaction->fee, $response->getTransaction()['fee']);
+        $this->assertSame($transaction->orderId, $response->getTransaction()->orderId);
+        $this->assertSame($transaction->sessionId, $response->getTransaction()->sessionId);
+        $this->assertSame($transaction->status, $response->getTransaction()->status);
+        $this->assertSame($transaction->amount, $response->getTransaction()->amount);
+        $this->assertSame($transaction->currency, $response->getTransaction()->currency);
+        $this->assertSame($transaction->date, $response->getTransaction()->date);
+        $this->assertSame($transaction->dateOfTransaction, $response->getTransaction()->dateOfTransaction);
+        $this->assertSame($transaction->clientEmail, $response->getTransaction()->clientEmail);
+        $this->assertSame($transaction->accountMD5, $response->getTransaction()->accountMD5);
+        $this->assertSame($transaction->paymentMethod, $response->getTransaction()->paymentMethod);
+        $this->assertSame($transaction->description, $response->getTransaction()->description);
+        $this->assertSame($transaction->clientName, $response->getTransaction()->clientName);
+        $this->assertSame($transaction->clientAddress, $response->getTransaction()->clientAddress);
+        $this->assertSame($transaction->clientCity, $response->getTransaction()->clientCity);
+        $this->assertSame($transaction->clientPostcode, $response->getTransaction()->clientPostcode);
+        $this->assertSame($transaction->batchId, $response->getTransaction()->batchId);
+        $this->assertSame($transaction->fee, $response->getTransaction()->fee);
 
     }
 

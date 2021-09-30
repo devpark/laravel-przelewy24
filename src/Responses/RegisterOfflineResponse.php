@@ -5,7 +5,9 @@ namespace Devpark\Transfers24\Responses;
 
 use Devpark\Transfers24\Contracts\IResponse;
 use Devpark\Transfers24\Contracts\Refund;
+use Devpark\Transfers24\Contracts\RegisterOffline;
 use Devpark\Transfers24\Exceptions\TestConnectionException;
+use Illuminate\Support\Arr;
 
 class RegisterOfflineResponse extends Response implements IResponse
 {
@@ -23,8 +25,27 @@ class RegisterOfflineResponse extends Response implements IResponse
     /**
      * @return array
      */
-    public function getOffline():array
+    public function getOffline():RegisterOffline
     {
-        return $this->decoded_body->getData();
+        return $this->convert($this->decoded_body->getData());
+    }
+
+    private function convert(array $data):RegisterOffline
+    {
+        return new class($data) implements RegisterOffline {
+            /**
+             * @var array
+             */
+            protected $data;
+
+            public function __construct(array $data)
+            {
+                $this->data = $data;
+            }
+
+            public function __get(string $name){
+                return Arr::get($this->data, $name);
+            }
+        };
     }
 }

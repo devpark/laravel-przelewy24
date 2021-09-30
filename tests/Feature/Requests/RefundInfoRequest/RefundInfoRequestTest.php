@@ -9,7 +9,7 @@ use Devpark\Transfers24\Requests\CheckCredentialsRequest;
 use Devpark\Transfers24\Requests\PaymentMethodsRequest;
 use Devpark\Transfers24\Requests\RefundInfoRequest;
 use Devpark\Transfers24\Responses\InvalidResponse;
-use Devpark\Transfers24\Responses\PaymentMethods;
+use Devpark\Transfers24\Responses\PaymentMethodsResponse;
 use Devpark\Transfers24\Responses\Response;
 use Devpark\Transfers24\Responses\TestConnection;
 use Devpark\Transfers24\Responses\RefundInfoResponse;
@@ -110,17 +110,17 @@ class RefundInfoRequestTest extends UnitTestCase
 
         $this->assertInstanceOf(RefundInfoResponse::class, $response);
 
-        $this->assertSame($refund_info->orderId, $response->getRefundInfo()['orderId']);
-        $this->assertSame($refund_info->sessionId, $response->getRefundInfo()['sessionId']);
-        $this->assertSame($refund_info->amount, $response->getRefundInfo()['amount']);
-        $this->assertSame($refund_info->currency, $response->getRefundInfo()['currency']);
-        $this->assertSame($refund_info->refunds[0]->batchId, $response->getRefundInfo()['refunds'][0]['batchId']);
-        $this->assertSame($refund_info->refunds[0]->requestId, $response->getRefundInfo()['refunds'][0]['requestId']);
-        $this->assertSame($refund_info->refunds[0]->date, $response->getRefundInfo()['refunds'][0]['date']);
-        $this->assertSame($refund_info->refunds[0]->login, $response->getRefundInfo()['refunds'][0]['login']);
-        $this->assertSame($refund_info->refunds[0]->description, $response->getRefundInfo()['refunds'][0]['description']);
-        $this->assertSame($refund_info->refunds[0]->status, $response->getRefundInfo()['refunds'][0]['status']);
-        $this->assertSame($refund_info->refunds[0]->amount, $response->getRefundInfo()['refunds'][0]['amount']);
+        $this->assertSame($refund_info->orderId, $response->getRefundInfo()->orderId);
+        $this->assertSame($refund_info->sessionId, $response->getRefundInfo()->sessionId);
+        $this->assertSame($refund_info->amount, $response->getRefundInfo()->amount);
+        $this->assertSame($refund_info->currency, $response->getRefundInfo()->currency);
+        $this->assertSame($refund_info->refunds[0]->batchId, $response->getRefundInfo()->refunds[0]->batchId);
+        $this->assertSame($refund_info->refunds[0]->requestId, $response->getRefundInfo()->refunds[0]->requestId);
+        $this->assertSame($refund_info->refunds[0]->date, $response->getRefundInfo()->refunds[0]->date);
+        $this->assertSame($refund_info->refunds[0]->login, $response->getRefundInfo()->refunds[0]->login);
+        $this->assertSame($refund_info->refunds[0]->description, $response->getRefundInfo()->refunds[0]->description);
+        $this->assertSame($refund_info->refunds[0]->status, $response->getRefundInfo()->refunds[0]->status);
+        $this->assertSame($refund_info->refunds[0]->amount, $response->getRefundInfo()->refunds[0]->amount);
 
     }
 

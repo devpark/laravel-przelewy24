@@ -10,7 +10,7 @@ use Devpark\Transfers24\Factories\ForResponses\PaymentMethodsResponseFactory;
 use Devpark\Transfers24\Factories\ForTranslators\PaymentMethodsTranslatorFactory;
 use Devpark\Transfers24\Language;
 use Devpark\Transfers24\Responses\InvalidResponse;
-use Devpark\Transfers24\Responses\PaymentMethods;
+use Devpark\Transfers24\Responses\PaymentMethodsResponse;
 use Devpark\Transfers24\Responses\TestConnection;
 
 class PaymentMethodsRequest
@@ -47,7 +47,7 @@ class PaymentMethodsRequest
     }
 
     /**
-     * @return PaymentMethods|InvalidResponse
+     * @return PaymentMethodsResponse|InvalidResponse
      */
     public function execute():IResponse
     {

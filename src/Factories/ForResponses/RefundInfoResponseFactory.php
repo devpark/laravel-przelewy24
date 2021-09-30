@@ -8,7 +8,7 @@ use Devpark\Transfers24\Contracts\IResponse;
 use Devpark\Transfers24\Contracts\ResponseFactory;
 use Devpark\Transfers24\ErrorCode;
 use Devpark\Transfers24\Responses\Http\Response;
-use Devpark\Transfers24\Responses\PaymentMethods;
+use Devpark\Transfers24\Responses\PaymentMethodsResponse;
 use Devpark\Transfers24\Responses\RefundInfoResponse;
 use Devpark\Transfers24\Responses\RefundResponse;
 use Devpark\Transfers24\Responses\Register;

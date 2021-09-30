@@ -59,16 +59,16 @@ class RefundNotificationRequestTest extends UnitTestCase
         $response = $this->request->execute($refund_notification_raw);
 
         //Then
-        $this->assertSame($notification->orderId, $response->getNotification()['orderId']);
-        $this->assertSame($notification->sessionId, $response->getNotification()['sessionId']);
-        $this->assertSame($notification->merchantId, $response->getNotification()['merchantId']);
-        $this->assertSame($notification->requestId, $response->getNotification()['requestId']);
-        $this->assertSame($notification->refundsUuid, $response->getNotification()['refundsUuid']);
-        $this->assertSame($notification->amount, $response->getNotification()['amount']);
-        $this->assertSame($notification->currency, $response->getNotification()['currency']);
-        $this->assertSame($notification->timestamp, $response->getNotification()['timestamp']);
-        $this->assertSame($notification->status, $response->getNotification()['status']);
-        $this->assertSame($notification->sign, $response->getNotification()['sign']);
+        $this->assertSame($notification->orderId, $response->getNotification()->orderId);
+        $this->assertSame($notification->sessionId, $response->getNotification()->sessionId);
+        $this->assertSame($notification->merchantId, $response->getNotification()->merchantId);
+        $this->assertSame($notification->requestId, $response->getNotification()->requestId);
+        $this->assertSame($notification->refundsUuid, $response->getNotification()->refundsUuid);
+        $this->assertSame($notification->amount, $response->getNotification()->amount);
+        $this->assertSame($notification->currency, $response->getNotification()->currency);
+        $this->assertSame($notification->timestamp, $response->getNotification()->timestamp);
+        $this->assertSame($notification->status, $response->getNotification()->status);
+        $this->assertSame($notification->sign, $response->getNotification()->sign);
         $this->assertSame('ok', $response->getResponse());
 
     }

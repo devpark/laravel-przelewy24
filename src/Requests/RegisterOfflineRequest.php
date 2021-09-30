@@ -15,7 +15,7 @@ use Devpark\Transfers24\Factories\ForTranslators\RegisterOfflineTranslatorFactor
 use Devpark\Transfers24\Language;
 use Devpark\Transfers24\Models\RefundQuery;
 use Devpark\Transfers24\Responses\InvalidResponse;
-use Devpark\Transfers24\Responses\PaymentMethods;
+use Devpark\Transfers24\Responses\PaymentMethodsResponse;
 use Devpark\Transfers24\Responses\RefundResponse;
 use Devpark\Transfers24\Responses\RegisterOfflineResponse;
 use Devpark\Transfers24\Responses\TestConnection;
