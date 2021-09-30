@@ -2,22 +2,31 @@
 
 namespace Devpark\Transfers24\Requests;
 
+use Devpark\Transfers24\Actions\Action;
+use Devpark\Transfers24\Channel;
+use Devpark\Transfers24\Contracts\IResponse;
+use Devpark\Transfers24\Country;
 use Devpark\Transfers24\Credentials;
+use Devpark\Transfers24\Currency;
+use Devpark\Transfers24\Exceptions\RequestException;
 use Devpark\Transfers24\Exceptions\RequestExecutionException;
+use Devpark\Transfers24\Factories\ActionFactory;
+use Devpark\Transfers24\Factories\ReceiveResponseFactory;
+use Devpark\Transfers24\Factories\ReceiveTranslatorFactory;
+use Devpark\Transfers24\Factories\RegisterResponseFactory;
+use Devpark\Transfers24\Factories\RegisterTranslatorFactory;
+use Devpark\Transfers24\Factories\RunnerFactory;
+use Devpark\Transfers24\Language;
+use Devpark\Transfers24\Models\ShippingDetails;
+use Devpark\Transfers24\Responses\Register as RegisterResponse;
 use Devpark\Transfers24\Responses\Verify;
+use Devpark\Transfers24\Services\Amount;
+use Devpark\Transfers24\Services\Handlers\Transfers24 as HandlersTransfers24;
 use Illuminate\Config\Repository as Config;
 use Illuminate\Contracts\Container\Container;
-use Illuminate\Routing\UrlGenerator as Url;
 use Illuminate\Foundation\Application;
-use Devpark\Transfers24\Language;
-use Devpark\Transfers24\Country;
-use Devpark\Transfers24\Currency;
-use Devpark\Transfers24\Channel;
-use Devpark\Transfers24\Services\Amount;
-use Devpark\Transfers24\Responses\Register as RegisterResponse;
-use Devpark\Transfers24\Services\Handlers\Transfers24 as HandlersTransfers24;
-use Devpark\Transfers24\Exceptions\RequestException;
 use Illuminate\Http\Request;
+use Illuminate\Routing\UrlGenerator as Url;
 use Illuminate\Support\Str;
 
 /**
@@ -26,25 +35,26 @@ use Illuminate\Support\Str;
 class Transfers24
 {
     use RequestCredentialsKeeperTrait;
+
     /**
      * default quantity.
      */
-    const DEFAULT_ARTICLE_QUANTITY = 1;
+    public const DEFAULT_ARTICLE_QUANTITY = 1;
 
     /**
      * default empty description.
      */
-    const DEFAULT_ARTICLE_DESCRIPTION = '';
+    public const DEFAULT_ARTICLE_DESCRIPTION = '';
 
     /**
      * default empty article number.
      */
-    const NO_ARTICLE_NUMBER = '';
+    public const NO_ARTICLE_NUMBER = '';
 
     /**
      * default empty article price.
      */
-    const NO_PRICE_VALUE = '';
+    public const NO_PRICE_VALUE = '';
 
     /**
      * @var Container
@@ -167,9 +177,9 @@ class Transfers24
     protected $article_number = null;
 
     /**
-     * @var array|null;
+     * @var array;
      */
-    protected $additional_articles = [];
+    protected $cart = [];
 
     /**
      * @var array
@@ -177,21 +187,48 @@ class Transfers24
     protected $fields = [];
 
     /**
-     * @var HandlersTransfers24
-     */
-    protected $transfers24;
-
-    /**
      * @var RegisterResponse
      */
     protected $response;
 
     /**
-     * Id of transaction.
-     *
-     * @var string
+     * @var ActionFactory
      */
-    protected $transaction_id;
+    protected $action_factory;
+
+    /**
+     * @var RegisterTranslatorFactory
+     */
+    protected $translator_factory;
+
+    /**
+     * @var RegisterResponseFactory
+     */
+    protected $response_factory;
+
+    /**
+     * @var RunnerFactory
+     */
+    private $runner_factory;
+
+    /**
+     * @var ReceiveTranslatorFactory
+     */
+    private $receive_translator_factory;
+
+    /**
+     * @var ReceiveResponseFactory
+     */
+    private $receive_response_factory;
+
+    private $method;
+
+    private $method_ref_id;
+
+    /**
+     * @var ShippingDetails
+     */
+    private $shipping_details;
 
     /**
      * Transfers24 constructor.
@@ -201,24 +238,32 @@ class Transfers24
      * @param Container $app
      *
      * @param Credentials $credentials_keeper
+     * @param Action $action_factory
      *
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
     public function __construct(
-        HandlersTransfers24 $transfers24,
-        RegisterResponse $response,
-        Container $app,
-        Credentials $credentials_keeper
+        Config $config,
+        Url $url,
+        Credentials $credentials_keeper,
+        ActionFactory $action_factory,
+        RunnerFactory $runner_factory,
+        RegisterTranslatorFactory $translator_factory,
+        RegisterResponseFactory $response_factory,
+        ReceiveTranslatorFactory $receive_translator_factory,
+        ReceiveResponseFactory $receive_response_factory
     ) {
-        $this->response = $response;
-        $this->transfers24 = $transfers24;
-        $this->app = $app;
         $this->credentials_keeper = $credentials_keeper;
-
-        $this->config = $this->app->make(Config::class);
-        $this->url = $this->app->make(Url::class);
+        $this->config = $config;
+        $this->url = $url;
 
         $this->setDefaultUrls();
+        $this->action_factory = $action_factory;
+        $this->translator_factory = $translator_factory;
+        $this->response_factory = $response_factory;
+        $this->runner_factory = $runner_factory;
+        $this->receive_translator_factory = $receive_translator_factory;
+        $this->receive_response_factory = $receive_response_factory;
     }
 
     /**
@@ -228,9 +273,9 @@ class Transfers24
      *
      * @return bool
      */
-    protected function filterString($string)
+    public function filterString($string)
     {
-        return (! empty($string) && is_string($string));
+        return ! empty($string) && is_string($string);
     }
 
     /**
@@ -240,9 +285,9 @@ class Transfers24
      *
      * @return bool
      */
-    protected function filterNumber($number)
+    public function filterNumber($number)
     {
-        return (! empty($number) && is_numeric($number));
+        return ! empty($number) && is_numeric($number);
     }
 
     /**
@@ -352,51 +397,6 @@ class Transfers24
     {
         if ($this->filterString($url) && filter_var($url, FILTER_VALIDATE_URL)) {
             $this->url_status = $url;
-        }
-
-        return $this;
-    }
-
-    /**
-     * Set sale article name, price, quantity.
-     *
-     * @param string $article_name
-     * @param float $article_price
-     * @param int $article_quantity
-     *
-     * @return $this
-     */
-    public function setArticle(
-        $article_name,
-        $article_price = self::NO_PRICE_VALUE,
-        $article_quantity = self::DEFAULT_ARTICLE_QUANTITY
-    ) {
-        if ($this->filterString($article_name)) {
-            $this->article_name = $article_name;
-        }
-
-        if (! empty($article_price) && (is_string($article_price) || is_numeric($article_price))) {
-            $this->article_price = Amount::get($article_price);
-        }
-
-        if ($this->filterNumber($article_quantity)) {
-            $this->article_quantity = (int) $article_quantity;
-        }
-
-        return $this;
-    }
-
-    /**
-     * Set sale article description.
-     *
-     * @param string $article_description
-     *
-     * @return $this
-     */
-    public function setArticleDescription($article_description)
-    {
-        if ($this->filterString($article_description)) {
-            $this->article_description = $article_description;
         }
 
         return $this;
@@ -517,11 +517,25 @@ class Transfers24
      *
      * @return $this
      */
-    public function setShipping($shipping_cost)
+    public function setShippingDetails($shipping_cost)
     {
         if ($this->filterNumber($shipping_cost)) {
             $this->shipping_cost = (int) $shipping_cost;
         }
+
+        return $this;
+    }
+
+    /**
+     * Set Shipping price.
+     *
+     * @param $shipping_cost
+     *
+     * @return $this
+     */
+    public function setShippingPlace(ShippingDetails $shipping_details)
+    {
+        $this->shipping_details = $shipping_details;
 
         return $this;
     }
@@ -543,22 +557,6 @@ class Transfers24
     }
 
     /**
-     * Set sale article number.
-     *
-     * @param int $article_number
-     *
-     * @return $this
-     */
-    public function setArticleNumber($article_number)
-    {
-        if ($this->filterString($article_number)) {
-            $this->article_number = $article_number;
-        }
-
-        return $this;
-    }
-
-    /**
      * Add next sale article.
      *
      * @param string $name
@@ -569,7 +567,9 @@ class Transfers24
      *
      * @return $this
      */
-    public function setNextArticle(
+    public function setArticle(
+        $seller_id,
+        $seller_category,
         $name,
         $price,
         $quantity = self::DEFAULT_ARTICLE_QUANTITY,
@@ -577,10 +577,14 @@ class Transfers24
         $description = self::DEFAULT_ARTICLE_DESCRIPTION
     ) {
         if ($this->filterString($name)
+            && $this->filterString($seller_id)
+            && $this->filterString($seller_category)
             && ! empty($price)
             && (is_numeric($price) || is_string($price))
         ) {
-            $this->additional_articles[] = [
+            $this->cart[] = [
+                'sellerId' => $seller_id,
+                'sellerCategory' => $seller_category,
                 'name' => $name,
                 'description' => $description,
                 'quantity' => $quantity,
@@ -593,82 +597,23 @@ class Transfers24
     }
 
     /**
-     * add parameter to $fields.
-     *
-     * @param string $label
-     * @param string $value
-     */
-    public function setField($label, $value)
-    {
-        if (isset($value) && ! empty($value)) {
-            $this->fields[$label] = $value;
-        }
-    }
-
-    /**
-     * Set parameter for transfers24.
-     *
-     * @return array
-     */
-    public function setFields()
-    {
-        $this->setField('p24_session_id', $this->transaction_id);
-        $this->setField('p24_amount', $this->amount);
-        $this->setField('p24_currency', $this->currency);
-        $this->setField('p24_description', $this->description);
-        $this->setField('p24_email', $this->customer_email);
-        $this->setField('p24_client', $this->client_name);
-        $this->setField('p24_address', $this->address);
-        $this->setField('p24_zip', $this->zip_code);
-        $this->setField('p24_city', $this->city);
-        $this->setField('p24_country', $this->country);
-        $this->setField('p24_phone', $this->client_phone);
-        $this->setField('p24_language', $this->language);
-        $this->setField('p24_url_return', $this->url_return);
-        $this->setField('p24_url_status', $this->url_status);
-        $this->setField('p24_channel', $this->channel);
-        $this->setField('p24_name_1', $this->article_name);
-        $this->setField('p24_description_1', $this->article_description);
-        $this->setField('p24_quantity_1', $this->article_quantity);
-        $this->setField('p24_price_1', $this->article_price);
-        $this->setField('p24_number_1', $this->article_number);
-        $this->setField('p24_shipping', $this->shipping_cost);
-
-        $next = 2;
-        foreach ($this->additional_articles as $article) {
-            $this->setField('p24_name_' . $next, $article['name']);
-            $this->setField('p24_description_' . $next, $article['description']);
-            $this->setField('p24_quantity_' . $next, $article['quantity']);
-            $this->setField('p24_price_' . $next, $article['price']);
-            $this->setField('p24_number_' . $next, $article['number']);
-            ++$next;
-        }
-
-        return $this->fields;
-    }
-
-    /**
      * Register payment in payment system.
      *
-     * @return RegisterResponse
+     * @return RegisterResponse|IResponse
      * @throws RequestException
      */
     public function init()
     {
         if (empty($this->customer_email)
             || empty($this->amount)
-            || empty($this->article_name)
         ) {
             throw new RequestException('Empty email or amount');
         }
 
-        $this->transaction_id = uniqid();
+        $translator = $this->translator_factory->create($this, $this->credentials_keeper);
+        $action = $this->action_factory->create($this->response_factory, $translator);
 
-        $response = $this->transfers24
-            ->viaCredentials($this->credentials_keeper)
-            ->init($this->setFields());
-
-        return $response;
+        return $action->execute();
     }
 
     /**
@@ -713,9 +658,9 @@ class Transfers24
             throw new RequestExecutionException('Empty or not valid Token');
         }
 
-        return $this->transfers24
-            ->viaCredentials($this->credentials_keeper)
-            ->execute($token, $redirect);
+        $runner = $this->runner_factory->create($this->credentials_keeper);
+
+        return $runner->execute($token, $redirect);
     }
 
     /**
@@ -727,8 +672,190 @@ class Transfers24
      */
     public function receive(Request $request)
     {
-        return $this->transfers24
-            ->viaCredentials($this->credentials_keeper)
-            ->receive($request->all());
+        $translator = $this->receive_translator_factory->create($request->all(), $this->credentials_keeper);
+        $action = $this->action_factory->create($this->receive_response_factory, $translator);
+
+        return $action->execute();
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getAmount()
+    {
+        return $this->amount;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCurrency(): string
+    {
+        return $this->currency;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDescription(): string
+    {
+        return $this->description;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getCustomerEmail()
+    {
+        return $this->customer_email;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getClientName(): ?string
+    {
+        return $this->client_name;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getAddress(): ?string
+    {
+        return $this->address;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getZipCode(): ?string
+    {
+        return $this->zip_code;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getCity(): ?string
+    {
+        return $this->city;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCountry(): string
+    {
+        return $this->country;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getClientPhone(): ?int
+    {
+        return $this->client_phone;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLanguage(): string
+    {
+        return $this->language;
+    }
+
+    /**
+     * @return string
+     */
+    public function getUrlReturn(): string
+    {
+        return $this->url_return;
+    }
+
+    /**
+     * @return string
+     */
+    public function getUrlStatus(): string
+    {
+        return $this->url_status;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getChannel(): ?int
+    {
+        return $this->channel;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getShippingCost(): ?int
+    {
+        return $this->shipping_cost;
+    }
+
+    /**
+     * @return array
+     */
+    public function getCart(): array
+    {
+        return $this->cart;
+    }
+
+    public function getMethod()
+    {
+        return $this->method;
+    }
+
+    public function getTransferLabel()
+    {
+        return $this->transfer_label;
+    }
+
+    public function getMethodRefId()
+    {
+        return $this->method_ref_id;
+    }
+
+    public function getShippingDetails()
+    {
+        return $this->shipping_details->toArray();
+    }
+
+    public function hasShippingDetails():bool
+    {
+        return ! empty($this->shipping_details);
+    }
+
+    /**
+     * @param mixed $method
+     *
+     * @return Transfers24
+     */
+    public function setMethod($method)
+    {
+        if ($this->filterNumber($method)) {
+            $this->method = $method;
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param mixed $method_ref_id
+     *
+     * @return Transfers24
+     */
+    public function setMethodRefId($method_ref_id)
+    {
+        if ($this->filterString($method_ref_id)) {
+            $this->method_ref_id = $method_ref_id;
+        }
+
+        return $this;
     }
 }

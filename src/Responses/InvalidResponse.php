@@ -1,12 +1,11 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Devpark\Transfers24\Responses;
 
 use Devpark\Transfers24\Contracts\IResponse;
 use Devpark\Transfers24\Exceptions\ResponseException;
-use Devpark\Transfers24\Exceptions\TestConnectionException;
-use Devpark\Transfers24\Services\Handlers\Transfers24 as HandlerTransfers24;
 
 class InvalidResponse implements IResponse
 {

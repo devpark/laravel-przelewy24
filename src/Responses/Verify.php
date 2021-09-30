@@ -3,6 +3,7 @@
 namespace Devpark\Transfers24\Responses;
 
 use Devpark\Transfers24\Contracts\IResponse;
+use Devpark\Transfers24\Forms\ReceiveForm;
 
 /**
  * Class Verify.
@@ -10,14 +11,9 @@ use Devpark\Transfers24\Contracts\IResponse;
 class Verify extends Response implements IResponse
 {
     /**
-     * Get all parameters receive with request.
-     *
-     * @return array
+     * @var ReceiveForm
      */
-    public function getReceiveParameters()
-    {
-        return $this->transfers24->getReceiveParameters();
-    }
+    protected $form;
 
     /**
      * Get Transaction number received from transfers24.
@@ -26,6 +22,16 @@ class Verify extends Response implements IResponse
      */
     public function getOrderId()
     {
-        return $this->transfers24->getOrderId();
+        return $this->form->getOrderId();
+    }
+
+    /**
+     * Get Transaction number received from transfers24.
+     *
+     * @return array
+     */
+    public function getReceiveParameters():array
+    {
+        return $this->form->getReceiveParameters();
     }
 }

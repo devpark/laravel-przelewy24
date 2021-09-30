@@ -7,41 +7,75 @@ namespace Devpark\Transfers24;
  */
 class Country extends CodeTranslate
 {
-    const ANDORRA = 'AD';
-    const AUSTRIA = 'AT';
-    const BELGIUM = 'BE';
-    const CYPTUS = 'CY';
-    const CZECH = 'CZ';
-    const DENMARK = 'DK';
-    const ESTONIA = 'EE';
-    const FINLAND = 'FI';
-    const FRANCE = 'FR';
-    const GREESE = 'EL';
-    const SPAIN = 'ES';
-    const NETHERLAND = 'NL';
-    const IRILAND = 'IE';
-    const ISLAND = 'IS';
-    const LITHUANIA = 'LT';
-    const LATVIA = 'LV';
-    const LUXEMBURG = 'LU';
-    const MALTA = 'MT';
-    const NORWAY = 'NO';
-    const POLAND = 'PL';
-    const PORTUGAL = 'PT';
-    const SANMARINO = 'SM';
-    const SLOVAKIA = 'SK';
-    const SLOVENIA = 'SI';
-    const SWITZERLAND = 'CH';
-    const SWEDEN = 'SE';
-    const HUNGARY = 'HU';
-    const UK = 'GB';
-    const ITALY = 'IT';
-    const USA = 'US';
-    const CANADA = 'CA';
-    const JAPAN = 'JP';
-    const UKRAINE = 'UA';
-    const BELARUS = 'BY';
-    const RUSSIA = 'RU';
+    public const ANDORRA = 'AD';
+
+    public const AUSTRIA = 'AT';
+
+    public const BELGIUM = 'BE';
+
+    public const CYPTUS = 'CY';
+
+    public const CZECH = 'CZ';
+
+    public const DENMARK = 'DK';
+
+    public const ESTONIA = 'EE';
+
+    public const FINLAND = 'FI';
+
+    public const FRANCE = 'FR';
+
+    public const GREESE = 'EL';
+
+    public const SPAIN = 'ES';
+
+    public const NETHERLAND = 'NL';
+
+    public const IRILAND = 'IE';
+
+    public const ISLAND = 'IS';
+
+    public const LITHUANIA = 'LT';
+
+    public const LATVIA = 'LV';
+
+    public const LUXEMBURG = 'LU';
+
+    public const MALTA = 'MT';
+
+    public const NORWAY = 'NO';
+
+    public const POLAND = 'PL';
+
+    public const PORTUGAL = 'PT';
+
+    public const SANMARINO = 'SM';
+
+    public const SLOVAKIA = 'SK';
+
+    public const SLOVENIA = 'SI';
+
+    public const SWITZERLAND = 'CH';
+
+    public const SWEDEN = 'SE';
+
+    public const HUNGARY = 'HU';
+
+    public const UK = 'GB';
+
+    public const ITALY = 'IT';
+
+    public const USA = 'US';
+
+    public const CANADA = 'CA';
+
+    public const JAPAN = 'JP';
+
+    public const UKRAINE = 'UA';
+
+    public const BELARUS = 'BY';
+
+    public const RUSSIA = 'RU';
 
     /**
      * Get Code language.

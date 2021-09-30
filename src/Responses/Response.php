@@ -2,7 +2,8 @@
 
 namespace Devpark\Transfers24\Responses;
 
-use Devpark\Transfers24\Services\Handlers\Transfers24 as HandlerTransfers24;
+use Devpark\Transfers24\Contracts\Form;
+use Devpark\Transfers24\Services\DecodedBody;
 
 /**
  * Class Response.
@@ -10,58 +11,59 @@ use Devpark\Transfers24\Services\Handlers\Transfers24 as HandlerTransfers24;
 abstract class Response
 {
     /**
-     * @var HandlerTransfers24
+     * @var Form
      */
-    protected $transfers24;
+    protected $form;
 
     /**
-     * Response constructor.
-     *
-     * @param HandlerTransfers24 $transfers24
+     * @var DecodedBody
      */
-    public function __construct(HandlerTransfers24 $transfers24)
+    protected $decoded_body;
+
+    public function __construct(Form $form, DecodedBody $decoded_body)
     {
-        $this->transfers24 = $transfers24;
+        $this->form = $form;
+        $this->decoded_body = $decoded_body;
     }
 
     /**
-     * Get status response from transfers24.
-     *
-     * @return bool
-     */
-    public function isSuccess()
-    {
-        return $this->transfers24->getCode() === '0';
-    }
-
-    /**
-     * Get Error Code back from transfers24.
+     * Get Code for payment.
      *
      * @return int
      */
-    public function getErrorCode()
+    public function getCode()
     {
-        return $this->transfers24->getCode();
+        return $this->decoded_body->getStatusCode();
     }
 
     /**
-     * Get pairs field, error description.
+     * Get Error description for payment.
      *
-     * @return array
+     * @return string
      */
     public function getErrorDescription()
     {
-        return $this->transfers24->getErrorDescription();
+        return $this->decoded_body->getErrorMessage();
     }
 
     /**
-     * Get all parameters send with request.
+     * Get Request parameters send to Transfers24.
      *
      * @return array
      */
     public function getRequestParameters()
     {
-        return $this->transfers24->getRequestParameters();
+        return $this->form->toArray();
+    }
+
+    /**
+     * Get Transaction number received from transfers24.
+     *
+     * @return string
+     */
+    public function getOrderId()
+    {
+        return $this->form->getOrderId();
     }
 
     /**
@@ -71,6 +73,26 @@ abstract class Response
      */
     public function getSessionId()
     {
-        return $this->transfers24->getSessionId();
+        return $this->form->getSessionId();
+    }
+
+    /**
+     * Get status response from transfers24.
+     *
+     * @return bool
+     */
+    public function isSuccess()
+    {
+        return $this->getCode() === 200;
+    }
+
+    /**
+     * Get Error Code back from transfers24.
+     *
+     * @return string
+     */
+    public function getErrorCode()
+    {
+        return $this->getCode();
     }
 }

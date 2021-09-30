@@ -2,14 +2,13 @@
 
 This module makes integration with [przelewy24.pl](http://przelewy24.pl) payment system easier. It supports making payments using przelewy24.pl system.
  
-### New version 2.0 released
+## New version 3.0 released
 
-The package was enhancement on two features.
+Package supports recently version Przelewy24 REST API.
 
-1. Testing connection to payment provider.
+The old Payment Provider Api version will expire before end of year 2021.
 
-2. Extracting setting merchant credentials package method. Now the package could be used by Saas and could provide separate payment service for every Merchant   
- 
+__We recommend immediately upgrading the package version.__
  
 ### Installation
 
@@ -37,13 +36,19 @@ The package was enhancement on two features.
     php artisan vendor:publish --provider="Devpark\Transfers24\Providers\Transfers24ServiceProvider"
     ```
     
-    in your console to publish default configuration files
+    in your console to publish default configuration files `transfers24.php` in `config` directory
+
+    __Add  flag `force` to alter configuration after upgrade package__
+
+    These are all configuration settings. Some settings can be changed via environment settings, see below.
         
 4. Open `.env` and add your configuration:
 
  * `PRZELEWY24_MERCHANT_ID` -a Company or an Individual number, who has signed a contract with Przelewy24 (Merchant ID), 
  * `PRZELEWY24_POS_ID` - the identification number of the shop (default: Merchant ID)
  * `PRZELEWY24_CRC` -a  random  string,  used  to  calculate  a  CRC  value,  shown  in Przelewy24 Admin panel.
+ * `PRZELEWY24_REPORT_KEY` -a  report key,  used  to  calculate  a  Report Key  value,  shown  in Przelewy24 Admin panel.
+   
  * `PRZELEWY24_TEST_SERVER` - if true, set the test environment
  * `PRZELEWY24_URL_RETURN` - Return address, where Client will be redirected to, after the transaction is completed (default 'transfers24/callback').
  * `PRZELEWY24_URL_STATUS` - address where the status of a transaction is sent. It can be omitted if stored in P24 system (default 'transfers24/status').
@@ -68,7 +73,7 @@ The most basic sample code for authorization request could look like this:
 $payment = app()->make(\App\Payment::class);
 $registration_request = app()->make(\Devpark\Transfers24\Requests\Transfers24::class);
 
-$register_payment = $registration_request->setEmail('test@example.com')->setAmount(100)->setArticle('Article Name')->init();
+$register_payment = $registration_request->setEmail('test@example.com')->setAmount(100)->init();
 
 if($register_payment->isSuccess())
 {

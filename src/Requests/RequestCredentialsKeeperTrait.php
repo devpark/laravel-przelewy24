@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Devpark\Transfers24\Requests;
@@ -14,7 +15,6 @@ trait RequestCredentialsKeeperTrait
 
     /**
      * @param int $pos_id
-     *
      */
     public function setPosId(int $pos_id)
     {
@@ -25,7 +25,6 @@ trait RequestCredentialsKeeperTrait
 
     /**
      * @param string $crc
-     *
      */
     public function setCrc(string $crc)
     {
@@ -36,7 +35,6 @@ trait RequestCredentialsKeeperTrait
 
     /**
      * @param bool $test_mode
-     *
      */
     public function setTestMode(bool $test_mode)
     {
@@ -47,11 +45,17 @@ trait RequestCredentialsKeeperTrait
 
     /**
      * @param int $merchant_id
-     *
      */
     public function setMerchantId(int $merchant_id)
     {
         $this->credentials_keeper->setMerchantId($merchant_id);
+
+        return $this;
+    }
+
+    public function setReportKey(string $report_key)
+    {
+        $this->credentials_keeper->setReportKey($report_key);
 
         return $this;
     }

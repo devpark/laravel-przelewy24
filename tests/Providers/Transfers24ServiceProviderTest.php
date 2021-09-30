@@ -4,8 +4,8 @@ namespace Tests\Providers;
 
 use Devpark\Transfers24\Providers\Transfers24ServiceProvider;
 use Illuminate\Foundation\Application;
-use Tests\UnitTestCase;
 use Mockery as m;
+use Tests\UnitTestCase;
 
 class Transfers24ServiceProviderTest extends UnitTestCase
 {
@@ -13,7 +13,7 @@ class Transfers24ServiceProviderTest extends UnitTestCase
     public function it_does_all_required_actions_when_registering()
     {
         $app = m::mock(Application::class);
-        $moduleConfigFile = realpath(__DIR__ . '/../../config/transfers24.php');
+        $moduleConfigFile = realpath(__DIR__.'/../../config/transfers24.php');
         $configPath = 'dummy/config/path';
         $transfers24_provider = m::mock(Transfers24ServiceProvider::class, [$app])->makePartial()->shouldAllowMockingProtectedMethods();
 
@@ -24,7 +24,7 @@ class Transfers24ServiceProviderTest extends UnitTestCase
         // publishing configuration files
         $app->shouldReceive('offsetGet')->with('path.config')->once()->andReturn($configPath);
         $transfers24_provider->shouldReceive('publishes')->once()->with([
-            $moduleConfigFile => $configPath . DIRECTORY_SEPARATOR . 'transfers24.php',
+            $moduleConfigFile => $configPath.DIRECTORY_SEPARATOR.'transfers24.php',
         ], 'config');
 
         $transfers24_provider->register();

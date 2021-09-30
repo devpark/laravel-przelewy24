@@ -2,8 +2,11 @@
 
 namespace Devpark\Transfers24\Services\Gateways;
 
-use GuzzleHttp\Client;
+use Devpark\Transfers24\Contracts\Form;
+use Devpark\Transfers24\Credentials;
+use Devpark\Transfers24\Factories\HttpResponseFactory;
 use Devpark\Transfers24\Responses\Http\Response;
+use GuzzleHttp\Client;
 use Illuminate\Config\Repository as Config;
 
 /**
@@ -40,25 +43,11 @@ class Transfers24
     protected $posId;
 
     /**
-     * Merchant Id.
-     *
-     * @var int
-     */
-    protected $merchantId;
-
-    /**
      * Salt to create a control sum (from P24 panel).
      *
      * @var string
      */
     protected $salt;
-
-    /**
-     * Array of POST data.
-     *
-     * @var array
-     */
-    protected $postData = [];
 
     /**
      * client curl.
@@ -68,9 +57,9 @@ class Transfers24
     protected $client;
 
     /**
-     * @var Response response
+     * @var HttpResponseFactory response
      */
-    protected $response;
+    protected $http_response_factory;
 
     /**
      * @var Config
@@ -78,32 +67,26 @@ class Transfers24
     protected $config;
 
     /**
-     * $var array.
+     * @var ClientFactory
      */
-    protected $crc_parts = [];
+    private $client_factory;
 
     /**
      * Object constructor. Set initial parameters.
      *
      * @param Config $config
      */
-    public function __construct(Config $config, Response $response)
+    public function __construct(Config $config, HttpResponseFactory $http_response_factory, ClientFactory $client_factory)
     {
         $this->config = $config;
-        $this->response = $response;
-        $pos_id = $this->config->get('transfers24.pos_id');
-        $merchant_id = $this->config->get('transfers24.merchant_id');
-        $crc = $this->config->get('transfers24.crc');
+        $this->http_response_factory = $http_response_factory;
+        $this->client_factory = $client_factory;
+
+        $pos_id = $config->get('transfers24.pos_id');
+        $report_key = $config->get('transfers24.report_key');
         $sandbox = $config->get('transfers24.test_server');
 
-        $this->addValue('p24_api_version', $config->get('transfers24.version'));
-
-        $this->configure(
-            $pos_id,
-            $merchant_id,
-            $crc,
-            $sandbox
-        );
+        $this->configure($sandbox, $pos_id, $report_key);
     }
 
     /**
@@ -114,47 +97,6 @@ class Transfers24
     public function getHost()
     {
         return $this->hostLive;
-    }
-
-    /**
-     * Add value do post request.
-     *
-     * @param string $name Argument name
-     * @param mixed $value Argument value
-     *
-     * @return void
-     */
-    public function addValue($name, $value)
-    {
-        $this->postData[$name] = $value;
-    }
-
-    /**
-     * Function is testing a connection with P24 server.
-     *
-     * @return Response
-     */
-    public function testConnection()
-    {
-        $this->calculateSign(['p24_merchant_id', 'p24_pos_id']);
-
-        return $this->callTransfers24('testConnection');
-    }
-
-    /**
-     * Prepare a transaction request.
-     *
-     * @param array $fields
-     *
-     * @return Response
-     */
-    public function trnRegister(array $fields)
-    {
-        $this->postData += $fields;
-
-        $this->calculateSign(['p24_session_id', 'p24_merchant_id', 'p24_amount', 'p24_currency']);
-
-        return $this->callTransfers24('trnRegister');
     }
 
     /**
@@ -169,138 +111,90 @@ class Transfers24
     public function trnRequest($token, $redirect = true)
     {
         if ($redirect) {
-            header('Location:' . $this->hostLive . 'trnRequest/' . $token);
+            header('Location:'.$this->hostLive.'trnRequest/'.$token);
             exit();
         } else {
-            return $this->hostLive . 'trnRequest/' . $token;
+            return $this->hostLive.'trnRequest/'.$token;
         }
-    }
-
-    /**
-     * Function verify received from P24 system transaction's result.
-     *
-     * @param array $fields
-     *
-     * @return Response object
-     */
-    public function trnVerify(array $fields)
-    {
-        $this->postData += $fields;
-
-        $this->calculateSign(['p24_session_id', 'p24_order_id', 'p24_amount', 'p24_currency']);
-
-        return $this->callTransfers24('trnVerify');
     }
 
     /**
      * Function connect to P24 system.
      *
-     * @param $uri
-     * @param string $method
-     *
+     * @param \Devpark\Transfers24\Services\Handlers\Transfers24 $handler
      * @return Response
      */
-    protected function callTransfers24($uri, $method = 'POST')
+    public function callTransfers24(Form $form): Response
     {
-        $form_params = $this->postData;
+        $uri = $form->getUri();
+        $method = $form->getMethod();
+        $options = $this->buildRequestOptions($method, $form);
 
-        $this->response->addFormParams($form_params);
+        $response = $this->client->request($method, $uri, $options);
 
-        $response = $this->client->request($method, $uri,
-            ['form_params' => $form_params]
-        );
-
-        $this->response->addStatusCode($response->getStatusCode());
-        $this->response->addBody($response->getBody());
-
-        return $this->response;
+        return $this->http_response_factory->create($form, $response);
     }
 
     /**
-     * Calculated CRC sum on params.
-     *
-     * @param array $params
-     * @param array $array_values
-     *
-     * @return string
+     * @throws NoEnvironmentChosenException
      */
-    protected function calculateCrcSum(array $params, array $array_values)
+    public function configureGateway(Credentials $credentials): void
     {
-        $form_params = [];
-
-        foreach ($params as $param) {
-            if (! isset($array_values[$param])) {
-                return;
-            }
-            $form_params[] = $array_values[$param];
+        if ($this->config->get('transfers24.credentials-scope')) {
+            $this->configure(
+                $credentials->isTestMode(),
+                $credentials->getPosId(),
+                $credentials->getReportKey()
+            );
         }
-        $form_params[] = $this->salt;
-
-        $concat = implode('|', $form_params);
-        $crc = md5($concat);
-
-        return $crc;
-    }
-
-    /**
-     * Add CRC sum on params send to transfers24.
-     *
-     * @param array $params
-     *
-     * @return void
-     */
-    protected function calculateSign(array $params)
-    {
-        $crc = $this->calculateCrcSum($params, $this->postData);
-
-        $this->addValue('p24_sign', $crc);
-    }
-
-    /**
-     * Check Sum Control incoming data with status payment.
-     *
-     * @param array $post_data
-     *
-     * @return bool
-     */
-    public function checkSum(array $post_data)
-    {
-        $params = ['p24_session_id', 'p24_order_id', 'p24_amount', 'p24_currency'];
-
-        $crc = $this->calculateCrcSum($params, $post_data);
-
-        return $crc == $post_data['p24_sign'];
     }
 
     /**
      * @param Config $config
      */
-    public function configure(
-        $pos_id,
-        $merchant_id,
-        $crc,
-        bool $sandbox
-    ): void
+    private function configure(bool $sandbox, $pos_id, $report_key): void
     {
-
-        $this->posId = $pos_id;
-        $this->merchantId = $merchant_id;
-        $this->salt = $crc;
         $this->testMode = $sandbox;
 
         if ($this->testMode) {
             $this->hostLive = $this->hostSandbox;
         }
 
-        $this->init();
-
+        $this->init($pos_id, $report_key);
     }
 
-    protected function init(): void
+    protected function init($username, $password): void
     {
-        $this->client = new Client(['base_uri' => $this->getHost()]);
+        $this->username = $username;
+        $this->password = $password;
+        $host = $this->getHost();
+        $api_path = 'api/v1/';
+        $this->client = $this->client_factory->create($host.$api_path);
+    }
 
-        $this->addValue('p24_merchant_id', $this->merchantId);
-        $this->addValue('p24_pos_id', $this->posId);
+    private function isCommand(string $method):bool
+    {
+        return $method !== 'GET';
+    }
+
+    /**
+     * @param string $method
+     * @param Form $form
+     * @return array[]
+     */
+    private function buildRequestOptions(string $method, Form $form): array
+    {
+        $options = [
+            'auth' => [
+                $this->username,
+                $this->password,
+            ],
+        ];
+        if ($this->isCommand($method)) {
+            $form_params = $form->toArray();
+            $options['form_params'] = $form_params;
+        }
+
+        return $options;
     }
 }

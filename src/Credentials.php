@@ -1,8 +1,8 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Devpark\Transfers24;
-
 
 use Devpark\Transfers24\Exceptions\EmptyCredentialsException;
 use Devpark\Transfers24\Exceptions\NoEnvironmentChosenException;
@@ -13,18 +13,26 @@ class Credentials
      * @var int
      */
     protected $pos_id;
+
     /**
      * @var int
      */
     protected $merchant_id;
+
     /**
      * @var string
      */
     protected $crc;
+
     /**
      * @var bool
      */
     protected $test_mode;
+
+    /**
+     * @var string
+     */
+    protected $report_key;
 
     /**
      * @param int $pos_id
@@ -45,7 +53,6 @@ class Credentials
     {
         $this->merchant_id = $merchant_id;
     }
-
 
     /**
      * @param bool $test_mode
@@ -106,18 +113,36 @@ class Credentials
      */
     public function isTestMode(): bool
     {
-        if (!isset($this->test_mode))
-        {
-            throw new NoEnvironmentChosenException("No environment choosen.");
+        if (! isset($this->test_mode)) {
+            throw new NoEnvironmentChosenException('No environment choosen.');
         }
+
         return $this->test_mode;
     }
 
     protected function throwEmptyCredentials(): void
     {
-        if (!isset($this->pos_id, $this->merchant_id, $this->crc)) {
-            throw new EmptyCredentialsException("Empty credentials.");
+        if (! isset($this->pos_id, $this->merchant_id, $this->crc, $this->report_key)) {
+            throw new EmptyCredentialsException('Empty credentials.');
         }
     }
 
+    /**
+     * @return string
+     * @throws EmptyCredentialsException
+     */
+    public function getReportKey(): string
+    {
+        $this->throwEmptyCredentials();
+
+        return $this->report_key;
+    }
+
+    /**
+     * @param string $report_key
+     */
+    public function setReportKey(string $report_key): void
+    {
+        $this->report_key = $report_key;
+    }
 }

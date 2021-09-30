@@ -7,11 +7,33 @@ namespace Devpark\Transfers24;
  */
 class Language extends CodeTranslate
 {
-    const POLISH = 'pl';
-    const ENGLISH = 'en';
-    const SPANISH = 'es';
-    const ITALIAN = 'it';
-    const GERMAN = 'de';
+    public const POLISH = 'pl';
+
+    public const ENGLISH = 'en';
+
+    public const SPANISH = 'es';
+
+    public const ITALIAN = 'it';
+
+    public const GERMAN = 'de';
+
+    public const BULGARIA = 'bg';
+
+    public const CZECHIA = 'cz';
+
+    public const FRANCE = 'fr';
+
+    public const CROATIA = 'hr';
+
+    public const HUNGARY = 'hu';
+
+    public const NETHERLANDS = 'nl';
+
+    public const PORTUGAL = 'pt';
+
+    public const SWEDEN = 'se';
+
+    public const SLOVAKIA = 'sk';
 
     /**
      * Get Code language.

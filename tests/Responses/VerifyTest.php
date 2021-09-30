@@ -2,19 +2,37 @@
 
 namespace Tests\Responses;
 
-use Tests\UnitTestCase;
+use Devpark\Transfers24\Contracts\Form;
 use Devpark\Transfers24\Responses\Verify as ResponseVerify;
-use Devpark\Transfers24\Services\Handlers\Transfers24 as HandlerTransfers24;
+use Devpark\Transfers24\Services\DecodedBody;
 use Mockery as m;
+use Tests\UnitTestCase;
 
 class VerifyTest extends UnitTestCase
 {
+    /**
+     * @var ResponseVerify
+     */
+    private $response;
+
+    /**
+     * @var m\MockInterface
+     */
+    private $decoded_body;
+
+    /**
+     * @var m\MockInterface
+     */
+    private $form;
+
     protected function setUp()
     {
         parent::setUp();
 
-        $this->handler = m::mock(HandlerTransfers24::class)->makePartial();
-        $this->response = new ResponseVerify($this->handler);
+        $this->form = m::mock(Form::class);
+        $this->decoded_body = m::mock(DecodedBody::class);
+
+        $this->response = new ResponseVerify($this->form, $this->decoded_body);
     }
 
     /** @test */
@@ -24,7 +42,7 @@ class VerifyTest extends UnitTestCase
             'a' => 'a',
             'b' => 'b',
         ];
-        $this->handler->shouldReceive('getReceiveParameters')->andReturn($parameters_handler);
+        $this->form->shouldReceive('getReceiveParameters')->andReturn($parameters_handler);
 
         $parameters = $this->response->getReceiveParameters();
         $this->assertEquals($parameters, $parameters_handler);
@@ -34,7 +52,7 @@ class VerifyTest extends UnitTestCase
     public function check_same_order_id()
     {
         $order_id_handler = '123456789';
-        $this->handler->shouldReceive('getOrderId')->andReturn($order_id_handler);
+        $this->form->shouldReceive('getOrderId')->andReturn($order_id_handler);
 
         $order_id = $this->response->getOrderId();
         $this->assertEquals($order_id, $order_id_handler);

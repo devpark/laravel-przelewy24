@@ -27,7 +27,7 @@ class Transfers24ServiceProvider extends ServiceProvider
         $this->mergeConfigFrom($this->configFile(), 'transfers24');
         // publish configuration file
         $this->publishes([
-            $this->configFile() => $this->app['path.config'] . DIRECTORY_SEPARATOR . 'transfers24.php',
+            $this->configFile() => $this->app['path.config'].DIRECTORY_SEPARATOR.'transfers24.php',
         ], 'config');
     }
 
@@ -38,6 +38,6 @@ class Transfers24ServiceProvider extends ServiceProvider
      */
     protected function configFile()
     {
-        return realpath(__DIR__ . '/../../config/transfers24.php');
+        return realpath(__DIR__.'/../../config/transfers24.php');
     }
 }
