@@ -1,11 +1,11 @@
 <?php
 declare(strict_types=1);
 
-namespace Tests\Feature\Requests\RefundNotificationRequest;
+namespace Tests\Feature\Requests\PaymentNotificationRequest;
 
 use Devpark\Transfers24\Contracts\Refund;
 use Devpark\Transfers24\Models\RefundQuery;
-use Devpark\Transfers24\Requests\RefundNotificationRequest;
+use Devpark\Transfers24\Requests\PaymentNotificationRequest;
 use Devpark\Transfers24\Responses\InvalidResponse;
 use Devpark\Transfers24\Responses\NotificationResponse;
 use Devpark\Transfers24\Responses\RefundResponse;
@@ -25,11 +25,11 @@ use Psr\Log\Test\TestLogger;
 use Ramsey\Uuid\UuidFactory;
 use Tests\UnitTestCase;
 
-class RefundNotificationRequestTest extends UnitTestCase
+class PaymentNotificationRequestTest extends UnitTestCase
 {
-    use RefundNotificationRequestTrait;
+    use PaymentNotificationRequestTrait;
     /**
-     * @var RefundNotificationRequest
+     * @var PaymentNotificationRequest
      */
     private $request;
 
@@ -45,47 +45,48 @@ class RefundNotificationRequestTest extends UnitTestCase
     protected function setUp()
     {
         parent::setUp();
-
         $this->entry = m::mock(Request::class);
-        $this->request = $this->app->make(RefundNotificationRequest::class,[
+
+        $this->request = $this->app->make(PaymentNotificationRequest::class, [
             'request' => $this->entry,
         ]);
     }
 
     /**
-     * @Feature Refund
-     * @Scenario notify Refund
-     * @Case Refund was started
+     * @Feature Payments
+     * @Scenario notify Payment
+     * @Case Payment was finished
      * @test
      */
-    public function refund_notification_was_received()
+    public function execute_notification_was_received()
     {
         //Given
-        $notification = $this->makeRefundNotification();
+        $notification = $this->makePaymentNotification();
         $received = $this->whenReceiveNotification($notification);
 
         //When
         $response = $this->request->execute();
 
         //Then
-        $this->assertSame($notification->orderId, $response->getNotification()->orderId);
-        $this->assertSame($notification->sessionId, $response->getNotification()->sessionId);
         $this->assertSame($notification->merchantId, $response->getNotification()->merchantId);
-        $this->assertSame($notification->requestId, $response->getNotification()->requestId);
-        $this->assertSame($notification->refundsUuid, $response->getNotification()->refundsUuid);
+        $this->assertSame($notification->posId, $response->getNotification()->posId);
+        $this->assertSame($notification->sessionId, $response->getNotification()->sessionId);
         $this->assertSame($notification->amount, $response->getNotification()->amount);
+        $this->assertSame($notification->originAmount, $response->getNotification()->originAmount);
         $this->assertSame($notification->currency, $response->getNotification()->currency);
-        $this->assertSame($notification->timestamp, $response->getNotification()->timestamp);
-        $this->assertSame($notification->status, $response->getNotification()->status);
+        $this->assertSame($notification->orderId, $response->getNotification()->orderId);
+        $this->assertSame($notification->methodId, $response->getNotification()->methodId);
+        $this->assertSame($notification->statement, $response->getNotification()->statement);
         $this->assertSame($notification->sign, $response->getNotification()->sign);
-        $this->assertSame('ok', $response->getResponse());
+
         $received->once();
+
 
     }
 
     private function whenReceiveNotification($notification): ExpectationInterface
     {
-        $refund_notification_raw = $notification->toArray();
-        return $this->entry->shouldReceive('all')->andReturn($refund_notification_raw);
+        $notification_raw = $notification->toArray();
+        return $this->entry->shouldReceive('all')->andReturn($notification_raw);
     }
 }

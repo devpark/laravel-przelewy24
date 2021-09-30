@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 
-namespace Tests\Feature\Requests\RefundNotificationRequest;
+namespace Tests\Feature\Requests\PaymentNotificationRequest;
 
 use Devpark\Transfers24\Contracts\Refund;
-use Devpark\Transfers24\Contracts\RefundNotification;
+use Devpark\Transfers24\Contracts\PaymentNotification;
 use Devpark\Transfers24\Models\RefundQuery;
 use Devpark\Transfers24\Services\Amount;
 use Devpark\Transfers24\Services\Gateways\ClientFactory;
@@ -21,36 +21,36 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\Test\TestLogger;
 use Ramsey\Uuid\UuidFactory;
 
-trait RefundNotificationRequestTrait
+trait PaymentNotificationRequestTrait
 {
 
-    protected function makeRefundNotification(): RefundNotification
+    protected function makePaymentNotification(): PaymentNotification
     {
-        return new class implements RefundNotification,Arrayable {
+        return new class implements PaymentNotification,Arrayable {
 
-            public $orderId =  0;
-            public $sessionId =  "string";
             public $merchantId =  0;
-            public $requestId =  "string";
-            public $refundsUuid =  "string";
+            public $posId =  0;
+            public $sessionId =  "string";
             public $amount =  0;
+            public $originAmount =  0;
             public $currency =  "PLN";
-            public $timestamp =  0;
-            public $status =  0;
+            public $orderId =  0;
+            public $methodId =  0;
+            public $statement =  "string";
             public $sign =  "string";
 
             public function toArray():array{
 
                 return [
-                    'orderId' => $this->orderId,
-                    'sessionId' => $this->sessionId,
                     'merchantId' => $this->merchantId,
-                    'requestId' => $this->requestId,
-                    'refundsUuid' => $this->refundsUuid,
+                    'posId' => $this->posId,
+                    'sessionId' => $this->sessionId,
                     'amount' => $this->amount,
+                    'originAmount' => $this->originAmount,
                     'currency' => $this->currency,
-                    'timestamp' => $this->timestamp,
-                    'status' => $this->status,
+                    'orderId' => $this->orderId,
+                    'methodId' => $this->methodId,
+                    'statement' => $this->statement,
                     'sign' => $this->sign,
                 ];
             }
