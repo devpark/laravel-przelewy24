@@ -7,7 +7,15 @@ return [
     'crc' => env('PRZELEWY24_CRC'),
     'report_key' => env('PRZELEWY24_REPORT_KEY'),
     'test_server' => env('PRZELEWY24_TEST_SERVER', false),
+
+    /*
+     * Callback Url
+     */
     'url_return' => env('PRZELEWY24_URL_RETURN', 'transfers24/callback'),
+
+    /*
+     * Payment Status Url
+     */
     'url_status' => env('PRZELEWY24_URL_STATUS', 'transfers24/status'),
 
     /*
