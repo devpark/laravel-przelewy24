@@ -11,6 +11,7 @@ jobs:
 
     runs-on: ubuntu-latest
 
+
     steps:
     - uses: actions/checkout@v2
 
@@ -27,6 +28,9 @@ jobs:
           ${{ runner.os }}-php-
 
     - name: Install dependencies
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '7.4'
       run: composer install --prefer-dist --no-progress
 
     # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
