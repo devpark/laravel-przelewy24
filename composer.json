@@ -6,7 +6,7 @@
         "php": ">=7.1.0",
         "laravel/framework": ">=5.0",
         "guzzlehttp/guzzle": ">=6.3",
-        "ramsey/uuid": "3.*",
+        "ramsey/uuid": "^3 || ^4",
         "ext-json": "*"
     },
     "autoload": {

@@ -11,10 +11,13 @@ use Devpark\Transfers24\Services\Gateways\ClientFactory;
 use GuzzleHttp\Client;
 use Illuminate\Config\Repository;
 use Illuminate\Routing\UrlGenerator;
+use Illuminate\Support\Arr;
 use Mockery as m;
 use Mockery\MockInterface;
 use Psr\Http\Message\ResponseInterface;
+use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidFactory;
+use Ramsey\Uuid\UuidInterface;
 
 trait RefundRequestTrait
 {
@@ -54,18 +57,6 @@ trait RefundRequestTrait
         $this->client->shouldReceive('request')
             ->once()
             ->andThrow(new \Exception('Incorrect authentication', 401));
-    }
-
-    protected function generateUuid(): string
-    {
-        $uuid_factory = m::mock(UuidFactory::class);
-        $this->app->instance(UuidFactory::class, $uuid_factory);
-        $uuid_factory->shouldReceive('uuid4')->andReturnSelf();
-
-        $uuid = 'uuid-id';
-        $uuid_factory->shouldReceive('toString')->andReturn($uuid);
-
-        return $uuid;
     }
 
     /**
@@ -118,7 +109,6 @@ trait RefundRequestTrait
      */
     protected function thenRequestRefundSuccessful(RefundQuery $refund_query): void
     {
-        $uuid = $this->generateUuid();
         $path = 'transaction/refund';
         $method = 'POST';
         $refund_query_raw = $refund_query->toArray();
@@ -128,7 +118,7 @@ trait RefundRequestTrait
                 'report_key',
             ],
             'form_params' => [
-                'requestId' => $uuid,
+                'requestId' => 'uuid',
                 'refunds' => [
                     [
                         'orderId' => $refund_query_raw['orderId'],
@@ -137,15 +127,27 @@ trait RefundRequestTrait
                         'description' => $refund_query_raw['description'],
                     ],
                 ],
-                'refundsUuid' => $uuid,
+                'refundsUuid' => 'uuid',
                 'urlStatus' => $this->app->make(UrlGenerator::class)
                     ->to('transfers24/refund-status'),
             ],
         ];
         $response = $this->makeResponse($refund_query);
+        $with = $this->withArg($request_options);
         $this->client->shouldReceive('request')
-            ->with($method, $path, $request_options)
+            ->with($method, $path, m::on($with))
             ->once()
             ->andReturn($response);
+    }
+
+    protected function withArg($request_options){
+        return function ($arg) use ($request_options){
+            \PHPUnit_Framework_Assert::assertSame(Arr::get($request_options, 'auth'), Arr::get($arg, 'auth'));
+            \PHPUnit_Framework_Assert::assertSame(Arr::get($request_options, 'form_params.refunds'), Arr::get($arg, 'form_params.refunds'));
+            \PHPUnit_Framework_Assert::assertSame(Arr::get($request_options, 'form_params.urlStatus'), Arr::get($arg, 'form_params.urlStatus'));
+            \PHPUnit_Framework_Assert::assertNotEmpty(Arr::get($request_options, 'form_params.requestId'));
+            \PHPUnit_Framework_Assert::assertNotEmpty(Arr::get($request_options, 'form_params.refundsUuid'));
+            return true;
+        };
     }
 }
