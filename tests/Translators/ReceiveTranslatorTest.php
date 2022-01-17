@@ -61,7 +61,7 @@ class ReceiveTranslatorTest extends UnitTestCase
         $p24_session_id = 'sessionId';
         $p24_amount = 100;
         $p24_currency = 'pl';
-        $p24_order_id = 'order-id';
+        $p24_order_id = 1001001;
 
         //When
         $this->crc->shouldReceive('sum')

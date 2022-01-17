@@ -34,7 +34,7 @@ class ReceiveTranslator extends AbstractTranslator implements Translator
 
         $order_id = $this->receive_parameters['orderId'];
         $this->form->addValue('orderId', $order_id);
-        $this->form->setOrderId($order_id);
+        $this->form->setOrderId((string)$order_id);
 
         $this->form->addValue('amount', $this->receive_parameters['amount']);
         $this->form->addValue('currency', $this->receive_parameters['currency']);
