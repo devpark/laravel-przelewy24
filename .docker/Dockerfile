@@ -19,7 +19,7 @@ RUN set -ex \
     && apk add --no-cache git mysql-client curl openssh-client icu libpng libjpeg-turbo libffi-dev libzip-dev \
     && apk add --no-cache --virtual build-dependencies icu-dev libxml2-dev freetype-dev libpng-dev libjpeg-turbo-dev g++ make autoconf poppler-utils \
     && docker-php-source extract \
-    && pecl install xdebug \
+    && pecl install xdebug-2.9.2 \
     && docker-php-ext-enable xdebug \
     && docker-php-source delete \
     && docker-php-ext-install intl zip bcmath pcntl \
