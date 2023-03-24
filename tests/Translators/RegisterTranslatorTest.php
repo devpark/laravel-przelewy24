@@ -76,7 +76,7 @@ class RegisterTranslatorTest extends UnitTestCase
         $p24_zip_code = 'zip_code';
         $p24_city = 'city';
         $p24_country = 'country';
-        $p24_phone = 123456789;
+        $p24_phone = '123456789';
         $p24_language = 'language';
         $p24_url_return = 'url_return';
         $p24_url_status = 'url_status';
