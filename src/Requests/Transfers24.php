@@ -132,7 +132,7 @@ class Transfers24
     protected $client_name = null;
 
     /**
-     * @var int|null
+     * @var string|null
      */
     protected $client_phone = null;
 
@@ -751,9 +751,9 @@ class Transfers24
     }
 
     /**
-     * @return int|null
+     * @return string|null
      */
-    public function getClientPhone(): ?int
+    public function getClientPhone(): ?string
     {
         return $this->client_phone;
     }
