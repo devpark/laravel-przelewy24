@@ -51,7 +51,7 @@ __We recommend immediately upgrading the package version.__
    
  * `PRZELEWY24_TEST_SERVER` - if true, set the test environment
  * `PRZELEWY24_URL_RETURN` - Return address, where Client will be redirected to, after the transaction is completed (default 'transfers24/callback').
- * `PRZELEWY24_URL_STATUS` - address where the status of a transaction is sent. It can be omitted if stored in P24 system (default 'transfers24/status').
+ * `PRZELEWY24_URL_STATUS` - (POST route) address where the status of a transaction is sent. It can be omitted if stored in P24 system (default 'transfers24/status').
  
 ### Usage
 
